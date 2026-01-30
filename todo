@@ -1,0 +1,67 @@
+--- Project Rules
+- Python >= 3.10
+- follow flake8 style
+- add type hints everywhere + mypy clean
+- add docstrings (PEP 257)
+- handle errors with clear messages (no crashes)
+- use context managers for files/resources
+- add .gitignore for Python artifacts
+- Makefile targets: install, run, debug, clean, lint, lint-strict(optional)
+
+--- Parsing & Config
+- read config.txt line by line
+- ignore blank lines and lines starting with '#'
+- parse KEY=VALUE (one per line)
+- required keys: WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE, PERFECT
+- optional keys: SEED, ALGORITHM, DISPLAY_MODE
+- validate integer sizes for WIDTH/HEIGHT (>0)
+- validate ENTRY/EXIT format x,y
+- validate ENTRY/EXIT inside bounds and different
+- validate PERFECT as boolean
+- default SEED if missing (runtime only unless spec says persist)
+
+--- Grid Model
+- represent each cell with 4 walls (N/E/S/W)
+- initialize all walls present
+- neighbor lookup by (x,y) with bounds checking
+
+--- Randomness
+- initialize RNG with SEED once
+- use RNG for all random choices
+
+--- Maze Generation
+- choose algorithm (default DFS )
+- carve passages while maintaining wall coherence
+- ensure full connectivity of open cells
+- keep border walls intact except at entry/exit openings
+
+--- Constraints
+- prevent 3x3 open areas (allow corridors up to width 2)
+- embed visible “42” using fully closed cells
+- if maze too small for “42”: print error and omit pattern
+- ensure “42” cells do not violate required connectivity rules
+
+--- Perfect Flag
+- if PERFECT=True: enforce unique path between entry/exit (perfect maze)
+- if PERFECT=False: loops allowed
+
+--- Validation Pass
+- verify wall coherence between neighbors
+- verify entry/exit openings at borders
+- verify full connectivity (excluding closed “42” cells if allowed)
+- verify no 3x3 open areas
+
+--- Output
+- write hex wall grid (1 hex digit per cell)
+- rows per line, then empty line
+- append entry coords, exit coords, shortest path (N/E/S/W), each on its own line
+- all lines end with \n
+- render visual (ASCII or MLX)
+- allow interactions: regenerate, show/hide shortest path, change wall colors
+
+--- Testing
+- test with fixed seeds for reproducibility
+- test boundary entry/exit cases
+- test small sizes (1x1, 2x2, 3x3)
+- test perfect vs non-perfect behavior
+- test output file validator
