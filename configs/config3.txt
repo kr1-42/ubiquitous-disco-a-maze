@@ -1,0 +1,16 @@
+
+
+# Sample configuration for A-Maze-ing
+# One KEY=VALUE per line. Lines starting with # are comments.
+
+WIDTH=20
+HEIGHT=20
+ENTRY=0,0
+EXIT=50,50
+OUTPUT_FILE=maze.txt
+PERFECT=True
+
+# Optional keys
+SEED=42
+ALGORITHM=dfs
+DISPLAY_MODE=ascii

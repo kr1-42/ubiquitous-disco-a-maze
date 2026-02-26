@@ -29,6 +29,11 @@ debug:
 		python3 -m pdb $(NAME) configs/$(FIG); \
 	fi
 
+#@description: esegue i test con 10 esempi di configurazione
+NUMBERS=0 1 2 3 4 5 6 7 8 9
+test:
+		$(foreach num, $(NUMBERS), python3 $(NAME) configs/config$(num).txt;)
+
 #@description: esegue la norma di codice con flake8 e mypy 
 lint:
 	flake8 .
