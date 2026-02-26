@@ -1,3 +1,6 @@
+from src.parsing import parse_args
 
-
-maze = MazeGenerator(10, 10)
+if __name__ == "__main__":
+    print("This is a maze game. You can move up, down, left, or right.")
+    print("Try to find the exit!")
+    args = parse_args()

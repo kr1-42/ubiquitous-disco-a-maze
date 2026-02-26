@@ -7,9 +7,9 @@ NAME=a_maze_ing.py
 FIG=config.txt
 
 #@description: esegue il main script con il file di configurazione specificato
-	# se viene messo un file di configurazione $(FIG)
-	# nella root della repo lo esegue
-	# altrimenti esegue con il file di configurazione di default
+# se viene messo un file di configurazione $(FIG)
+# nella root della repo lo esegue
+# altrimenti esegue con il file di configurazione di default
 run:
 	@echo "Running $(NAME) with configuration file: $(FIG)"
 	@if [ -f $(FIG) ]; then \
@@ -19,9 +19,9 @@ run:
 	fi
 
 #@description: esegue il main script con il file di configurazione specificato in modalità debug
-	# se viene messo un file di configurazione $(FIG)
-	# nella root della repo lo esegue
-	# altrimenti esegue con il file di configurazione di default
+# se viene messo un file di configurazione $(FIG)
+# nella root della repo lo esegue
+# altrimenti esegue con il file di configurazione di default
 debug:
 	if [ -f $(FIG) ]; then \
 		python3 -m pdb $(NAME) $(FIG); \
@@ -34,7 +34,7 @@ NUMBERS=0 1 2 3 4 5 6 7 8 9
 test:
 		$(foreach num, $(NUMBERS), python3 $(NAME) configs/config$(num).txt;)
 
-#@description: esegue la norma di codice con flake8 e mypy 
+#@description: esegue la norma di codice con flake8 e mypy
 lint:
 	flake8 .
 	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
