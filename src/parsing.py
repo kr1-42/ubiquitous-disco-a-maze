@@ -1,10 +1,13 @@
-
-
-from .check_config_cases import check_entry, check_exit, check_height, check_width
+from .check_config_cases import check_entry, check_exit
+from .check_config_cases import check_height, check_width
+from .check_config_cases import get_output, get_perfect
 from sys import argv, stderr
 
 
-def parse_input_file(input_file: str) -> dict | None:
+ParsedArg = str | int | tuple[str, int, int]
+
+
+def parse_input_file(input_file: str) -> dict[str, str] | None:
     with open(input_file, 'r') as f:
         lines = f.readlines()
 
@@ -21,13 +24,24 @@ def parse_input_file(input_file: str) -> dict | None:
     return ret
 
 
-def check_parsed(parsed: dict) -> list | str:
-    ret = []
+def check_parsed(parsed: dict[str, str]) -> list[ParsedArg] | str:
+    ret: list[str | int | tuple[int, int]] = []
     cases = {
             'WIDTH': check_width,
             'HEIGHT': check_height,
             'ENTRY': check_entry,
-            'EXIT': check_exit
+            'EXIT': check_exit,
+            'OUTPUT_FILE': get_output,
+            'PERFECT': get_perfect,
+            'SEED': (
+                lambda value, _wh:
+                int(value) if value.isdigit() else "SEED must be an integer"
+            ),
+            'ALGORITHM': (
+                lambda value, _wh:
+                [value.lower()] if value.lower() in ['dfs', 'prim']
+                else "ALGORITHM must be either 'DFS' or 'Prim'"
+            )
             }
     for key in parsed:
         checker = cases.get(key)
@@ -39,7 +53,7 @@ def check_parsed(parsed: dict) -> list | str:
     return ret
 
 
-def parse_args():
+def parse_args() -> list[ParsedArg]:
     if len(argv) != 2:
         print("Usage: python parsing.py <input_file>")
         exit(1)

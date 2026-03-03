@@ -1,4 +1,7 @@
 
+from io import TextIOWrapper
+
+
 def check_width(value: str, _wh: list) -> int | str:
     try:
         width = int(value)
@@ -55,3 +58,23 @@ def check_exit(value: str, wh: list) -> tuple | str:
     except ValueError:
         return "EXIT must be an integer"
     return (exitx, exity)
+
+
+def get_output(value: str, _wh: list) -> str | TextIOWrapper:
+    if value == '':
+        return "OUTPUT must be a non-empty string"
+    else:
+        try:
+            with open(value, 'w') as fd:
+                return fd
+        except Exception:
+            return f"OUTPUT must be a valid file path: {value}"
+
+
+def get_perfect(value: str, _wh: list) -> bool | str:
+    if value.lower() == 'true':
+        return True
+    elif value.lower() == 'false':
+        return False
+    else:
+        return "PERFECT must be either 'true' or 'false'"
