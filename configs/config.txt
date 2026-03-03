@@ -10,5 +10,8 @@ PERFECT=True
 
 # Optional keys
 SEED=42
-ALGORITHM=dfs
+ALGORITHM=dfs;
 DISPLAY_MODE=ascii
+[][][]
+[][][]
+[][][]
