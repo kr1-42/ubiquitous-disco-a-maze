@@ -21,6 +21,7 @@ def parse_input_file(input_file: str) -> dict[str, str] | None:
             print(f"Invalid line: {line}")
             return None
         ret[dict_line[0].strip()] = dict_line[1].strip()
+    f.close()
     return ret
 
 
