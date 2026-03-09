@@ -54,17 +54,32 @@ class Maze:
             "  # ###"
         ]
 
-        pattern1 = [
+        """ pattern1 = [
             "# ###",
             "# #  ",
             "#####",
             "  # #",
             "### #"
         ]
-        """ start_row = center_row - 4 // 2
-        start_col = center_col - 4 // 2 """
-        start_row = center_row - 5 // 2
-        start_col = center_col - 5 // 2
+        pattern2 = [
+            " ## ## ",
+            "#######",
+            " ##### ",
+            "  ###  ",
+            "   #   "
+        ]
+        pattern3 = [
+            "   #   ",
+            "   #   ",
+            " ##### ",
+            " ####  ",
+            "  ##   "
+        ] """
+
+        start_row = center_row - 4 // 2
+        start_col = center_col - 6 // 2
+        """ start_row = center_row - 5 // 2
+        start_col = center_col - 5 // 2 """
         for r , row in enumerate(pattern):
             for c , ch in enumerate(row):
                 if ch == "#":
@@ -175,17 +190,28 @@ class Maze:
                 print(line)
 
 
-
-""" m.grid[0][0].break_wall(m.grid[0][1])
-m.grid[0][0].break_wall(m.grid[1][0])
-m.grid[0][5].break_wall(m.grid[0][6])
-m.grid[4][0].break_wall(m.grid[5][0])
-m.grid[0][5].break_wall(m.grid[1][5]) """
 def selection_function(cols, rows):
     m = Maze(cols, rows)
     center_col = cols // 2
     center_row = rows // 2
-    select = int(input("select 1 for backtracking,\nselect 2 for prim\n"))
+    """ ╔ ╗ ╚ ╝ ═ ║ """
+    select = int(input(
+        "╔════════════════════════════════════════════════════════╗\n"
+        "║                                                        ║\n"
+        "║                       𓍊𓋼𓍊𓋼𓍊𓆏 𓍊𓋼𓍊𓋼𓍊                     ║\n"
+        "║                                                        ║\n"
+        "╠════════════════════════════════════════════════════════╣\n"
+        "║                                                        ║\n"
+        "║                                                        ║\n"
+        "║\033[35m► 1) Generate Maze with backtracking\033[0m                    ║\n"
+        "║\033[35m► 2) Generate Maze with prim\033[0m                            ║\n"
+        "║                                                        ║\n"
+        "║                                                        ║\n"
+        "║                                                        ║\n"
+        "║                                                        ║\n"
+        "║                                                        ║\n"
+        "╚════════════════════════════════════════════════════════╝\n"
+    ))
     print("\033[2J\033[H", end="")
     m.draw_42(center_col, center_row)
     match select:
