@@ -1,3 +1,5 @@
 en.subject.pdf
 output_validator.py
 .vscode/
+src/__pycache__/
+src/mazegen.egg-info/
