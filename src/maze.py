@@ -1,4 +1,8 @@
-from cell import Cell
+
+
+
+
+from .cell import Cell
 from time import sleep
 import random
 
