@@ -1,4 +1,4 @@
-from cell import Cell
+from .cell import Cell
 from time import sleep
 import random
 
@@ -295,9 +295,7 @@ class Maze:
     m.bfs()
     m.print_maze()
     m.print_hexa_maze("hexa.txt") """
-def selection_function(cols, rows):
-    start = (3, 3)
-    end = (17, 17)
+def selection_function(cols, rows, start, end):
     m = Maze(cols, rows, start, end)
     start_row, start_col = m.start
     end_row, end_col = m.end
@@ -311,8 +309,6 @@ def selection_function(cols, rows):
     m.print_maze()
     m.print_hexa_maze("hexa.txt")
 
-
-selection_function(22, 22)
 
 
 """ def selection_function(cols, rows):
