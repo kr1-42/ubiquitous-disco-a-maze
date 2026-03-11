@@ -7,10 +7,7 @@ ENTRY=0,0
 EXIT=19,14
 OUTPUT_FILE=maze.txt
 PERFECT=True
-q4iwuto'iqwh4'
 # Optional keys
 SEED=42
-ALGORITHM=dfs;
+ALGORITHM=dfs
 DISPLAY_MODE=ascii
-#[][][]
-#[][][][][][]
