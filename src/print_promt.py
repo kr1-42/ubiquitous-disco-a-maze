@@ -1,5 +1,5 @@
 import os
-
+from typing import Any
 
 def flush() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -39,7 +39,8 @@ def panel() -> int:
         return panel()
     return select
 
-def params_panel(args) -> int:
+
+def params_panel(args: list[Any]) -> list[Any]:
     flush()
     try:
         select = int(input(
@@ -146,9 +147,10 @@ def noargs_panel() -> int:
         return panel()
     return select
 
-def print_promt(args=None):
+
+def print_promt(args: list[Any] = None) -> list[Any]:
     if args is not None:
-        select = panel()
+        select = print_promt(args)
         match select:
             case 1:
                 args = params_panel(args)
@@ -200,16 +202,20 @@ def print_promt(args=None):
                     random_42 = False
                     if random_42_input.lower() in ['y', 'yes'] == 'y':
                         random_42 = True
-                    return print_promt([height, width, (entry_x, entry_y), (exit_x, exit_y), perfect, animation, random_42, 'dfs'])
+                    return print_promt([height, width,
+                                        (entry_x, entry_y),
+                                        (exit_x, exit_y),
+                                        perfect,
+                                        animation,
+                                        random_42,
+                                        'dfs'])
                 except ValueError:
                     print("\n\033[31m✗ Invalid input. Please enter numbers."
                           "\033[0m\n")
                     return print_promt()
             case 3:
                 print("Algorithm selection not implemented yet.")
+                return args
             case 4:
                 print("Running program with current settings...")
-
-
-
-
+                return args

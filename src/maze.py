@@ -1,16 +1,23 @@
 from .cell import Cell
 from time import sleep
+from typing import Optional
 import random
 from .maze_color import THEMES
 
 
 class Maze:
-    def __init__(self, rows, cols, start, end):
+    def __init__(self,
+                 rows: int,
+                 cols: int,
+                 start: tuple[int, int],
+                 end: tuple[int, int]) -> None:
         self.rows = rows
         self.cols = cols
         self.start = start
         self.end = end
-        self.grid: list[list[Cell]] = [[Cell(r, c) for c in range(cols)] for r in range(rows)]
+        self.grid: list[list[Cell]] = [
+            [Cell(r, c) for c in range(cols)]
+            for r in range(rows)]
         self.colors = THEMES['default']
 
     def has_unvisited_cells(self) -> bool:
@@ -20,48 +27,70 @@ class Maze:
                     return True
         return False
 
-    def set_all_unvisited(self):
+    def set_all_unvisited(self) -> None:
         for r in self.grid:
             for c in r:
                 c.visited = False
 
-    def unvisited_neighbours(self, cell) -> list:
+    def unvisited_neighbours(self, cell: "Cell") -> list:
         unvisited = []
-        if cell.row > 0 and not self.grid[cell.row - 1][cell.col].visited:
+        if (cell.row > 0
+                and not self.grid[cell.row - 1][cell.col].visited):
             unvisited.append(self.grid[cell.row - 1][cell.col])
-        if cell.row < self.rows - 1 and not self.grid[cell.row + 1][cell.col].visited:
+        if (cell.row < self.rows - 1
+                and not self.grid[cell.row + 1][cell.col].visited):
             unvisited.append(self.grid[cell.row + 1][cell.col])
-        if cell.col < self.cols - 1 and not self.grid[cell.row][cell.col + 1].visited:
+        if (cell.col < self.cols - 1
+                and not self.grid[cell.row][cell.col + 1].visited):
             unvisited.append(self.grid[cell.row][cell.col + 1])
-        if cell.col > 0 and not self.grid[cell.row][cell.col - 1].visited:
+        if (cell.col > 0
+                and not self.grid[cell.row][cell.col - 1].visited):
             unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
 
-    def unvisited_without_wall(self, cell):
+    def unvisited_without_wall(self, cell: Optional["Cell"]) -> list:
         unvisited = []
-        if cell.row > 0 and not self.grid[cell.row - 1][cell.col].visited and not cell.north:
-            unvisited.append(self.grid[cell.row - 1][cell.col])
-        if cell.row < self.rows - 1 and not self.grid[cell.row + 1][cell.col].visited and not cell.south:
-            unvisited.append(self.grid[cell.row + 1][cell.col])
-        if cell.col < self.cols - 1 and not self.grid[cell.row][cell.col + 1].visited and not cell.east:
-            unvisited.append(self.grid[cell.row][cell.col + 1])
-        if cell.col > 0 and not self.grid[cell.row][cell.col - 1].visited and not cell.west:
-            unvisited.append(self.grid[cell.row][cell.col - 1])
+        if cell:
+            if (cell.row > 0
+                    and not self.grid[cell.row - 1][cell.col].visited
+                    and not cell.north):
+                unvisited.append(self.grid[cell.row - 1][cell.col])
+            if (cell.row < self.rows - 1
+                    and not self.grid[cell.row + 1][cell.col].visited
+                    and not cell.south):
+                unvisited.append(self.grid[cell.row + 1][cell.col])
+            if (cell.col < self.cols - 1
+                    and not self.grid[cell.row][cell.col + 1].visited
+                    and not cell.east):
+                unvisited.append(self.grid[cell.row][cell.col + 1])
+            if (cell.col > 0
+                    and not self.grid[cell.row][cell.col - 1].visited
+                    and not cell.west):
+                unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
 
-    def visited_without_wall(self, cell):
+    def visited_without_wall(self, cell: Optional["Cell"]) -> list:
         unvisited = []
-        if cell.row > 0 and self.grid[cell.row - 1][cell.col].visited and not cell.north:
-            unvisited.append(self.grid[cell.row - 1][cell.col])
-        if cell.row < self.rows - 1 and self.grid[cell.row + 1][cell.col].visited and not cell.south:
-            unvisited.append(self.grid[cell.row + 1][cell.col])
-        if cell.col < self.cols - 1 and self.grid[cell.row][cell.col + 1].visited and not cell.east:
-            unvisited.append(self.grid[cell.row][cell.col + 1])
-        if cell.col > 0 and self.grid[cell.row][cell.col - 1].visited and not cell.west:
-            unvisited.append(self.grid[cell.row][cell.col - 1])
+        if cell:
+            if (cell.row > 0
+                    and self.grid[cell.row - 1][cell.col].visited
+                    and not cell.north):
+                unvisited.append(self.grid[cell.row - 1][cell.col])
+            if (cell.row < self.rows - 1
+                    and self.grid[cell.row + 1][cell.col].visited
+                    and not cell.south):
+                unvisited.append(self.grid[cell.row + 1][cell.col])
+            if (cell.col < self.cols - 1
+                    and self.grid[cell.row][cell.col + 1].visited
+                    and not cell.east):
+                unvisited.append(self.grid[cell.row][cell.col + 1])
+            if (cell.col > 0
+                    and self.grid[cell.row][cell.col - 1].visited
+                    and not cell.west):
+                unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
 
-    def print_maze(self):
+    def print_maze(self) -> None:
         print('\033[3J\033[H')
         print(self.colors['wall'] * (self.cols * 2 + 1))
         for r in self.grid:
@@ -102,11 +131,15 @@ class Maze:
                             bottom += self.colors['path']
                 elif c._42:
                     line += self.colors['wall_42']
-                    if c.east and c.col < self.cols - 1 and self.grid[c.row][c.col + 1]._42:
+                    if (c.east
+                            and c.col < self.cols - 1
+                            and self.grid[c.row][c.col + 1]._42):
                         line += self.colors['wall_42']
                     else:
                         line += self.colors['wall']
-                    if c.south and c.row < self.rows - 1 and self.grid[c.row + 1][c.col]._42:
+                    if (c.south
+                            and c.row < self.rows - 1
+                            and self.grid[c.row + 1][c.col]._42):
                         bottom += self.colors['wall_42']
                     else:
                         bottom += self.colors['wall']
@@ -149,7 +182,7 @@ class Maze:
             print(bottom)
         sleep(0.0005)
 
-    def draw_42(self, rows, cols):
+    def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
             "#   ###",
             "#     #",
@@ -166,8 +199,8 @@ class Maze:
                 if ch == "#":
                     self.grid[start_row + r][start_col + c].visited = True
                     self.grid[start_row + r][start_col + c]._42 = True
-    
-    def random_draw_42(self, rows, cols):
+
+    def random_draw_42(self, rows: int, cols: int) -> None:
         pattern = [
             "#   ###",
             "#     #",
@@ -183,7 +216,9 @@ class Maze:
             draw_col = random.randint(1, avaliable_cols)
             for r, row in enumerate(pattern):
                 for c, ch in enumerate(row):
-                    if ch == "#" and (self.grid[draw_row + r][draw_col + c].start or self.grid[draw_row + r][draw_col + c].end):            
+                    if (ch == "#"
+                        and (self.grid[draw_row + r][draw_col + c].start
+                             or self.grid[draw_row + r][draw_col + c].end)):
                         autorized = False
             if autorized:
                 break
@@ -193,20 +228,28 @@ class Maze:
                     self.grid[draw_row + r][draw_col + c].visited = True
                     self.grid[draw_row + r][draw_col + c]._42 = True
 
-    def backtracking(self, starting_cell=None, animation=False, bad=False):
+    def backtracking(self,
+                     starting_cell: Optional["Cell"] = None,
+                     animation: bool = False,
+                     bad: bool = False) -> None:
         stack = []
-        curr_cell = starting_cell
-        curr_cell.visited = 1
+        curr_cell = None
+        if starting_cell:
+            curr_cell = starting_cell
+        if curr_cell:
+            curr_cell.visited = True
         while self.has_unvisited_cells():
-            unvisited = self.unvisited_neighbours(curr_cell)
+            if curr_cell:
+                unvisited = self.unvisited_neighbours(curr_cell)
             if unvisited:
                 direction = random.choice(unvisited)
-                curr_cell.break_wall(direction)
+                if curr_cell:
+                    curr_cell.break_wall(direction)
                 if bad:
                     direction.visited = random.randint(0, 100) < 80
                 else:
-                    direction.visited = 1
-                if self.unvisited_neighbours(curr_cell):
+                    direction.visited = True
+                if curr_cell and self.unvisited_neighbours(curr_cell):
                     stack.append(curr_cell)
                 curr_cell = direction
             else:
@@ -214,29 +257,33 @@ class Maze:
             if animation:
                 self.print_maze()
 
-    def prim_algoritm(self, starting_cell=None, animation=False, bad=False):
+    def prim_algoritm(self,
+                      starting_cell: Optional["Cell"] = None,
+                      animation: float = False,
+                      bad: float = False) -> None:
         frontier = []
-        curr_cell = starting_cell
-        curr_cell.visited = 1
-        next_cell = None
-        for neighbor in self.unvisited_neighbours(curr_cell):
-            frontier.append((neighbor, curr_cell))
-        while frontier:
-            next_cell, curr_cell = random.choice(frontier)
-            frontier.remove((next_cell, curr_cell))
-            if not next_cell.visited:
-                curr_cell.break_wall(next_cell)
-            if bad:
-                next_cell.visited = random.randint(0, 100) < 99
-            else:
-                next_cell.visited = 1
-            curr_cell = next_cell
+        if starting_cell:
+            curr_cell = starting_cell
+            curr_cell.visited = True
+            next_cell = None
             for neighbor in self.unvisited_neighbours(curr_cell):
-                frontier.append((neighbor, next_cell))
-            if animation:
-                self.print_maze()
+                frontier.append((neighbor, curr_cell))
+            while frontier:
+                next_cell, curr_cell = random.choice(frontier)
+                frontier.remove((next_cell, curr_cell))
+                if not next_cell.visited:
+                    curr_cell.break_wall(next_cell)
+                if bad:
+                    next_cell.visited = random.randint(0, 100) < 99
+                else:
+                    next_cell.visited = True
+                curr_cell = next_cell
+                for neighbor in self.unvisited_neighbours(curr_cell):
+                    frontier.append((neighbor, next_cell))
+                if animation:
+                    self.print_maze()
 
-    def print_hexa_maze(self, filename=None):
+    def print_hexa_maze(self, filename: Optional[str] = None) -> None:
         lines = []
         for r in self.grid:
             line = ""
@@ -249,16 +296,22 @@ class Maze:
             else:
                 print(line)
 
-    def bfs(self, animation=False):
+    def bfs(self, animation: bool = False) -> None:
         self.set_all_unvisited()
         stack = []
         neighbours: list[Cell] = []
-        start_row, start_col = self.start
-        end_row, end_col = self.end
+        start_row: int = 0
+        start_col: int = 0
+        end_row: int = 0
+        end_col: int = 0
+        if self.start:
+            start_row, start_col = self.start
+        if self.end:
+            end_row, end_col = self.end
         self.grid[start_row][start_col].start = True
         self.grid[end_row][end_col].end = True
         curr_cell = self.grid[end_row][end_col]
-        curr_cell.visited = 1
+        curr_cell.visited = True
         stack.append(curr_cell)
         while self.has_unvisited_cells():
             curr_cell = stack.pop(0)
@@ -267,15 +320,14 @@ class Maze:
             neighbours = self.unvisited_without_wall(curr_cell)
             for n in neighbours:
                 n.footsteps += curr_cell.footsteps + 1
-                n.visited = 1
+                n.visited = True
                 stack.append(n)
         while not curr_cell.end:
             neighbours = self.visited_without_wall(curr_cell)
             for n in neighbours:
                 if n.footsteps == curr_cell.footsteps - 1:
                     curr_cell = n
-                    curr_cell.path = 1
+                    curr_cell.path = True
                     if animation:
                         self.print_maze()
                     break
-

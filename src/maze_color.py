@@ -55,7 +55,7 @@ THEMES = {'default': {
                 "end": "\033[48;2;255;80;80m  \033[0m",
             },
           'Pac Man': {
-                 "wall": "\033[48;2;0;0;180m  \033[0m",
+                "wall": "\033[48;2;0;0;180m  \033[0m",
                 "path": "\033[48;2;0;0;0m  \033[0m",
                 "wall_42": "\033[48;2;255;184;255m  \033[0m",
                 "path_solution": "\033[48;2;255;255;0m  \033[0m",
@@ -118,21 +118,3 @@ THEMES = {'default': {
                 "start": "\033[48;2;25;232;190m  \033[0m",
                 "end": "\033[48;2;85;62;104m  \033[0m",
             }}
-
-
-def select_palette(selection: int) -> dict:
-    match selection:
-        case 1:
-            Maze.colors = THEMES["default"]
-        case 2:
-            Maze.colors = THEMES["bright"]
-        case 3:
-            Maze.colors = THEMES["Messicana"]
-        case 4:
-            Maze.colors = THEMES["AlbaneseGay"]
-        case 5:
-            Maze.colors = THEMES["Pastel"]
-        case 6:
-            Maze.colors = THEMES["Neon"]
-        case 7:
-            Maze.colors = THEMES["Garden"]
