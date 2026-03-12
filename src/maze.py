@@ -156,7 +156,7 @@ class Maze:
                 bottom += wall
             print(line)
             print(bottom)
-        sleep(0.5)
+        sleep(0.0005)
 
     def draw_42(self, rows, cols):
         pattern = [
