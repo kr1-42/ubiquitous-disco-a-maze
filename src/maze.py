@@ -1,10 +1,7 @@
-
-
-
-
 from .cell import Cell
 from time import sleep
 import random
+from .maze_color import THEMES
 
 
 class Maze:
@@ -14,6 +11,7 @@ class Maze:
         self.start = start
         self.end = end
         self.grid: list[list[Cell]] = [[Cell(r, c) for c in range(cols)] for r in range(rows)]
+        self.colors = THEMES['default']
 
     def has_unvisited_cells(self) -> bool:
         for r in self.grid:
@@ -65,95 +63,88 @@ class Maze:
 
     def print_maze(self):
         print('\033[3J\033[H')
-        wall = "\033[48;2;254;254;254m  \033[0m"
-        path = "\033[48;2;0;0;0m  \033[0m"
-        wall_42 = "\033[48;2;0;0;255m  \033[0m"
-        path_42 = "\033[48;2;0;0;255m  \033[0m"
-        path_solution = "\033[48;2;255;255;0m  \033[0m"
-        start = "\033[48;2;0;255;0m  \033[0m"
-        end = "\033[48;2;255;0;0m  \033[0m"
-        print(wall * (self.cols * 2 + 1))
+        print(self.colors['wall'] * (self.cols * 2 + 1))
         for r in self.grid:
-            line = wall
-            bottom = wall
+            line = self.colors['wall']
+            bottom = self.colors['wall']
             for c in r:
                 if c.start:
-                    line += start
+                    line += self.colors['start']
                     if c.east:
-                        line += wall
+                        line += self.colors['wall']
                     else:
                         if self.grid[c.row][c.col + 1].path:
-                            line += path_solution
+                            line += self.colors['path_solution']
                         else:
-                            line += path
+                            line += self.colors['path']
                     if c.south:
-                        bottom += wall
+                        bottom += self.colors['wall']
                     else:
                         if self.grid[c.row + 1][c.col].path:
-                            bottom += path_solution
+                            bottom += self.colors['path_solution']
                         else:
-                            bottom += path
+                            bottom += self.colors['path']
                 elif c.end:
-                    line += end
+                    line += self.colors['end']
                     if c.east:
-                        line += wall
+                        line += self.colors['wall']
                     else:
                         if self.grid[c.row][c.col + 1].path:
-                            line += path_solution
+                            line += self.colors['path_solution']
                         else:
-                            line += path
+                            line += self.colors['path']
                     if c.south:
-                        bottom += wall
+                        bottom += self.colors['wall']
                     else:
                         if self.grid[c.row + 1][c.col].path:
-                            bottom += path_solution
+                            bottom += self.colors['path_solution']
                         else:
-                            bottom += path
+                            bottom += self.colors['path']
                 elif c._42:
-                    line += path_42
+                    line += self.colors['wall_42']
                     if c.east and c.col < self.cols - 1 and self.grid[c.row][c.col + 1]._42:
-                        line += wall_42
+                        line += self.colors['wall_42']
                     else:
-                        line += wall
+                        line += self.colors['wall']
                     if c.south and c.row < self.rows - 1 and self.grid[c.row + 1][c.col]._42:
-                        bottom += wall_42
+                        bottom += self.colors['wall_42']
                     else:
-                        bottom += wall
+                        bottom += self.colors['wall']
                 elif c.path:
-                    line += path_solution
+                    line += self.colors['path_solution']
                     if c.east:
-                        line += wall
+                        line += self.colors['wall']
                     else:
                         if c.path and self.grid[c.row][c.col + 1].path:
-                            line += path_solution
+                            line += self.colors['path_solution']
                         elif c.path and self.grid[c.row][c.col + 1].end:
-                            line += path_solution
+                            line += self.colors['path_solution']
                         elif c.path and self.grid[c.row][c.col + 1].start:
-                            line += path_solution
+                            line += self.colors['path_solution']
                         else:
-                            line += path
+                            line += self.colors['path']
                     if c.south:
-                        bottom += wall
+                        bottom += self.colors['wall']
                     else:
                         if c.path and self.grid[c.row + 1][c.col].path:
-                            bottom += path_solution
+                            bottom += self.colors['path_solution']
                         elif c.path and self.grid[c.row + 1][c.col].end:
-                            bottom += path_solution
+                            bottom += self.colors['path_solution']
                         elif c.path and self.grid[c.row + 1][c.col].start:
-                            bottom += path_solution
+                            bottom += self.colors['path_solution']
                         else:
-                            bottom += path
+                            bottom += self.colors['path']
                 else:
-                    line += path
+                    line += self.colors['path']
                     if c.east:
-                        line += wall
+                        line += self.colors['wall']
                     else:
-                        line += path
+                        line += self.colors['path']
                     if c.south:
-                        bottom += wall
+                        bottom += self.colors['wall']
                     else:
-                        bottom += path
-                bottom += wall
+                        bottom += self.colors['path']
+                bottom += self.colors['wall']
             print(line)
             print(bottom)
         sleep(0.0005)

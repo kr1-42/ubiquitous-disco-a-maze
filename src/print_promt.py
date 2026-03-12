@@ -170,7 +170,7 @@ def print_promt(args=None):
                 print("\033[36m║  Entry: (0, 0), Exit: (19, 19)               \033[36m║\033[0m")
                 print("\033[36m║  Perfect Maze: True, Algorithm: DFS         \033[36m║\033[0m")
                 print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
-                return [20, 20, (0, 0), (19, 19), True, None, 'dfs']
+                return [20, 20, (0, 0), (19, 19), False, True, True, 'dfs']
             case 2:
                 print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
                 print("\033[36m║\033[35m  Enter Parameters                         \033[36m║\033[0m")
@@ -185,10 +185,22 @@ def print_promt(args=None):
                     perfect_input = input(
                         "\033[36m► Perfect maze? (y/n): \033[0m"
                     )
+                    animation_input = input(
+                        "\033[36m► Animation enabled? (y/n): \033[0m"
+                    )
+                    random_42_input = input(
+                        "\033[36m► Random 42 location enabled? (y/n): \033[0m"
+                    )
                     perfect = False
                     if perfect_input.lower() in ['y', 'yes'] == 'y':
                         perfect = True
-                    return print_promt([height, width, (entry_x, entry_y), (exit_x, exit_y), perfect, None, 'dfs'])
+                    animation = False
+                    if animation_input.lower() in ['y', 'yes'] == 'y':
+                        animation = True
+                    random_42 = False
+                    if random_42_input.lower() in ['y', 'yes'] == 'y':
+                        random_42 = True
+                    return print_promt([height, width, (entry_x, entry_y), (exit_x, exit_y), perfect, animation, random_42, 'dfs'])
                 except ValueError:
                     print("\n\033[31m✗ Invalid input. Please enter numbers."
                           "\033[0m\n")
