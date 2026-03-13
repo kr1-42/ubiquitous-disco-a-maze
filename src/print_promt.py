@@ -228,7 +228,8 @@ def print_promt(args=None):
             select = noargs_panel()
             match select:
                 case 1:
-                    return default_settings()
+                    from src.selection import selection_function
+                    return selection_function(default_settings())
                 case 2:
                     change_params(args)
                 case 3:
