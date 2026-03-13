@@ -1,5 +1,5 @@
+from src.print_promt import print_promt
 from src.parsing import parse_args
-from src.selection import selection_function
 from sys import argv
 
 if __name__ == "__main__":
@@ -9,5 +9,4 @@ if __name__ == "__main__":
         args = parse_args()
     else:
         args = None
-
-    selection_function(args)
+    print_promt(args=args)
