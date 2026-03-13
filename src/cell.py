@@ -1,5 +1,5 @@
 class Cell:
-    def __init__(self, row, col):
+    def __init__(self, row: int, col: int) -> None:
         self.row: int = row
         self.col = col
         self.visited = False
@@ -15,7 +15,7 @@ class Cell:
         self.end = False
         self.assign_hexa()
 
-    def break_wall(self, next_cell):
+    def break_wall(self, next_cell: "Cell") -> None:
         if self.row == next_cell.row:
             if self.col < next_cell.col:
                 self.east = False
@@ -33,7 +33,7 @@ class Cell:
         self.assign_hexa()
         next_cell.assign_hexa()
 
-    def assign_hexa(self):
+    def assign_hexa(self) -> None:
         self.hexa = 0
         if self.north:
             self.hexa |= 1
