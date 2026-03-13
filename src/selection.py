@@ -3,15 +3,11 @@
 
 
 from .maze import Maze
-from .print_promt import print_promt, flush
-
+from .print_promt import print_promt
 
 def selection_function(args: list):
-    while True:
         print("\033[3J\033[H", end="")
-        args = print_promt(args=args)
         """ breakpoint() """
-        flush()
         random_42 = True
         cols, rows = args[0], args[1]
         start = args[2]
@@ -29,6 +25,5 @@ def selection_function(args: list):
         m.bfs(True)
         m.print_maze()
         m.print_hexa_maze("hexa.txt")
-        input("\nPress ENTER to continue...")
-        print('\033[3J\033[H')
+        print_promt(args=args)
 
