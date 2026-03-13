@@ -9,4 +9,7 @@ if __name__ == "__main__":
         args = parse_args()
     else:
         args = None
-    print_promt(args=args)
+    try:
+        print_promt(args=args)
+    except (Exception, EOFError, KeyboardInterrupt) as e:
+        print(f"An error occurred: {e}")

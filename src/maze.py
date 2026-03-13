@@ -256,6 +256,7 @@ class Maze:
                 curr_cell = stack.pop()
             if animation:
                 self.print_maze()
+                
 
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,
