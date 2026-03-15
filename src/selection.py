@@ -1,5 +1,6 @@
 from asyncio import sleep
 import random
+import re
 import subprocess
 import sys
 import termios
@@ -9,11 +10,20 @@ from .print_promt import flush
 from .maze_color import THEMES
 
 
+ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _ansi_row(text: str = "", inside_width: int = 51) -> str:
+    visible_text = ANSI_RE.sub("", text)
+    padding = max(inside_width - len(visible_text), 0)
+    return f"║{text}{' ' * padding}║"
+
+
 def promt_after_maze_print():
     inside_width = 51
 
     def row(text=""):
-        return f"║{text.ljust(inside_width)}║"
+        return _ansi_row(text, inside_width)
 
     try:
         box = [
@@ -46,7 +56,6 @@ def promt_after_maze_print():
     return select
 
 
-
 def tput(*args: str) -> None:
     # Writes escape codes directly to stdout (like running `tput ...` in a shell)
     subprocess.run(["tput", *args], check=True)
@@ -60,27 +69,38 @@ def tput_ed_flush(n: int = 17) -> None:
 
 def color_promt(m: Maze, flag: int = 0):
     inside_width = 51
+    themes = list(THEMES.keys())
+    menu_height = len(themes) + 12
+
     if flag == 2:
         tput_ed_flush()
     elif flag == 1:
-        tput_ed_flush(27)
-    def row(text=""):
-        return f"║{text.ljust(inside_width)}║"
+        tput_ed_flush(menu_height)
 
-    themes = list(THEMES.keys())
+    def row(text=""):
+        return _ansi_row(text, inside_width)
+
+    def find_current_theme_name() -> str:
+        for name, theme in THEMES.items():
+            if theme == m.colors:
+                return name
+        return "custom"
+
+    current_theme = find_current_theme_name()
     try:
         box = [
             "╔═══════════════════════════════════════════════════╗",
             row(),
-            row("              \033[36m► choose color\033[0m"),
+            row("              \033[36m► Choose Maze Theme\033[0m"),
+            row(f"  Current: \033[33m{current_theme}\033[0m"),
             row(),
         ]
-        box.append(row("\033[36m► 0) random\033[0m"))
+        box.append(row("\033[36m► 0) random theme\033[0m"))
         for index, theme_name in enumerate(themes, start=1):
-            box.append(row(f"\033[35m► {index}) {theme_name}\033[0m"))
+            box.append(row(f"\033[35m► {index:>2}) {theme_name}\033[0m"))
         box.extend([
             row(),
-            row(f"\033[31m► {len(themes) + 1}) back\033[0m"),
+            row(f"\033[31m► {len(themes) + 1:>2}) back\033[0m"),
             row(),
             "╚═══════════════════════════════════════════════════╝",
             "",
@@ -143,8 +163,8 @@ def read_until_enter(prompt="> "):
 def change_params_after(args) -> list:
         tput_ed_flush()
         print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
-        print("\033[36m║\033[35m  Enter Parameters                         \033[36m║\033[0m")
-        print("\033[36m║\033[35m  ESC to exit dialog                       \033[36m║\033[0m")
+        print("\033[36m║\033[35m    ► Enter Parameters                         \033[36m║\033[0m")
+        print("\033[36m║\033[35m    ESC to exit dialog                       \033[36m║\033[0m")
         print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
         flush = 4
         try:

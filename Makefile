@@ -10,7 +10,11 @@ FIG=config.txt
 # se viene messo un file di configurazione $(FIG)
 # nella root della repo lo esegue
 # altrimenti esegue con il file di configurazione di default
+
+all: run
+
 run:
+	@resize -s 50 142
 	@echo "Running $(NAME) with configuration file: $(FIG)"
 	@if [ -f $(FIG) ]; then \
 		python3 $(NAME) $(FIG); \
