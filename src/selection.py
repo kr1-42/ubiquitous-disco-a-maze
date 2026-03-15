@@ -6,7 +6,7 @@ import sys
 import termios
 import tty
 from .maze import Maze
-from .print_promt import flush
+from .print_promt import ALGOS, algo_panel, flush
 from .maze_color import THEMES
 
 
@@ -28,29 +28,32 @@ def promt_after_maze_print():
     try:
         box = [
             "╔═══════════════════════════════════════════════════╗",
-            row(),
             row("      ____ _____ ___  ____ _____  ___ "),
             row("     / __ `/ __ `__ \\/ __ `/_  / / _\\"),
             row("    / /_/ / / / / / / /_/ / / /_/  __/"),
-            row("    \\__,_/_/ /_/ /_/\\__,_/ /___/\\___/  :)"),
+            row("    \\__,_/_/ /_/ /_/\\__,_/ /___/\\___/  \033[35m:)\033[0m"),
             row(),
-            row("\033[32m► 1) regenerate\033[0m        ║ written by"),
-            row("\033[32m► 2) change_color\033[0m      ║ - alfiorav"),
-            row("\033[32m► 3) change variables\033[0m  ║ - kr1"),
-            row("\033[31m► 4) exit\033[0m              ║"),
+            row("═══════════════════════════════════════════════════"),
             row(),
+            row("\033[33m► 1) regenerate\033[0m        \033[35m║ written by:\033[0m"),
+            row("\033[33m► 2) change_color\033[0m      \033[35m║\033[0m"),
+            row("\033[33m► 3) change variables\033[0m  \033[35m║ - alfiorav\033[0m"),
+            row("\033[33m► 4) change algorithm\033[0m  \033[35m║ - kr1\033[0m"),
+            row("\033[31m►\033[33m \033[32m5\033[36m)\033[34m \033[35mr\033[31ma\033[33mn\033[32md\033[36mo\033[34mm\033[35m \033[31mc\033[33mo\033[32ml\033[36mo\033[34mr\033[0m      \033[35m║ -\033[0m \033[34mmeow.inc\033[0m"),
+            row("\033[31m► 6) exit\033[0m              \033[35m║\033[0m"),
             row(),
             row(),
             "╚═══════════════════════════════════════════════════╝",
             "",
         ]
+        print("\n\nprogrammare che colore randomico o scelto rimanga anche dopo la rigenerazione del labirinto, altrimenti è inutile")
         print("\n".join(box))
         select = int(input("\033[36m► select an option\033[0m: "))
     except ValueError:
         print("Invalid input. Please enter a number.")
         return promt_after_maze_print()
-    if select not in [1, 2, 3, 4]:
-        print("Invalid selection. Please enter 1, 2, 3, or 4.")
+    if select not in [1, 2, 3, 4, 5, 6]:
+        print("Invalid selection. Please enter 1, 2, 3, 4, 5, or 6.")
         tput_ed_flush(18)
         return promt_after_maze_print()
     return select
@@ -61,7 +64,7 @@ def tput(*args: str) -> None:
     subprocess.run(["tput", *args], check=True)
 
 
-def tput_ed_flush(n: int = 17) -> None:
+def tput_ed_flush(n: int = 22) -> None:
     for _ in range(n):
         tput("cuu1")  # Move cursor up one line
         tput("ed")  # Clear from cursor to end of screen
@@ -160,133 +163,178 @@ def read_until_enter(prompt="> "):
         chars.append(ch)                # normal char
         print(ch, end="", flush=True)   # echo
 
-def change_params_after(args) -> list:
-        tput_ed_flush()
-        print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
-        print("\033[36m║\033[35m    ► Enter Parameters                         \033[36m║\033[0m")
-        print("\033[36m║\033[35m    ESC to exit dialog                       \033[36m║\033[0m")
-        print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
-        flush = 4
-        try:
-            while True:
-                height = read_until_enter("\033[36m► Height: \033[0m")
-                flush += 1
-                if height == "\x1b" or height == "\x03":
-                    tput_ed_flush(flush)
-                    return args
-                try:
-                    height = int(height)
-                except ValueError:
-                    print("\n\033[31m✗ Invalid input. Height must be a number.\033[0m\n")
-                    flush += 3
-                    continue
-                if height > 0 and height < 45:
-                    break
-                else:
-                    print("\n\033[31m✗ Invalid input. Height must be between 1 and 44.\033[0m\n")
-                    flush += 3
-            while True:
-                width = read_until_enter("\033[36m► Width: \033[0m")
-                flush += 1
-                if width == "\x1b" or width == "\x03":
-                    tput_ed_flush(flush)
-                    return args
-                try:
-                    width = int(width)
-                except ValueError:
-                    print("\n\033[31m✗ Invalid input. Width must be a number.\033[0m\n")
-                    flush += 3
-                    continue
-                if width > 0 and width < 45:
-                    break
-                else:
-                    print("\n\033[31m✗ Invalid input. Width must be between 1 and 44.\033[0m\n")
-                    flush += 3
-            while True:
-                entry_x = read_until_enter("\033[36m► Entry X: \033[0m")
-                flush += 1
-                if entry_x == "\x1b" or entry_x == "\x03":
-                    tput_ed_flush(flush)
-                    return args
-                try:
-                    entry_x = int(entry_x)
-                except ValueError:
-                    print("\n\033[31m✗ Invalid input. Entry X must be a number.\033[0m\n")
-                    flush += 3
-                    continue
-                entry_y = read_until_enter("\033[36m► Entry Y: \033[0m")
-                flush += 1
-                if entry_y == "\x1b" or entry_y == "\x03":
-                    tput_ed_flush(flush)
-                    return args
-                try:
-                    entry_y = int(entry_y)
-                except ValueError:
-                    print("\n\033[31m✗ Invalid input. Entry Y must be a number.\033[0m\n")
-                    flush += 3
-                    continue
-                if 0 <= entry_x < width and 0 <= entry_y < height:
-                    break
-                else:
-                    print("\n\033[31m✗ Invalid input. Entry coordinates are out of bounds.\033[0m\n")
-                    flush += 3
-            while True:
-                exit_x = read_until_enter("\033[36m► Exit X: \033[0m")
-                flush += 1
-                if exit_x == "\x1b" or exit_x == "\x03":
-                    tput_ed_flush(flush)
-                    return args
-                try:
-                    exit_x = int(exit_x)
-                except ValueError:
-                    print("\n\033[31m✗ Invalid input. Exit X must be a number.\033[0m\n")
-                    flush += 3
-                    continue
-                if exit_x < 0 or exit_x >= width or exit_x == entry_x:
-                    print("\n\033[31m✗ Invalid input. Exit X coordinate is out of bounds or same as entry.\033[0m\n")
-                    flush += 3
-                if 0 <= exit_x < width and exit_x != entry_x:
-                    break
-            while True:
-                exit_y = read_until_enter("\033[36m► Exit Y: \033[0m")
-                flush += 1
-                if exit_y == "\x1b" or exit_y == "\x03":
-                    tput_ed_flush(flush)
-                    return args
-                try:
-                    exit_y = int(exit_y)
-                except ValueError:
-                    print("\n\033[31m✗ Invalid input. Exit Y must be a number.\033[0m\n")
-                    flush += 3
-                    continue
-                if 0 <= exit_y < height and exit_y != entry_y:
-                    break
-                elif exit_y < 0 or exit_y >= height:
-                    print("\n\033[31m✗ Invalid input. Exit Y coordinate is out of bounds.\033[0m\n")
-                    flush += 3
-                    continue
 
+def change_params_after(args, m) -> None:
+    inside_width = 51
+    tput_ed_flush(22)
+    def row(text=""):
+        return _ansi_row(text, inside_width)
+
+    def status(value: bool) -> str:
+        if value:
+            return "\033[32m[ON]\033[0m"
+        return "\033[31m[OFF]\033[0m"
+    alr_been = 0
+    while True:
+        flush = 17
+
+        box = [
+            "╔═══════════════════════════════════════════════════╗",
+            row(),
+            row("              \033[36m► Change Params\033[0m"),
+            row("      \033[33mValidate values before regenerate\033[0m"),
+            row(),
+            row(f"  \033[35m► 1) height\033[0m   \033[32m[{args[0]}]\033[0m"),
+            row(f"  \033[35m► 2) width\033[0m    \033[32m[{args[1]}]\033[0m"),
+            row(f"  \033[35m► 3) entry\033[0m    \033[32m[{args[2]}]\033[0m"),
+            row(f"  \033[35m► 4) exit\033[0m     \033[32m[{args[3]}]\033[0m"),
+            row(f"  \033[35m► 5) perfect\033[0m  {status(bool(args[5]))}"),
+            row(),
+            row("  \033[31m► 0) apply + back\033[0m"),
+            row("  \033[34mRanges: size 1-44, points in bounds\033[0m"),
+            row("  \033[34mESC applies and closes\033[0m"),
+            "╚═══════════════════════════════════════════════════╝",
+            "",
+        ]
+        print("\n".join(box))
+
+        select_raw = read_until_enter("\033[36m► select an option\033[0m: ")
+        if select_raw in ("\x1b", "\x03"):
+            return after_maze_print(args, m)
+
+        try:
+            select = int(select_raw)
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            flush += 1
+            tput_ed_flush(flush)
+            continue
+
+        if select not in [0, 1, 2, 3, 4, 5]:
+            tput_ed_flush(flush + alr_been)
+            print("\033[31mInvalid selection. Please enter a number between 0 and 5.\033[0m")
+            alr_been = 1
+            continue
+
+        if select == 0:
+            tput_ed_flush(flush + alr_been)
+            return after_maze_print(args, m)
+
+        if select == 1:
             while True:
-                perfect_input = read_until_enter("\033[36m► Perfect maze (y/n): \033[0m")
+                height_raw = read_until_enter("Enter new height (1-44): ")
                 flush += 1
-                if perfect_input == "\x1b" or perfect_input == "\x03":
+                if height_raw in ("\x1b", "\x03"):
                     tput_ed_flush(flush)
-                    return args
-                perfect_input = perfect_input.strip().lower()
-                if perfect_input in ['y', 'yes']:
-                    perfect = True
-                    break
-                elif perfect_input in ['n', 'no']:
-                    perfect = False
-                    break
-                else:
-                    print("\n\033[31m✗ Invalid input. Please enter y/yes or n/no.\033[0m\n")
-                    flush += 3
-            return selection_function([height, width, (entry_x, entry_y), (exit_x, exit_y), perfect, None, 'dfs'])
-        except (ValueError, KeyboardInterrupt, EOFError):
-            print("\n\033[31m✗ Invalid input. Please enter numbers."
-                  "\033[0m\n")
-            return selection_function(args)
+                    return after_maze_print(args, m)
+                try:
+                    height = int(height_raw)
+                except ValueError:
+                    print("\033[31mInvalid input. Height must be a number.\033[0m")
+                    flush += 1
+                    continue
+                if not 1 <= height <= 44:
+                    print("Invalid input. Height must be between 1 and 44.")
+                    flush += 1
+                    continue
+                if args[2][1] >= height or args[3][1] >= height:
+                    print("Invalid input. Entry/exit Y out of bounds.")
+                    flush += 1
+                    continue
+                args[0] = height
+                tput_ed_flush(flush)
+                break
+
+        elif select == 2:
+            while True:
+                width_raw = read_until_enter("Enter new width (1-44): ")
+                flush += 1
+                if width_raw in ("\x1b", "\x03"):
+                    tput_ed_flush(flush)
+                    return after_maze_print(args, m)
+                try:
+                    width = int(width_raw)
+                except ValueError:
+                    print("\033[31mInvalid input. Width must be a number.\033[0m")
+                    flush += 1
+                    continue
+                if not 1 <= width <= 44:
+                    print("\033[31mInvalid input. Width must be between 1 and 44.\033[0m")
+                    flush += 1
+                    continue
+                if args[2][0] >= width or args[3][0] >= width:
+                    print("\033[31mInvalid input. Entry/exit X out of bounds.\033[0m")
+                    flush += 1
+                    continue
+                args[1] = width
+                tput_ed_flush(flush)
+                break
+
+        elif select == 3:
+            while True:
+                entry_x_raw = read_until_enter("Enter new entry X: ")
+                flush += 1
+                if entry_x_raw in ("\x1b", "\x03"):
+                    tput_ed_flush(flush)
+                    return after_maze_print(args, m)
+                entry_y_raw = read_until_enter("Enter new entry Y: ")
+                flush += 1
+                if entry_y_raw in ("\x1b", "\x03"):
+                    tput_ed_flush(flush)
+                    return after_maze_print(args, m)
+                try:
+                    entry_x = int(entry_x_raw)
+                    entry_y = int(entry_y_raw)
+                except ValueError:
+                    print("\033[31mInvalid input. Entry coordinates must be numbers.\033[0m")
+                    flush += 1
+                    continue
+                if not (0 <= entry_x < args[1] and 0 <= entry_y < args[0]):
+                    print("\033[31mInvalid input. Entry is out of bounds.\033[0m")
+                    flush += 1
+                    continue
+                if (entry_x, entry_y) == args[3]:
+                    print("\033[31mInvalid input. Entry and exit cannot be the same.\033[0m")
+                    flush += 1
+                    continue
+                args[2] = (entry_x, entry_y)
+                tput_ed_flush(flush)
+                break
+
+        elif select == 4:
+            while True:
+                exit_x_raw = read_until_enter("Enter new exit X: ")
+                flush += 1
+                if exit_x_raw in ("\x1b", "\x03"):
+                    tput_ed_flush(flush)
+                    return after_maze_print(args, m)
+                exit_y_raw = read_until_enter("Enter new exit Y: ")
+                flush += 1
+                if exit_y_raw in ("\x1b", "\x03"):
+                    tput_ed_flush(flush)
+                    return after_maze_print(args, m)
+                try:
+                    exit_x = int(exit_x_raw)
+                    exit_y = int(exit_y_raw)
+                except ValueError:
+                    print("\033[31mInvalid input. Exit coordinates must be numbers.\033[0m")
+                    flush += 1
+                    continue
+                if not (0 <= exit_x < args[1] and 0 <= exit_y < args[0]):
+                    print("\033[31mInvalid input. Exit coordinates are out of bounds.\033[0m")
+                    flush += 1
+                    continue
+                if (exit_x, exit_y) == args[2]:
+                    print("\033[31mInvalid input. Exit and entry cannot be the same.\033[0m")
+                    flush += 1
+                    continue
+                args[3] = (exit_x, exit_y)
+                tput_ed_flush(flush)
+                break
+
+        elif select == 5:
+            args[5] = not bool(args[5])
+            tput_ed_flush(flush)
 
 
 def after_maze_print(args: list, m: Maze):
@@ -295,11 +343,25 @@ def after_maze_print(args: list, m: Maze):
         return selection_function(args)
     if select == 2:
         color_promt(m, select)
+        tput_ed_flush(27)
         return after_maze_print(args, m)
     if select == 3:
-        change_params_after(args)
+        change_params_after(args, m)
         return after_maze_print(args, m)
     if select == 4:
+        tput_ed_flush()
+        algo_select = algo_panel(args[7])
+        if algo_select is not None:
+            args[7] = ALGOS[algo_select - 1][1]
+            return selection_function(args)
+        else:
+            return after_maze_print(args, m)
+    if select == 5:
+        m.colors = random.choice(list(THEMES.values()))
+        flush()
+        m.print_maze()
+        return after_maze_print(args, m)
+    if select == 6:
         tput_ed_flush(6)
         print("Goodbye :(")
         exit(1)

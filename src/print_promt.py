@@ -1,7 +1,46 @@
 import os
+import re
 import sys
 import termios
 import tty
+
+
+ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+ALGOS = [
+    ("Depth-First Search (DFS)", "dfs"),
+    ("Prim's Algorithm",         "prim"),
+    ("Kruskal's Algorithm",      "kruskal"),
+]
+
+
+def _visible_len(text: str) -> int:
+    return len(ANSI_RE.sub("", text))
+
+
+def _ansi_pad(text: str, width: int) -> str:
+    return f"{text}{' ' * max(width - _visible_len(text), 0)}"
+
+
+def _side_row(
+    left: str = "",
+    right: str = "",
+    left_width: int = 31,
+    right_width: int = 55,
+) -> str:
+    return f"║{_ansi_pad(left, left_width)}║{_ansi_pad(right, right_width)}║"
+
+
+def _box_row(text: str = "", width: int = 51) -> str:
+    return f"║{_ansi_pad(text, width)}║"
+
+
+def _format_param_value(value) -> str:
+    if isinstance(value, bool):
+        color = "32" if value else "31"
+        label = "ON" if value else "OFF"
+        return f"\033[{color}m[{label}]\033[0m"
+    return f"\033[36m[{value}]\033[0m"
 
 
 def flush() -> None:
@@ -10,29 +49,31 @@ def flush() -> None:
 
 def panel() -> int:
     try:
-        print(
-            "╔═══════════════════════════════════════════════════════════════════════════════════════╗\n"
-            "║       ___       ___       ___       ___       ___       ___       ___       ___       ║\n"
-            "║      /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\  \      ║\n"
-            "║     /::\  \   /::L_L_   /::\  \   _\:\  \   /::\  \   _\:\  \   /:| _|_   /::\  \     ║\n"
-            "║    /::\:\__\ /:/L:\__\ /::\:\__\ /::::\__\ /::\:\__\ /\/::\__\ /::|/\__\ /:/\:\__\    ║\n"
-            "║    \/\::/  / \/_/:/  / \/\::/  / \::;;/__/ \:\:\/  / \::/\/__/ \/|::/  / \:\:\/__/    ║\n"
-            "║      /:/  /    /:/  /    /:/  /   \:\__\    \:\/  /   \:\__\     |:/  /   \::/  /     ║\n"
-            "║      \/__/     \/__/     \/__/     \/__/     \/__/     \/__/     \/__/     \/__/      ║\n"
-            "╠═══════════════════════════════════════════════════════════════════════════════════════╣\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║\033[35m► 1) Parameters\033[0m                                                                        ║\n"
-            "║\033[35m► 2) Algoritm\033[0m                                                                          ║\n"
-            "║\033[35m► 3) run program\033[0m                                                                       ║\n"
-            "║\033[35m► 4) exit\033[0m                                                                              ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "╚═══════════════════════════════════════════════════════════════════════════════════════╝\n"
-        )
+        box = [
+            "╔═══════════════════════════════════════════════════════════════════════════════════════╗",
+            "║       ___       ___       ___       ___       ___       ___       ___       ___       ║",
+            "║      /\\  \\     /\\__\\     /\\  \\     /\\  \\     /\\  \\     /\\  \\     /\\__\\     /\\  \\      ║",
+            "║     /::\\  \\   /::L_L_   /::\\  \\   _\\:\\  \\   /::\\  \\   _\\:\\  \\   /:| _|_   /::\\  \\     ║",
+            "║    /::\\:\\__\\ /:/L:\\__\\ /::\\:\\__\\ /::::\\__\\ /::\\:\\__\\ /\\/::\\__\\ /::|/\\__\\ /:/\\:\\__\\    ║",
+            "║    \\/\\::/  / \\/_/:/  / \\/\\::/  / \\::;;/__/ \\:\\:\\/  / \\::/\\/__/ \\/|::/  / \\:\\:\\/__/    ║",
+            "║      /:/  /    /:/  /    /:/  /   \\:\\__\\    \\:\\/  /   \\:\\__\\     |:/  /   \\::/  /     ║",
+            "║      \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/      ║",
+            "╠═══════════════════════════════════════════════════════════════════════════════════════╣",
+            _side_row(),
+            _side_row(),
+            _side_row("\033[35m► 1) Parameters\033[0m", "\033[35mwritten by:\033[0m"),
+            _side_row("\033[35m► 2) Algorithm\033[0m", "\033[35m\033[0m"),
+            _side_row("\033[35m► 3) run program\033[0m", "\033[35m- alfiorav\033[0m"),
+            _side_row("\033[31m► 4) exit\033[0m", "\033[35m- kr1\033[0m"),
+            _side_row("", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
+            _side_row(),
+            _side_row(),
+            _side_row(),
+            _side_row(),
+            "╚═══════════════════════════════════════════════════════════════════════════════════════╝",
+            "",
+        ]
+        print("\n".join(box))
         select = int(input("\033[36m►Please select an option: \033[0m"))
     except ValueError:
         print("Invalid input. Please enter a number.")
@@ -44,28 +85,30 @@ def panel() -> int:
 
 
 def params_panel(args) -> list:
-    flush()
-    inside_width = 51
+    while True:
+        flush()
+        height_value = _format_param_value(args[0])
+        width_value = _format_param_value(args[1])
+        entry_value = _format_param_value(args[2])
+        exit_value = _format_param_value(args[3])
+        perfect_value = _format_param_value(args[5])
 
-    def row(text=""):
-        return f"║{text.ljust(inside_width)}║"
-
-    try:
         box = [
             "╔═══════════════════════════════════════════════════╗",
-            row("              \033[36m► change params\033[0m"),
-            row(),
-            row(f"\033[35m► 1) height\033[0m \033[32m[{args[0]}]\033[0m"),
-            row(f"\033[35m► 2) width\033[0m \033[32m[{args[1]}]\033[0m"),
-            row(f"\033[35m► 3) entry\033[0m \033[32m[{args[2]}]\033[0m"),
-            row(f"\033[35m► 4) exit\033[0m \033[32m[{args[3]}]\033[0m"),
-            row(f"\033[35m► 5) perfect\033[0m \033[32m[{args[4]}]\033[0m"),
-            row(),
-            row("\033[31m► 0) back\033[0m"),
-            row(),
-            row(),
-            row(),
-            row(),
+            _box_row(),
+            _box_row("              \033[36m► Change Params\033[0m"),
+            _box_row("      \033[33mValidate values before generate\033[0m"),
+            _box_row(),
+            _box_row(f"  \033[35m► 1) height\033[0m   {height_value}"),
+            _box_row(f"  \033[35m► 2) width\033[0m    {width_value}"),
+            _box_row(f"  \033[35m► 3) entry\033[0m    {entry_value}"),
+            _box_row(f"  \033[35m► 4) exit\033[0m     {exit_value}"),
+            _box_row(f"  \033[35m► 5) perfect\033[0m  {perfect_value}"),
+            _box_row(),
+            _box_row("  \033[31m► 0) back\033[0m"),
+            _box_row(),
+            _box_row("  \033[34mRanges: size 1-44, points must be in bounds\033[0m"),
+            _box_row("  \033[34mESC closes the panel too\033[0m"),
             "╚═══════════════════════════════════════════════════╝",
             "",
         ]
@@ -74,113 +117,143 @@ def params_panel(args) -> list:
         if select_raw in ("\x1b", "\x03"):
             flush()
             return args
-        select = int(select_raw)
-    except ValueError:
-        print("Invalid input. Please enter a number.")
-        return params_panel(args)
-    if select not in [0, 1, 2, 3, 4, 5]:
-        print("Invalid selection. Please enter a number between 0 and 5.")
-        return params_panel(args)
-    if select == 0:
-        flush()
-        return args
-    match select:
-        case 1:
-            print(f"\nCurrent height: {args[0]}\n")
-            try:
-                height = read_until_enter("Enter new height: ")
-                if height in ("\x1b", "\x03"):
+
+        try:
+            select = int(select_raw)
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+
+        if select not in [0, 1, 2, 3, 4, 5]:
+            print("Invalid selection. Please enter a number between 0 and 5.")
+            continue
+
+        if select == 0:
+            flush()
+            return args
+
+        if select == 1:
+            while True:
+                height_raw = read_until_enter("Enter new height (1-44): ")
+                if height_raw in ("\x1b", "\x03"):
                     flush()
                     return args
-                args[0] = int(height)
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-                return params_panel(args)
-        case 2:
-            print(f"\nCurrent width: {args[1]}\n")
-            try:
-                width = read_until_enter("Enter new width: ")
-                if width in ("\x1b", "\x03"):
+                try:
+                    height = int(height_raw)
+                except ValueError:
+                    print("Invalid input. Height must be a number.")
+                    continue
+                if not 1 <= height <= 44:
+                    print("Invalid input. Height must be between 1 and 44.")
+                    continue
+                if args[2][1] >= height or args[3][1] >= height:
+                    print("Invalid input. Entry/exit Y out of bounds.")
+                    continue
+                args[0] = height
+                break
+
+        elif select == 2:
+            while True:
+                width_raw = read_until_enter("Enter new width (1-44): ")
+                if width_raw in ("\x1b", "\x03"):
                     flush()
                     return args
-                args[1] = int(width)
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-                return params_panel(args)
-        case 3:
-            print(f"\nCurrent entry point: {args[2]}\n")
-            try:
-                entry_input = read_until_enter("Enter new entry point x: ")
-                if entry_input in ("\x1b", "\x03"):
+                try:
+                    width = int(width_raw)
+                except ValueError:
+                    print("Invalid input. Width must be a number.")
+                    continue
+                if not 1 <= width <= 44:
+                    print("Invalid input. Width must be between 1 and 44.")
+                    continue
+                if args[2][0] >= width or args[3][0] >= width:
+                    print("Invalid input. Entry/exit X out of bounds.")
+                    continue
+                args[1] = width
+                break
+
+        elif select == 3:
+            while True:
+                entry_x_raw = read_until_enter("Enter new entry X: ")
+                if entry_x_raw in ("\x1b", "\x03"):
                     flush()
                     return args
-                entry_y_input = read_until_enter("Enter new entry point y: ")
-                if entry_y_input in ("\x1b", "\x03"):
+                entry_y_raw = read_until_enter("Enter new entry Y: ")
+                if entry_y_raw in ("\x1b", "\x03"):
                     flush()
                     return args
-                args[2] = (int(entry_input), int(entry_y_input))
-            except ValueError:
-                print("Invalid input. Please enter numbers.")
-                return params_panel(args)
-        case 4:
-            print(f"\nCurrent exit point: {args[3]}\n")
-            try:
-                exit_input = read_until_enter("Enter new exit point x: ")
-                if exit_input in ("\x1b", "\x03"):
+                try:
+                    entry_x = int(entry_x_raw)
+                    entry_y = int(entry_y_raw)
+                except ValueError:
+                    print("Invalid input. Entry coordinates must be numbers.")
+                    continue
+                if not (0 <= entry_x < args[1] and 0 <= entry_y < args[0]):
+                    print("Invalid input. Entry is out of bounds.")
+                    continue
+                if (entry_x, entry_y) == args[3]:
+                    print("Invalid input. Entry and exit cannot be the same.")
+                    continue
+                args[2] = (entry_x, entry_y)
+                break
+
+        elif select == 4:
+            while True:
+                exit_x_raw = read_until_enter("Enter new exit X: ")
+                if exit_x_raw in ("\x1b", "\x03"):
                     flush()
                     return args
-                exit_y_input = read_until_enter("Enter new exit point y: ")
-                if exit_y_input in ("\x1b", "\x03"):
+                exit_y_raw = read_until_enter("Enter new exit Y: ")
+                if exit_y_raw in ("\x1b", "\x03"):
                     flush()
                     return args
-                args[3] = (int(exit_input), int(exit_y_input))
-            except ValueError:
-                print("Invalid input. Please enter numbers.")
-                return params_panel(args)
-        case 5:
-            print(f"\nCurrent perfect setting: {args[4]}\n")
-            perfect_input = read_until_enter("Should the maze be perfect? (y/n): ")
-            if perfect_input in ("\x1b", "\x03"):
-                flush()
-                return args
-            if perfect_input.lower() in ['y', 'yes']:
-                args[4] = True
-            elif perfect_input.lower() in ['n', 'no']:
-                args[4] = False
-            else:
-                print("Invalid input. Please enter 'y' or 'n'.")
-                return params_panel(args)
-    flush()
-    return args
+                try:
+                    exit_x = int(exit_x_raw)
+                    exit_y = int(exit_y_raw)
+                except ValueError:
+                    print("Invalid input. Exit coordinates must be numbers.")
+                    continue
+                if not (0 <= exit_x < args[1] and 0 <= exit_y < args[0]):
+                    print("Invalid input. Exit coordinates are out of bounds.")
+                    continue
+                if (exit_x, exit_y) == args[2]:
+                    print("Invalid input. Exit and entry cannot be the same.")
+                    continue
+                args[3] = (exit_x, exit_y)
+                break
+
+        elif select == 5:
+            args[5] = not bool(args[5])
 
 
 def noargs_panel() -> int:
     try:
-            print(
-            "╔═══════════════════════════════════════════════════════════════════════════════════════╗\n"
-            "║       ___       ___       ___       ___       ___       ___       ___       ___       ║\n"
-            "║      /\  \     /\__\     /\  \     /\  \     /\  \     /\  \     /\__\     /\  \      ║\n"
-            "║     /  \  \   /  L_L_   /  \  \   _\ \  \   /  \  \   _\ \  \   / | _|_   /  \  \     ║\n"
-            "║    /  \ \__\ / /L \__\ /  \ \__\ /    \__\ /  \ \__\ /\/  \__\ /  |/\__\ / /\ \__\    ║\n"
-            "║    \/\  /  / \/_/ /  / \/\  /  / \   _/__/ \ \ \/  / \  /\/__/ \/|  /  / \ \ \/__/    ║\n"
-            "║      / /  /    / /  /    / /  /   \ \__\    \ \/  /   \ \__\     | /  /   \  /  /     ║\n"
-            "║      \/__/     \/__/     \/__/     \/__/     \/__/     \/__/     \/__/     \/__/      ║\n"
-            "╠═══════════════════════════════════════════════════════════════════════════════════════╣\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║\033[35m► 1) default settings\033[0m                                                                  ║\n"
-            "║\033[35m► 2) load parameters\033[0m                                                                   ║\n"
-            "║\033[35m► 3) Algoritm\033[0m                                                                          ║\n"
-            "║\033[35m► 4) run program\033[0m                                                                       ║\n"
-            "║\033[35m► 5) exit\033[0m                                                                              ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "║                                                                                       ║\n"
-            "╚═══════════════════════════════════════════════════════════════════════════════════════╝\n"
-            )
-            select = int(input("\033[36m►Please select an option: \033[0m"))
+        box = [
+            "╔═══════════════════════════════════════════════════════════════════════════════════════╗",
+            "║       ___       ___       ___       ___       ___       ___       ___       ___       ║",
+            "║      /\\  \\     /\\__\\     /\\  \\     /\\  \\     /\\  \\     /\\  \\     /\\__\\     /\\  \\      ║",
+            "║     /  \\  \\   /  L_L_   /  \\  \\   _\\ \\  \\   /  \\  \\   _\\ \\  \\   / | _|_   /  \\  \\     ║",
+            "║    /  \\ \\__\\ / /L \\__\\ /  \\ \\__\\ /    \\__\\ /  \\ \\__\\ /\\/  \\__\\ /  |/\\__\\ / /\\ \\__\\    ║",
+            "║    \\/\\  /  / \\/_/ /  / \\/\\  /  / \\   _/__/ \\ \\/  / \\  /\\/__/ \\/|  /  / \\ \\/__/    ║",
+            "║      / /  /    / /  /    / /  /   \\ \\__\\    \\ \\/  /   \\ \\__\\     | /  /   \\  /  /     ║",
+            "║      \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/      ║",
+            "╠═══════════════════════════════════════════════════════════════════════════════════════╣",
+            _side_row(),
+            _side_row(),
+            _side_row("\033[35m► 1) default settings\033[0m", "\033[35mwritten by:\033[0m"),
+            _side_row("\033[35m► 2) load parameters\033[0m", "\033[35m\033[0m"),
+            _side_row("\033[35m► 3) Algorithm\033[0m", "\033[35m- alfiorav\033[0m"),
+            _side_row("\033[35m► 4) run program\033[0m", "\033[35m- kr1\033[0m"),
+            _side_row("\033[31m► 5) exit\033[0m", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
+            _side_row(),
+            _side_row(),
+            _side_row(),
+            _side_row(),
+            "╚═══════════════════════════════════════════════════════════════════════════════════════╝",
+            "",
+        ]
+        print("\n".join(box))
+        select = int(input("\033[36m►Please select an option: \033[0m"))
     except ValueError:
         print("Invalid input. Please enter a number.")
         return panel()
@@ -325,6 +398,53 @@ def change_params(args):
         return change_params(args)
 
 
+def algo_panel(current_algo=None):
+    def toggle(is_on):
+        color = "32" if is_on else "31"
+        label = "ON" if is_on else "OFF"
+        return f"\033[{color}m[{label}]\033[0m"
+
+    try:
+        box = [
+            "╔═══════════════════════════════════════════════════╗",
+            _box_row(),
+            _box_row("             \033[36m► Select Algorithm\033[0m"),
+            _box_row("      \033[33mChoose the generator to enable\033[0m"),
+            _box_row(),
+        ]
+        for idx, (name, key) in enumerate(ALGOS, start=1):
+            is_selected = (current_algo == key)
+            status = toggle(is_selected)
+            box.append(
+                _box_row(f"  \033[35m► {idx}) {name}\033[0m  {status}")
+            )
+        box.extend([
+            _box_row(),
+            _box_row("  \033[31m► 0) back\033[0m"),
+            _box_row(),
+            _box_row("  \033[34mESC closes the panel too\033[0m"),
+            _box_row(),
+            "╚═══════════════════════════════════════════════════╝",
+            "",
+        ])
+        print("\n".join(box))
+        select_raw = read_until_enter("\033[36m► select an algorithm\033[0m: ")
+        if select_raw in ("\x1b", "\x03"):
+            flush()
+            return None
+        select = int(select_raw)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+        return algo_panel(current_algo)
+    if select == 0:
+        return None
+    if select not in range(1, len(ALGOS) + 1):
+        print(f"Invalid selection. Please enter 0 to {len(ALGOS)}.")
+        return algo_panel(current_algo)
+    flush()
+    return select
+
+
 def print_promt(args=None):
     while True:
         if args is not None:
@@ -333,8 +453,11 @@ def print_promt(args=None):
                 case 1:
                     args = params_panel(args)
                 case 2:
-                    print("Algorithm selection not implemented yet.")
-                    return print_promt(args)
+                    flush()
+                    select = algo_panel(str(args[7]).lower())
+                    if select is None:
+                        return print_promt(args)
+                    args[7] = ALGOS[select - 1][1]
                 case 3:
                     print("Running program with current settings...")
                     from src.selection import selection_function
@@ -348,12 +471,17 @@ def print_promt(args=None):
             select = noargs_panel()
             match select:
                 case 1:
-                    from src.selection import selection_function
-                    return selection_function(default_settings())
+                    flush()
+                    args = default_settings()
+                    print("Default settings loaded. Returning to main menu...")
+                    return print_promt(args)
                 case 2:
                     change_params(args)
                 case 3:
-                    print("Algorithm selection not implemented yet.")
+                    flush()
+                    select = algo_panel(None)
+                    if select is not None:
+                        args[7] = ALGOS[select - 1][1]# implement variable for algo
                 case 4:
                     print("Running program with current settings...")
                     from src.selection import selection_function
@@ -363,5 +491,3 @@ def print_promt(args=None):
                     print("stopping program...")
                     break
     flush()
-
-
