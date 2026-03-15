@@ -180,7 +180,7 @@ class Maze:
                 bottom += self.colors['wall']
             print(line)
             print(bottom)
-        sleep(0.0005)
+        sleep(0.005)
 
     def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
@@ -256,7 +256,7 @@ class Maze:
                 curr_cell = stack.pop()
             if animation:
                 self.print_maze()
-                
+
 
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,
