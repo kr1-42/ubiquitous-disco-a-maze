@@ -25,13 +25,13 @@ def parse_input_file(input_file: str) -> dict[str, str] | None:
     return ret
 
 
-def check_parsed(parsed: dict[str, str]) -> list[ParsedArg] | str:
+def check_parsed(parsed: dict[str, str]) -> dict[str, int | str | tuple[int, int]] | str:
     ret: dict = {
         'WIDTH': None,
         'HEIGHT': None,
         'ENTRY': None,
         'EXIT': None,
-        'OUTPUT_FILE': None,``
+        'OUTPUT_FILE': None,
         'PERFECT': None,
         'SEED': None,
         'ALGORITHM': None
@@ -63,7 +63,7 @@ def check_parsed(parsed: dict[str, str]) -> list[ParsedArg] | str:
     return ret
 
 
-def parse_args() -> list[ParsedArg]:
+def parse_args() -> dict[str, int | str | tuple[int, int]]:
     if len(argv) != 2:
         print("Usage: python parsing.py <input_file>")
         exit(1)

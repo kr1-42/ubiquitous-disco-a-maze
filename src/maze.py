@@ -129,17 +129,17 @@ class Maze:
                             bottom += self.colors['path_solution']
                         else:
                             bottom += self.colors['path']
-                elif c._42:
+                elif c.cell_42:
                     line += self.colors['wall_42']
                     if (c.east
                             and c.col < self.cols - 1
-                            and self.grid[c.row][c.col + 1]._42):
+                            and self.grid[c.row][c.col + 1].cell_42):
                         line += self.colors['wall_42']
                     else:
                         line += self.colors['wall']
                     if (c.south
                             and c.row < self.rows - 1
-                            and self.grid[c.row + 1][c.col]._42):
+                            and self.grid[c.row + 1][c.col].cell_42):
                         bottom += self.colors['wall_42']
                     else:
                         bottom += self.colors['wall']
@@ -198,7 +198,7 @@ class Maze:
             for c, ch in enumerate(row):
                 if ch == "#":
                     self.grid[start_row + r][start_col + c].visited = True
-                    self.grid[start_row + r][start_col + c]._42 = True
+                    self.grid[start_row + r][start_col + c].cell_42 = True
 
     def random_draw_42(self, rows: int, cols: int) -> None:
         pattern = [
@@ -226,7 +226,7 @@ class Maze:
             for c, ch in enumerate(row):
                 if ch == "#":
                     self.grid[draw_row + r][draw_col + c].visited = True
-                    self.grid[draw_row + r][draw_col + c]._42 = True
+                    self.grid[draw_row + r][draw_col + c].cell_42 = True
 
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
@@ -256,7 +256,6 @@ class Maze:
                 curr_cell = stack.pop()
             if animation:
                 self.print_maze()
-
 
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,

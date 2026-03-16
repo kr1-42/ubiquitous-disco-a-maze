@@ -22,7 +22,7 @@ def check_height(value: str, _wh: list) -> int | str:
     return height
 
 
-def check_entry(value: str, wh: list) -> tuple | str:
+def check_entry(value: str, wh: dict) -> tuple | str:
     try:
         values = value.split(',')
         if len(values) != 2:
@@ -33,14 +33,14 @@ def check_entry(value: str, wh: list) -> tuple | str:
         if entryx < 0 and entryy < 0:
             return "ENTRY must be a valid integer pair"
         if wh:
-            if entryx >= wh[0] or entryy >= wh[1]:
+            if entryx >= wh['WIDTH'] or entryy >= wh['HEIGHT']:
                 return "ENTRY must be within the bounds of WIDTH and HEIGHT"
     except ValueError:
         return "ENTRY must be an integer"
     return (entryx, entryy)
 
 
-def check_exit(value: str, wh: list) -> tuple | str:
+def check_exit(value: str, wh: dict) -> tuple | str:
     try:
         values = value.split(',')
         if len(values) != 2:
@@ -51,9 +51,9 @@ def check_exit(value: str, wh: list) -> tuple | str:
         if exitx < 0 and exity < 0:
             return "EXIT must be a valid integer pair"
         if wh:
-            if exitx == wh[2][0] and exity == wh[2][1]:
+            if exitx == wh['ENTRY'][0] and exity == wh['ENTRY'][1]:
                 return "EXIT cant be on the same position as ENTRY"
-            if exitx >= wh[0] or exity >= wh[1]:
+            if exitx >= wh['WIDTH'] or exity >= wh['HEIGHT']:
                 return "EXIT must be within the bounds of WIDTH and HEIGHT"
     except ValueError:
         return "EXIT must be an integer"

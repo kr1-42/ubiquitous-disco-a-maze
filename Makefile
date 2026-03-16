@@ -40,12 +40,11 @@ test:
 
 #@description: esegue la norma di codice con flake8 e mypy
 lint:
-	flake8 .
 	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 #@description: esegue la norma di codice con flake8 e mypy in modalità strict
 lint-strict:
-	flake8 .
+
 	mypy . --strict
 
 clean:

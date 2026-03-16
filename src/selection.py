@@ -46,7 +46,9 @@ def promt_after_maze_print():
             "╚═══════════════════════════════════════════════════╝",
             "",
         ]
-        print("\n\nprogrammare che colore randomico o scelto rimanga anche dopo la rigenerazione del labirinto, altrimenti è inutile")
+        print("\n\nprogrammare che colore randomico o " +
+              "scelto rimanga anche dopo la rigenerazione " +
+              "del labirinto, altrimenti è inutile")
         print("\n".join(box))
         select = int(input("\033[36m► select an option\033[0m: "))
     except ValueError:
@@ -143,7 +145,6 @@ def get_key():
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 
-
 def read_until_enter(prompt="> "):
     print(prompt, end="", flush=True)
     chars = []
@@ -168,6 +169,7 @@ def read_until_enter(prompt="> "):
 def change_params_after(args, m) -> None:
     inside_width = 51
     tput_ed_flush(22)
+
     def row(text=""):
         return _ansi_row(text, inside_width)
 
@@ -214,7 +216,8 @@ def change_params_after(args, m) -> None:
 
         if select not in [0, 1, 2, 3, 4, 5]:
             tput_ed_flush(flush + alr_been)
-            print("\033[31mInvalid selection. Please enter a number between 0 and 5.\033[0m")
+            print("\033[31mInvalid selection. " +
+                  "Please enter a number between 0 and 5.\033[0m")
             alr_been = 1
             continue
 
@@ -232,7 +235,8 @@ def change_params_after(args, m) -> None:
                 try:
                     height = int(height_raw)
                 except ValueError:
-                    print("\033[31mInvalid input. Height must be a number.\033[0m")
+                    print("\033[31mInvalid input. " +
+                          "Height must be a number.\033[0m")
                     flush += 1
                     continue
                 if not 1 <= height <= 44:
@@ -351,9 +355,9 @@ def after_maze_print(args: list, m: Maze):
         return after_maze_print(args, m)
     if select == 4:
         tput_ed_flush()
-        algo_select = algo_panel(args[7])
+        algo_select = algo_panel(args['ALGORITHM'])
         if algo_select is not None:
-            args[7] = ALGOS[algo_select - 1][1]
+            args['ALGORITHM'] = ALGOS[algo_select - 1][1]
             return selection_function(args)
         else:
             return after_maze_print(args, m)
@@ -368,12 +372,12 @@ def after_maze_print(args: list, m: Maze):
         exit(1)
 
 
-def selection_function(args: list):
+def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
     flush()
     random_42 = True
-    cols, rows = args[0], args[1]
-    start = args[2]
-    end = args[3]
+    cols, rows = args['HEIGHT'], args['WIDTH']
+    start = args['ENTRY']
+    end = args['EXIT']
     m = Maze(cols, rows, start, end)
     start_row, start_col = m.start
     end_row, end_col = m.end
@@ -383,7 +387,7 @@ def selection_function(args: list):
         m.random_draw_42(cols, rows)
     else:
         m.draw_42(cols, rows)
-    m.backtracking(m.grid[0][0], True, args[4])
+    m.backtracking(m.grid[0][0], True, args['PERFECT'])
     m.bfs(True)
     m.print_maze()
     m.print_hexa_maze("hexa.txt")

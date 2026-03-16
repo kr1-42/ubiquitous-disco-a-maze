@@ -84,7 +84,7 @@ def panel() -> int:
     return select
 
 
-def params_panel(args) -> list:
+def params_panel(args: dict[str, int | str | tuple[int, int]]) -> dict[str, int | str | tuple[int, int]]:
     while True:
         flush()
         height_value = _format_param_value(args['HEIGHT'])
@@ -188,7 +188,8 @@ def params_panel(args) -> list:
                 except ValueError:
                     print("Invalid input. Entry coordinates must be numbers.")
                     continue
-                if not (0 <= entry_x < args['WIDTH'] and 0 <= entry_y < args['HEIGHT']):
+                if not (0 <= entry_x < args['WIDTH']
+                        and 0 <= entry_y < args['HEIGHT']):
                     print("Invalid input. Entry is out of bounds.")
                     continue
                 if (entry_x, entry_y) == args['EXIT']:
@@ -213,7 +214,8 @@ def params_panel(args) -> list:
                 except ValueError:
                     print("Invalid input. Exit coordinates must be numbers.")
                     continue
-                if not (0 <= exit_x < args['WIDTH'] and 0 <= exit_y < args['HEIGHT']):
+                if not (0 <= exit_x < args['WIDTH']
+                        and 0 <= exit_y < args['HEIGHT']):
                     print("Invalid input. Exit coordinates are out of bounds.")
                     continue
                 if (exit_x, exit_y) == args['ENTRY']:
@@ -319,7 +321,8 @@ def change_params(args):
             height = int(height)
             if height > 0 and height < 45:
                 break
-            print("\n\033[31m✗ Invalid input. Height must be between 1 and 44.\033[0m\n")
+            print("\n\033[31m✗ Invalid input. " +
+                  "Height must be between 1 and 44.\033[0m\n")
 
         while True:
             width = read_until_enter("\033[36m► Width: \033[0m")
@@ -329,7 +332,8 @@ def change_params(args):
             width = int(width)
             if width > 0 and width < 45:
                 break
-            print("\n\033[31m✗ Invalid input. Width must be between 1 and 44.\033[0m\n")
+            print("\n\033[31m✗ Invalid input. " +
+                  "Width must be between 1 and 44.\033[0m\n")
 
         while True:
             entry_x = read_until_enter("\033[36m► Entry X: \033[0m")
@@ -344,7 +348,8 @@ def change_params(args):
             entry_y = int(entry_y)
             if 0 <= entry_x < width and 0 <= entry_y < height:
                 break
-            print("\n\033[31m✗ Invalid input. Entry coordinates are out of bounds.\033[0m\n")
+            print("\n\033[31m✗ Invalid input. " +
+                  "Entry coordinates are out of bounds.\033[0m\n")
 
         while True:
             exit_x = read_until_enter("\033[36m► Exit X: \033[0m")
@@ -353,7 +358,9 @@ def change_params(args):
                 return args
             exit_x = int(exit_x)
             if exit_x < 0 or exit_x >= width or exit_x == entry_x:
-                print("\n\033[31m✗ Invalid input. Exit X coordinate is out of bounds or same as entry.\033[0m\n")
+                print("\n\033[31m✗ Invalid input. " +
+                      "Exit X coordinate is out of bounds or same as entry." +
+                      "\033[0m\n")
             if 0 <= exit_x < width and exit_x != entry_x:
                 break
 
@@ -366,11 +373,13 @@ def change_params(args):
             if 0 <= exit_y < height and exit_y != entry_y:
                 break
             if exit_y < 0 or exit_y >= height:
-                print("\n\033[31m✗ Invalid input. Exit Y coordinate is out of bounds.\033[0m\n")
+                print("\n\033[31m✗ Invalid input. " +
+                      "Exit Y coordinate is out of bounds.\033[0m\n")
                 continue
 
         while True:
-            perfect_input = read_until_enter("\033[36m► Perfect maze (y/n): \033[0m")
+            perfect_input = read_until_enter("\033[36m► Perfect maze (y/n): " +
+                                             "\033[0m")
             if perfect_input == "\x1b" or perfect_input == "\x03":
                 flush()
                 return args
@@ -381,7 +390,8 @@ def change_params(args):
             if perfect_input in ['n', 'no']:
                 perfect = False
                 break
-            print("\n\033[31m✗ Invalid input. Please enter y/yes or n/no.\033[0m\n")
+            print("\n\033[31m✗ Invalid input. " +
+                  "Please enter y/yes or n/no.\033[0m\n")
 
         flush()
         return print_promt({
@@ -443,7 +453,7 @@ def algo_panel(current_algo=None):
     return select
 
 
-def print_promt(args=None):
+def print_promt(args: dict) -> None:
     while True:
         if args is not None:
             select = panel()
@@ -479,7 +489,7 @@ def print_promt(args=None):
                     flush()
                     select = algo_panel(None)
                     if select is not None:
-                        args[7] = ALGOS[select - 1][1]# implement variable for algo
+                        args['ALGORITHM'] = ALGOS[select - 1][1]  # implement variable for algo
                 case 4:
                     print("Running program with current settings...")
                     from src.selection import selection_function

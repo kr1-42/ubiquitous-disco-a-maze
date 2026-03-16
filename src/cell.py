@@ -8,7 +8,7 @@ class Cell:
         self.east = True
         self.west = True
         self.hexa = 15
-        self._42 = False
+        self.cell_42 = False
         self.path = False
         self.footsteps = 0
         self.start = False
