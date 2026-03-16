@@ -87,11 +87,11 @@ def panel() -> int:
 def params_panel(args) -> list:
     while True:
         flush()
-        height_value = _format_param_value(args[0])
-        width_value = _format_param_value(args[1])
-        entry_value = _format_param_value(args[2])
-        exit_value = _format_param_value(args[3])
-        perfect_value = _format_param_value(args[5])
+        height_value = _format_param_value(args['HEIGHT'])
+        width_value = _format_param_value(args['WIDTH'])
+        entry_value = _format_param_value(args['ENTRY'])
+        exit_value = _format_param_value(args['EXIT'])
+        perfect_value = _format_param_value(args['PERFECT'])
 
         box = [
             "╔═══════════════════════════════════════════════════╗",
@@ -146,10 +146,10 @@ def params_panel(args) -> list:
                 if not 1 <= height <= 44:
                     print("Invalid input. Height must be between 1 and 44.")
                     continue
-                if args[2][1] >= height or args[3][1] >= height:
+                if args['ENTRY'][1] >= height or args['EXIT'][1] >= height:
                     print("Invalid input. Entry/exit Y out of bounds.")
                     continue
-                args[0] = height
+                args['HEIGHT'] = height
                 break
 
         elif select == 2:
@@ -166,10 +166,10 @@ def params_panel(args) -> list:
                 if not 1 <= width <= 44:
                     print("Invalid input. Width must be between 1 and 44.")
                     continue
-                if args[2][0] >= width or args[3][0] >= width:
+                if args['ENTRY'][0] >= width or args['EXIT'][0] >= width:
                     print("Invalid input. Entry/exit X out of bounds.")
                     continue
-                args[1] = width
+                args['WIDTH'] = width
                 break
 
         elif select == 3:
@@ -188,13 +188,13 @@ def params_panel(args) -> list:
                 except ValueError:
                     print("Invalid input. Entry coordinates must be numbers.")
                     continue
-                if not (0 <= entry_x < args[1] and 0 <= entry_y < args[0]):
+                if not (0 <= entry_x < args['WIDTH'] and 0 <= entry_y < args['HEIGHT']):
                     print("Invalid input. Entry is out of bounds.")
                     continue
-                if (entry_x, entry_y) == args[3]:
+                if (entry_x, entry_y) == args['EXIT']:
                     print("Invalid input. Entry and exit cannot be the same.")
                     continue
-                args[2] = (entry_x, entry_y)
+                args['ENTRY'] = (entry_x, entry_y)
                 break
 
         elif select == 4:
@@ -213,17 +213,17 @@ def params_panel(args) -> list:
                 except ValueError:
                     print("Invalid input. Exit coordinates must be numbers.")
                     continue
-                if not (0 <= exit_x < args[1] and 0 <= exit_y < args[0]):
+                if not (0 <= exit_x < args['WIDTH'] and 0 <= exit_y < args['HEIGHT']):
                     print("Invalid input. Exit coordinates are out of bounds.")
                     continue
-                if (exit_x, exit_y) == args[2]:
+                if (exit_x, exit_y) == args['ENTRY']:
                     print("Invalid input. Exit and entry cannot be the same.")
                     continue
-                args[3] = (exit_x, exit_y)
+                args['EXIT'] = (exit_x, exit_y)
                 break
 
         elif select == 5:
-            args[5] = not bool(args[5])
+            args['PERFECT'] = not bool(args['PERFECT'])
 
 
 def noargs_panel() -> int:
@@ -384,15 +384,13 @@ def change_params(args):
             print("\n\033[31m✗ Invalid input. Please enter y/yes or n/no.\033[0m\n")
 
         flush()
-        return print_promt([
-            height,
-            width,
-            (entry_x, entry_y),
-            (exit_x, exit_y),
-            perfect,
-            None,
-            'dfs',
-        ])
+        return print_promt({
+            'HEIGHT': height,
+            'WIDTH': width,
+            'ENTRY': (entry_x, entry_y),
+            'EXIT': (exit_x, exit_y),
+            'PERFECT': perfect
+        })
     except (ValueError, KeyboardInterrupt, EOFError):
         print("\n\033[31m✗ Invalid input. Please enter numbers.\033[0m\n")
         return change_params(args)

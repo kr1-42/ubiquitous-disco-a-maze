@@ -26,7 +26,16 @@ def parse_input_file(input_file: str) -> dict[str, str] | None:
 
 
 def check_parsed(parsed: dict[str, str]) -> list[ParsedArg] | str:
-    ret: list[str | int | tuple[int, int]] = []
+    ret: dict = {
+        'WIDTH': None,
+        'HEIGHT': None,
+        'ENTRY': None,
+        'EXIT': None,
+        'OUTPUT_FILE': None,``
+        'PERFECT': None,
+        'SEED': None,
+        'ALGORITHM': None
+    }
     cases = {
             'WIDTH': check_width,
             'HEIGHT': check_height,
@@ -50,7 +59,7 @@ def check_parsed(parsed: dict[str, str]) -> list[ParsedArg] | str:
         if isinstance(pre_ret_check, str):
             return pre_ret_check
         if pre_ret_check is not None:
-            ret.append(pre_ret_check)
+            ret[key] = pre_ret_check
     return ret
 
 

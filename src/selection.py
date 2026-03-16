@@ -51,10 +51,11 @@ def promt_after_maze_print():
         select = int(input("\033[36m► select an option\033[0m: "))
     except ValueError:
         print("Invalid input. Please enter a number.")
+        tput_ed_flush(23)
         return promt_after_maze_print()
     if select not in [1, 2, 3, 4, 5, 6]:
         print("Invalid selection. Please enter 1, 2, 3, 4, 5, or 6.")
-        tput_ed_flush(18)
+        tput_ed_flush(23)
         return promt_after_maze_print()
     return select
 
@@ -200,6 +201,7 @@ def change_params_after(args, m) -> None:
 
         select_raw = read_until_enter("\033[36m► select an option\033[0m: ")
         if select_raw in ("\x1b", "\x03"):
+            tput_ed_flush(flush)
             return after_maze_print(args, m)
 
         try:
@@ -343,7 +345,6 @@ def after_maze_print(args: list, m: Maze):
         return selection_function(args)
     if select == 2:
         color_promt(m, select)
-        tput_ed_flush(27)
         return after_maze_print(args, m)
     if select == 3:
         change_params_after(args, m)

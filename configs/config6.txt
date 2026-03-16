@@ -4,12 +4,12 @@
 # Sample configuration for A-Maze-ing
 # One KEY=VALUE per line. Lines starting with # are comments.
 
+PERFECT=True
 WIDTH=-20
 HEIGHT=20
 ENTRY=0,0
 EXIT=19,15
 OUTPUT_FILE=maze.txt
-PERFECT=True
 
 # Optional keys
 SEED=42
