@@ -371,6 +371,11 @@ def after_maze_print(args: dict, m: Maze):
 
 def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
     flush()
+    seed = None
+    if seed is None:
+        seed = random.randint(0, 10**9)
+        print(f"Generated seed: {seed}")
+    random.seed(seed)
     random_42 = True
     cols, rows = args['HEIGHT'], args['WIDTH']
     start = args['ENTRY']
