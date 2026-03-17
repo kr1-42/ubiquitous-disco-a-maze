@@ -371,12 +371,12 @@ def after_maze_print(args: dict, m: Maze):
 
 def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
     flush()
-    seed = None
+    seed = args['SEED']
     if seed is None:
         seed = random.randint(0, 10**9)
         print(f"Generated seed: {seed}")
     random.seed(seed)
-    random_42 = True
+    random_42 = args['RANDOM_42']
     cols, rows = args['HEIGHT'], args['WIDTH']
     start = args['ENTRY']
     end = args['EXIT']
@@ -389,8 +389,8 @@ def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
         m.random_draw_42(cols, rows)
     else:
         m.draw_42(cols, rows)
-    m.backtracking(m.grid[0][0], True, args['PERFECT'])
-    m.bfs(True)
+    m.backtracking(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'])
+    m.bfs(args['RES_ANIMATINON'])
     m.print_maze()
     m.print_hexa_maze("hexa.txt")
     after_maze_print(args, m)

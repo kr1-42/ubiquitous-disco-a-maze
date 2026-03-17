@@ -244,7 +244,7 @@ class Maze:
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
                      animation: bool = False,
-                     bad: bool = False) -> None:
+                     perfect: bool = True) -> None:
         stack = []
         curr_cell = None
         if starting_cell:
@@ -258,10 +258,10 @@ class Maze:
                 direction = random.choice(unvisited)
                 if curr_cell:
                     curr_cell.break_wall(direction)
-                if bad:
-                    direction.visited = random.randint(0, 100) < 80
-                else:
+                if perfect:
                     direction.visited = True
+                else:
+                    direction.visited = random.randint(0, 100) < 80
                 if curr_cell and self.unvisited_neighbours(curr_cell):
                     stack.append(curr_cell)
                 curr_cell = direction
@@ -273,7 +273,7 @@ class Maze:
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,
                       animation: float = False,
-                      bad: float = False) -> None:
+                      perfect: float = True) -> None:
         frontier = []
         if starting_cell:
             curr_cell = starting_cell
@@ -286,10 +286,10 @@ class Maze:
                 frontier.remove((next_cell, curr_cell))
                 if not next_cell.visited:
                     curr_cell.break_wall(next_cell)
-                if bad:
-                    next_cell.visited = random.randint(0, 100) < 99
-                else:
+                if perfect:
                     next_cell.visited = True
+                else:
+                    next_cell.visited = random.randint(0, 100) < 99
                 curr_cell = next_cell
                 for neighbor in self.unvisited_neighbours(curr_cell):
                     frontier.append((neighbor, next_cell))

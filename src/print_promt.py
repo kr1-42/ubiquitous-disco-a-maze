@@ -278,6 +278,10 @@ def default_settings() -> dict[str, int | str | tuple[int, int]]:
         'ENTRY': (0, 0),
         'EXIT': (19, 19),
         'PERFECT': True,
+        'MAZE_ANIMATION': False,
+        'RES_ANIMATINON': False,
+        'RANDOM_42': False,
+        'SEED': None,
         'ALGORITHM': 'dfs',
     }
 
@@ -406,7 +410,12 @@ def change_params(args):
             'WIDTH': width,
             'ENTRY': (entry_x, entry_y),
             'EXIT': (exit_x, exit_y),
-            'PERFECT': perfect
+            'PERFECT': perfect,
+            'RANDOM_42': False,
+            'MAZE_ANIMATION': False,
+            'RES_ANIMATINON': False,
+            'SEED': None,
+            'ALGORITHM': 'dfs',
         })
     except (ValueError, KeyboardInterrupt, EOFError):
         print("\n\033[31m✗ Invalid input. Please enter numbers.\033[0m\n")
