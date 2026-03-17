@@ -90,6 +90,16 @@ class Maze:
                 unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
 
+    def remove_diagonal_wall(self, curr_cell: Cell) -> bool:
+        if curr_cell:
+            if curr_cell.row + 1 < self.rows and curr_cell.col + 1 < self.cols:
+                diagonal_cell = self.grid[curr_cell.row + 1][curr_cell.col + 1]
+                se = not curr_cell.east and not curr_cell.south
+                nw = not diagonal_cell.west and not diagonal_cell.north
+                return se and nw
+        return False
+
+
     def print_maze(self) -> None:
         print('\033[3J\033[H')
         print(self.colors['wall'] * (self.cols * 2 + 1))
@@ -177,7 +187,10 @@ class Maze:
                         bottom += self.colors['wall']
                     else:
                         bottom += self.colors['path']
-                bottom += self.colors['wall']
+                if self.remove_diagonal_wall(self.grid[c.row][c.col]):
+                    bottom += self.colors['path']
+                else:
+                    bottom += self.colors['wall']
             print(line)
             print(bottom)
         sleep(0.005)
