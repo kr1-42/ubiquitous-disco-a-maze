@@ -265,14 +265,21 @@ def noargs_panel() -> int:
     return select
 
 
-def default_settings() -> list:
+def default_settings() -> dict[str, int | str | tuple[int, int]]:
     print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
     print("\033[36m║\033[35m  Using default settings                    \033[36m║\033[0m")
     print("\033[36m║  Height: 20, Width: 20                      \033[36m║\033[0m")
     print("\033[36m║  Entry: (0, 0), Exit: (19, 19)               \033[36m║\033[0m")
     print("\033[36m║  Perfect Maze: True, Algorithm: DFS         \033[36m║\033[0m")
     print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
-    return [20, 20, (0, 0), (19, 19), True, None, 'dfs']
+    return {
+        'HEIGHT': 20,
+        'WIDTH': 20,
+        'ENTRY': (0, 0),
+        'EXIT': (19, 19),
+        'PERFECT': True,
+        'ALGORITHM': 'dfs',
+    }
 
 
 def get_key():
@@ -462,10 +469,10 @@ def print_promt(args: dict) -> None:
                     args = params_panel(args)
                 case 2:
                     flush()
-                    select = algo_panel(str(args[7]).lower())
+                    select = algo_panel(str(args['ALGORITHM']).lower())
                     if select is None:
                         return print_promt(args)
-                    args[7] = ALGOS[select - 1][1]
+                    args['ALGORITHM'] = ALGOS[select - 1][1]
                 case 3:
                     print("Running program with current settings...")
                     from src.selection import selection_function
