@@ -46,9 +46,6 @@ def promt_after_maze_print():
             "╚═══════════════════════════════════════════════════╝",
             "",
         ]
-        print("\n\nprogrammare che colore randomico o " +
-              "scelto rimanga anche dopo la rigenerazione " +
-              "del labirinto, altrimenti è inutile")
         print("\n".join(box))
         select = int(input("\033[36m► select an option\033[0m: "))
     except ValueError:
@@ -187,11 +184,11 @@ def change_params_after(args, m) -> None:
             row("              \033[36m► Change Params\033[0m"),
             row("      \033[33mValidate values before regenerate\033[0m"),
             row(),
-            row(f"  \033[35m► 1) height\033[0m   \033[32m[{args[0]}]\033[0m"),
-            row(f"  \033[35m► 2) width\033[0m    \033[32m[{args[1]}]\033[0m"),
-            row(f"  \033[35m► 3) entry\033[0m    \033[32m[{args[2]}]\033[0m"),
-            row(f"  \033[35m► 4) exit\033[0m     \033[32m[{args[3]}]\033[0m"),
-            row(f"  \033[35m► 5) perfect\033[0m  {status(bool(args[5]))}"),
+            row(f"  \033[35m► 1) height\033[0m   \033[32m[{args['HEIGHT']}]\033[0m"),
+            row(f"  \033[35m► 2) width\033[0m    \033[32m[{args['WIDTH']}]\033[0m"),
+            row(f"  \033[35m► 3) entry\033[0m    \033[32m[{args['ENTRY']}]\033[0m"),
+            row(f"  \033[35m► 4) exit\033[0m     \033[32m[{args['EXIT']}]\033[0m"),
+            row(f"  \033[35m► 5) perfect\033[0m  {status(bool(args['PERFECT']))}"),
             row(),
             row("  \033[31m► 0) apply + back\033[0m"),
             row("  \033[34mRanges: size 1-44, points in bounds\033[0m"),
@@ -243,11 +240,11 @@ def change_params_after(args, m) -> None:
                     print("Invalid input. Height must be between 1 and 44.")
                     flush += 1
                     continue
-                if args[2][1] >= height or args[3][1] >= height:
+                if args['ENTRY'][1] >= height or args['EXIT'][1] >= height:
                     print("Invalid input. Entry/exit Y out of bounds.")
                     flush += 1
                     continue
-                args[0] = height
+                args['HEIGHT'] = height
                 tput_ed_flush(flush)
                 break
 
@@ -268,11 +265,11 @@ def change_params_after(args, m) -> None:
                     print("\033[31mInvalid input. Width must be between 1 and 44.\033[0m")
                     flush += 1
                     continue
-                if args[2][0] >= width or args[3][0] >= width:
+                if args['ENTRY'][0] >= width or args['EXIT'][0] >= width:
                     print("\033[31mInvalid input. Entry/exit X out of bounds.\033[0m")
                     flush += 1
                     continue
-                args[1] = width
+                args['WIDTH'] = width
                 tput_ed_flush(flush)
                 break
 
@@ -295,15 +292,15 @@ def change_params_after(args, m) -> None:
                     print("\033[31mInvalid input. Entry coordinates must be numbers.\033[0m")
                     flush += 1
                     continue
-                if not (0 <= entry_x < args[1] and 0 <= entry_y < args[0]):
+                if not (0 <= entry_x < args['WIDTH'] and 0 <= entry_y < args['HEIGHT']):
                     print("\033[31mInvalid input. Entry is out of bounds.\033[0m")
                     flush += 1
                     continue
-                if (entry_x, entry_y) == args[3]:
+                if (entry_x, entry_y) == args['EXIT']:
                     print("\033[31mInvalid input. Entry and exit cannot be the same.\033[0m")
                     flush += 1
                     continue
-                args[2] = (entry_x, entry_y)
+                args['ENTRY'] = (entry_x, entry_y)
                 tput_ed_flush(flush)
                 break
 
@@ -326,24 +323,24 @@ def change_params_after(args, m) -> None:
                     print("\033[31mInvalid input. Exit coordinates must be numbers.\033[0m")
                     flush += 1
                     continue
-                if not (0 <= exit_x < args[1] and 0 <= exit_y < args[0]):
+                if not (0 <= exit_x < args['WIDTH'] and 0 <= exit_y < args['HEIGHT']):
                     print("\033[31mInvalid input. Exit coordinates are out of bounds.\033[0m")
                     flush += 1
                     continue
-                if (exit_x, exit_y) == args[2]:
+                if (exit_x, exit_y) == args['ENTRY']:
                     print("\033[31mInvalid input. Exit and entry cannot be the same.\033[0m")
                     flush += 1
                     continue
-                args[3] = (exit_x, exit_y)
+                args['EXIT'] = (exit_x, exit_y)
                 tput_ed_flush(flush)
                 break
 
         elif select == 5:
-            args[5] = not bool(args[5])
+            args['PERFECT'] = not bool(args['PERFECT'])
             tput_ed_flush(flush)
 
 
-def after_maze_print(args: list, m: Maze):
+def after_maze_print(args: dict, m: Maze):
     select = promt_after_maze_print()
     if select == 1:
         return selection_function(args)
