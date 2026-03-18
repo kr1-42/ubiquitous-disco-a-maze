@@ -280,7 +280,7 @@ def default_settings() -> dict[str, int | str | tuple[int, int]]:
         'PERFECT': True,
         'MAZE_ANIMATION': False,
         'RES_ANIMATINON': False,
-        'RANDOM_42': False,
+        'RANDOM_42': True,
         'SEED': None,
         'ALGORITHM': 'dfs',
     }
@@ -411,7 +411,7 @@ def change_params(args):
             'ENTRY': (entry_x, entry_y),
             'EXIT': (exit_x, exit_y),
             'PERFECT': perfect,
-            'RANDOM_42': False,
+            'RANDOM_42': True,
             'MAZE_ANIMATION': False,
             'RES_ANIMATINON': False,
             'SEED': None,

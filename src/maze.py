@@ -197,8 +197,8 @@ class Maze:
 
     def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
-            "#   ###",
-            "#     #",
+            "# # ###",
+            "# #   #",
             "### ###",
             "  # #  ",
             "  # ###"
@@ -215,8 +215,8 @@ class Maze:
 
     def random_draw_42(self, rows: int, cols: int) -> None:
         pattern = [
-            "#   ###",
-            "#     #",
+            "# # ###",
+            "# #   #",
             "### ###",
             "  # #  ",
             "  # ###"
@@ -225,7 +225,7 @@ class Maze:
         avaliable_rows = rows - 5
         while True:
             autorized = True
-            draw_row = random.randint(0, avaliable_rows)
+            draw_row = random.randint(1, avaliable_rows)
             draw_col = random.randint(1, avaliable_cols)
             for r, row in enumerate(pattern):
                 for c, ch in enumerate(row):
