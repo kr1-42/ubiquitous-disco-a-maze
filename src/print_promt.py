@@ -6,12 +6,16 @@ import tty
 
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+CANCEL_SIGNALS = ("\x1b", "\x03")
 
 ALGOS = [
     ("Depth-First Search (DFS)", "dfs"),
-    ("Prim's Algorithm",         "prim"),
-    ("Kruskal's Algorithm",      "kruskal"),
+    ("Prim's Algorithm", "prim"),
+    ("Kruskal's Algorithm", "kruskal"),
 ]
+
+
+MazeArgs = dict[str, int | bool | str | tuple[int, int]]
 
 
 def _visible_len(text: str) -> int:
@@ -35,7 +39,7 @@ def _box_row(text: str = "", width: int = 51) -> str:
     return f"║{_ansi_pad(text, width)}║"
 
 
-def _format_param_value(value) -> str:
+def _format_param_value(value: object) -> str:
     if isinstance(value, bool):
         color = "32" if value else "31"
         label = "ON" if value else "OFF"
@@ -43,12 +47,16 @@ def _format_param_value(value) -> str:
     return f"\033[36m[{value}]\033[0m"
 
 
+def _is_cancel_signal(value: str) -> bool:
+    return value in CANCEL_SIGNALS
+
+
 def flush() -> None:
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def panel() -> int:
-    try:
+    while True:
         box = [
             "╔═══════════════════════════════════════════════════════════════════════════════════════╗",
             "║       ___       ___       ___       ___       ___       ___       ___       ___       ║",
@@ -74,162 +82,20 @@ def panel() -> int:
             "",
         ]
         print("\n".join(box))
-        select = int(input("\033[36m►Please select an option: \033[0m"))
-    except ValueError:
-        print("Invalid input. Please enter a number.")
-        return panel()
-    if select not in [1, 2, 3, 4]:
-        print("Invalid selection. Please enter 1, 2, 3, or 4.")
-        return panel()
-    return select
-
-
-def params_panel(args: dict[str, int | str | tuple[int, int]]) -> dict[str, int | str | tuple[int, int]]:
-    while True:
-        flush()
-        height_value = _format_param_value(args['HEIGHT'])
-        width_value = _format_param_value(args['WIDTH'])
-        entry_value = _format_param_value(args['ENTRY'])
-        exit_value = _format_param_value(args['EXIT'])
-        perfect_value = _format_param_value(args['PERFECT'])
-
-        box = [
-            "╔═══════════════════════════════════════════════════╗",
-            _box_row(),
-            _box_row("              \033[36m► Change Params\033[0m"),
-            _box_row("      \033[33mValidate values before generate\033[0m"),
-            _box_row(),
-            _box_row(f"  \033[35m► 1) height\033[0m   {height_value}"),
-            _box_row(f"  \033[35m► 2) width\033[0m    {width_value}"),
-            _box_row(f"  \033[35m► 3) entry\033[0m    {entry_value}"),
-            _box_row(f"  \033[35m► 4) exit\033[0m     {exit_value}"),
-            _box_row(f"  \033[35m► 5) perfect\033[0m  {perfect_value}"),
-            _box_row(),
-            _box_row("  \033[31m► 0) back\033[0m"),
-            _box_row(),
-            _box_row("  \033[34mRanges: size 1-44, points must be in bounds\033[0m"),
-            _box_row("  \033[34mESC closes the panel too\033[0m"),
-            "╚═══════════════════════════════════════════════════╝",
-            "",
-        ]
-        print("\n".join(box))
-        select_raw = read_until_enter("\033[36m► select an option\033[0m: ")
-        if select_raw in ("\x1b", "\x03"):
-            flush()
-            return args
 
         try:
-            select = int(select_raw)
+            select = int(input("\033[36m►Please select an option: \033[0m"))
         except ValueError:
             print("Invalid input. Please enter a number.")
             continue
 
-        if select not in [0, 1, 2, 3, 4, 5]:
-            print("Invalid selection. Please enter a number between 0 and 5.")
-            continue
-
-        if select == 0:
-            flush()
-            return args
-
-        if select == 1:
-            while True:
-                height_raw = read_until_enter("Enter new height (1-44): ")
-                if height_raw in ("\x1b", "\x03"):
-                    flush()
-                    return args
-                try:
-                    height = int(height_raw)
-                except ValueError:
-                    print("Invalid input. Height must be a number.")
-                    continue
-                if not 1 <= height <= 44:
-                    print("Invalid input. Height must be between 1 and 44.")
-                    continue
-                if args['ENTRY'][1] >= height or args['EXIT'][1] >= height:
-                    print("Invalid input. Entry/exit Y out of bounds.")
-                    continue
-                args['HEIGHT'] = height
-                break
-
-        elif select == 2:
-            while True:
-                width_raw = read_until_enter("Enter new width (1-44): ")
-                if width_raw in ("\x1b", "\x03"):
-                    flush()
-                    return args
-                try:
-                    width = int(width_raw)
-                except ValueError:
-                    print("Invalid input. Width must be a number.")
-                    continue
-                if not 1 <= width <= 44:
-                    print("Invalid input. Width must be between 1 and 44.")
-                    continue
-                if args['ENTRY'][0] >= width or args['EXIT'][0] >= width:
-                    print("Invalid input. Entry/exit X out of bounds.")
-                    continue
-                args['WIDTH'] = width
-                break
-
-        elif select == 3:
-            while True:
-                entry_x_raw = read_until_enter("Enter new entry X: ")
-                if entry_x_raw in ("\x1b", "\x03"):
-                    flush()
-                    return args
-                entry_y_raw = read_until_enter("Enter new entry Y: ")
-                if entry_y_raw in ("\x1b", "\x03"):
-                    flush()
-                    return args
-                try:
-                    entry_x = int(entry_x_raw)
-                    entry_y = int(entry_y_raw)
-                except ValueError:
-                    print("Invalid input. Entry coordinates must be numbers.")
-                    continue
-                if not (0 <= entry_x < args['WIDTH']
-                        and 0 <= entry_y < args['HEIGHT']):
-                    print("Invalid input. Entry is out of bounds.")
-                    continue
-                if (entry_x, entry_y) == args['EXIT']:
-                    print("Invalid input. Entry and exit cannot be the same.")
-                    continue
-                args['ENTRY'] = (entry_x, entry_y)
-                break
-
-        elif select == 4:
-            while True:
-                exit_x_raw = read_until_enter("Enter new exit X: ")
-                if exit_x_raw in ("\x1b", "\x03"):
-                    flush()
-                    return args
-                exit_y_raw = read_until_enter("Enter new exit Y: ")
-                if exit_y_raw in ("\x1b", "\x03"):
-                    flush()
-                    return args
-                try:
-                    exit_x = int(exit_x_raw)
-                    exit_y = int(exit_y_raw)
-                except ValueError:
-                    print("Invalid input. Exit coordinates must be numbers.")
-                    continue
-                if not (0 <= exit_x < args['WIDTH']
-                        and 0 <= exit_y < args['HEIGHT']):
-                    print("Invalid input. Exit coordinates are out of bounds.")
-                    continue
-                if (exit_x, exit_y) == args['ENTRY']:
-                    print("Invalid input. Exit and entry cannot be the same.")
-                    continue
-                args['EXIT'] = (exit_x, exit_y)
-                break
-
-        elif select == 5:
-            args['PERFECT'] = not bool(args['PERFECT'])
+        if select in [1, 2, 3, 4]:
+            return select
+        print("Invalid selection. Please enter 1, 2, 3, or 4.")
 
 
 def noargs_panel() -> int:
-    try:
+    while True:
         box = [
             "╔═══════════════════════════════════════════════════════════════════════════════════════╗",
             "║       ___       ___       ___       ___       ___       ___       ___       ___       ║",
@@ -255,17 +121,19 @@ def noargs_panel() -> int:
             "",
         ]
         print("\n".join(box))
-        select = int(input("\033[36m►Please select an option: \033[0m"))
-    except ValueError:
-        print("Invalid input. Please enter a number.")
-        return panel()
-    if select not in [1, 2, 3, 4, 5]:
+
+        try:
+            select = int(input("\033[36m►Please select an option: \033[0m"))
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+
+        if select in [1, 2, 3, 4, 5]:
+            return select
         print("Invalid selection. Please enter 1, 2, 3, 4, or 5.")
-        return panel()
-    return select
 
 
-def default_settings() -> dict[str, int | str | tuple[int, int]]:
+def default_settings() -> MazeArgs:
     print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
     print("\033[36m║\033[35m  Using default settings                    \033[36m║\033[0m")
     print("\033[36m║  Height: 20, Width: 20                      \033[36m║\033[0m")
@@ -273,16 +141,16 @@ def default_settings() -> dict[str, int | str | tuple[int, int]]:
     print("\033[36m║  Perfect Maze: True, Algorithm: DFS         \033[36m║\033[0m")
     print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
     return {
-        'HEIGHT': 20,
-        'WIDTH': 20,
-        'ENTRY': (0, 0),
-        'EXIT': (19, 19),
-        'PERFECT': True,
-        'ALGORITHM': 'dfs',
+        "HEIGHT": 20,
+        "WIDTH": 20,
+        "ENTRY": (0, 0),
+        "EXIT": (19, 19),
+        "PERFECT": True,
+        "ALGORITHM": "dfs",
     }
 
 
-def get_key():
+def get_key() -> str:
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
     try:
@@ -292,13 +160,14 @@ def get_key():
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 
-def read_until_enter(prompt=""):
+def read_until_enter(prompt: str = "") -> str:
     if prompt:
         print(prompt, end="", flush=True)
-    chars = []
+    chars: list[str] = []
+
     while True:
         ch = get_key()
-        if ch in ("\x1b", "\x03"):
+        if _is_cancel_signal(ch):
             print()
             return ch
         if ch in ("\r", "\n"):
@@ -313,113 +182,151 @@ def read_until_enter(prompt=""):
         print(ch, end="", flush=True)
 
 
-def change_params(args):
+def _ask_size(prompt: str, axis_name: str) -> int | None:
+    while True:
+        raw = read_until_enter(prompt)
+        if _is_cancel_signal(raw):
+            return None
+        try:
+            value = int(raw)
+        except ValueError:
+            print(f"Invalid input. {axis_name} must be a number.")
+            continue
+        if 1 <= value <= 44:
+            return value
+        print(f"Invalid input. {axis_name} must be between 1 and 44.")
+
+
+def _ask_point(label: str) -> tuple[int, int] | None:
+    while True:
+        x_raw = read_until_enter(f"Enter new {label} X: ")
+        if _is_cancel_signal(x_raw):
+            return None
+
+        y_raw = read_until_enter(f"Enter new {label} Y: ")
+        if _is_cancel_signal(y_raw):
+            return None
+
+        try:
+            return (int(x_raw), int(y_raw))
+        except ValueError:
+            print(f"Invalid input. {label.capitalize()} coordinates must be numbers.")
+
+
+def params_panel(args: MazeArgs) -> MazeArgs:
+    while True:
+        flush()
+        box = [
+            "╔═══════════════════════════════════════════════════╗",
+            _box_row(),
+            _box_row("              \033[36m► Change Params\033[0m"),
+            _box_row("      \033[33mValidate values before generate\033[0m"),
+            _box_row(),
+            _box_row(f"  \033[35m► 1) height\033[0m   {_format_param_value(args['HEIGHT'])}"),
+            _box_row(f"  \033[35m► 2) width\033[0m    {_format_param_value(args['WIDTH'])}"),
+            _box_row(f"  \033[35m► 3) entry\033[0m    {_format_param_value(args['ENTRY'])}"),
+            _box_row(f"  \033[35m► 4) exit\033[0m     {_format_param_value(args['EXIT'])}"),
+            _box_row(f"  \033[35m► 5) perfect\033[0m  {_format_param_value(args['PERFECT'])}"),
+            _box_row(),
+            _box_row("  \033[31m► 0) back\033[0m"),
+            _box_row(),
+            _box_row("  \033[34mRanges: size 1-44, points must be in bounds\033[0m"),
+            _box_row("  \033[34mESC closes the panel too\033[0m"),
+            "╚═══════════════════════════════════════════════════╝",
+            "",
+        ]
+        print("\n".join(box))
+
+        select_raw = read_until_enter("\033[36m► select an option\033[0m: ")
+        if _is_cancel_signal(select_raw):
+            flush()
+            return args
+
+        try:
+            select = int(select_raw)
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+
+        if select == 0:
+            flush()
+            return args
+
+        if select == 1:
+            height = _ask_size("Enter new height (1-44): ", "Height")
+            if height is None:
+                flush()
+                return args
+            if args["ENTRY"][1] >= height or args["EXIT"][1] >= height:
+                print("Invalid input. Entry/exit Y out of bounds.")
+                continue
+            args["HEIGHT"] = height
+            continue
+
+        if select == 2:
+            width = _ask_size("Enter new width (1-44): ", "Width")
+            if width is None:
+                flush()
+                return args
+            if args["ENTRY"][0] >= width or args["EXIT"][0] >= width:
+                print("Invalid input. Entry/exit X out of bounds.")
+                continue
+            args["WIDTH"] = width
+            continue
+
+        if select == 3:
+            entry = _ask_point("entry")
+            if entry is None:
+                flush()
+                return args
+            if not (0 <= entry[0] < args["WIDTH"] and 0 <= entry[1] < args["HEIGHT"]):
+                print("Invalid input. Entry is out of bounds.")
+                continue
+            if entry == args["EXIT"]:
+                print("Invalid input. Entry and exit cannot be the same.")
+                continue
+            args["ENTRY"] = entry
+            continue
+
+        if select == 4:
+            exit_point = _ask_point("exit")
+            if exit_point is None:
+                flush()
+                return args
+            if not (0 <= exit_point[0] < args["WIDTH"] and 0 <= exit_point[1] < args["HEIGHT"]):
+                print("Invalid input. Exit coordinates are out of bounds.")
+                continue
+            if exit_point == args["ENTRY"]:
+                print("Invalid input. Exit and entry cannot be the same.")
+                continue
+            args["EXIT"] = exit_point
+            continue
+
+        if select == 5:
+            args["PERFECT"] = not args["PERFECT"]
+            continue
+
+        print("Invalid selection. Please enter a number between 0 and 5.")
+
+
+def change_params(args: MazeArgs | None) -> MazeArgs:
     flush()
     print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
     print("\033[36m║\033[35m  Enter Parameters                         \033[36m║\033[0m")
     print("\033[36m║\033[35m  ESC to exit dialog                       \033[36m║\033[0m")
     print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
-    try:
-        while True:
-            height = read_until_enter("\033[36m► Height: \033[0m")
-            if height == "\x1b" or height == "\x03":
-                flush()
-                return args
-            height = int(height)
-            if height > 0 and height < 45:
-                break
-            print("\n\033[31m✗ Invalid input. " +
-                  "Height must be between 1 and 44.\033[0m\n")
 
-        while True:
-            width = read_until_enter("\033[36m► Width: \033[0m")
-            if width == "\x1b" or width == "\x03":
-                flush()
-                return args
-            width = int(width)
-            if width > 0 and width < 45:
-                break
-            print("\n\033[31m✗ Invalid input. " +
-                  "Width must be between 1 and 44.\033[0m\n")
-
-        while True:
-            entry_x = read_until_enter("\033[36m► Entry X: \033[0m")
-            if entry_x == "\x1b" or entry_x == "\x03":
-                flush()
-                return args
-            entry_x = int(entry_x)
-            entry_y = read_until_enter("\033[36m► Entry Y: \033[0m")
-            if entry_y == "\x1b" or entry_y == "\x03":
-                flush()
-                return args
-            entry_y = int(entry_y)
-            if 0 <= entry_x < width and 0 <= entry_y < height:
-                break
-            print("\n\033[31m✗ Invalid input. " +
-                  "Entry coordinates are out of bounds.\033[0m\n")
-
-        while True:
-            exit_x = read_until_enter("\033[36m► Exit X: \033[0m")
-            if exit_x == "\x1b" or exit_x == "\x03":
-                flush()
-                return args
-            exit_x = int(exit_x)
-            if exit_x < 0 or exit_x >= width or exit_x == entry_x:
-                print("\n\033[31m✗ Invalid input. " +
-                      "Exit X coordinate is out of bounds or same as entry." +
-                      "\033[0m\n")
-            if 0 <= exit_x < width and exit_x != entry_x:
-                break
-
-        while True:
-            exit_y = read_until_enter("\033[36m► Exit Y: \033[0m")
-            if exit_y == "\x1b" or exit_y == "\x03":
-                flush()
-                return args
-            exit_y = int(exit_y)
-            if 0 <= exit_y < height and exit_y != entry_y:
-                break
-            if exit_y < 0 or exit_y >= height:
-                print("\n\033[31m✗ Invalid input. " +
-                      "Exit Y coordinate is out of bounds.\033[0m\n")
-                continue
-
-        while True:
-            perfect_input = read_until_enter("\033[36m► Perfect maze (y/n): " +
-                                             "\033[0m")
-            if perfect_input == "\x1b" or perfect_input == "\x03":
-                flush()
-                return args
-            perfect_input = perfect_input.strip().lower()
-            if perfect_input in ['y', 'yes']:
-                perfect = True
-                break
-            if perfect_input in ['n', 'no']:
-                perfect = False
-                break
-            print("\n\033[31m✗ Invalid input. " +
-                  "Please enter y/yes or n/no.\033[0m\n")
-
-        flush()
-        return print_promt({
-            'HEIGHT': height,
-            'WIDTH': width,
-            'ENTRY': (entry_x, entry_y),
-            'EXIT': (exit_x, exit_y),
-            'PERFECT': perfect
-        })
-    except (ValueError, KeyboardInterrupt, EOFError):
-        print("\n\033[31m✗ Invalid input. Please enter numbers.\033[0m\n")
-        return change_params(args)
+    base_args = args or default_settings()
+    return params_panel(base_args)
 
 
-def algo_panel(current_algo=None):
-    def toggle(is_on):
+def algo_panel(current_algo: str | None = None) -> int | None:
+    def toggle(is_on: bool) -> str:
         color = "32" if is_on else "31"
         label = "ON" if is_on else "OFF"
         return f"\033[{color}m[{label}]\033[0m"
 
-    try:
+    while True:
         box = [
             "╔═══════════════════════════════════════════════════╗",
             _box_row(),
@@ -428,81 +335,101 @@ def algo_panel(current_algo=None):
             _box_row(),
         ]
         for idx, (name, key) in enumerate(ALGOS, start=1):
-            is_selected = (current_algo == key)
-            status = toggle(is_selected)
-            box.append(
-                _box_row(f"  \033[35m► {idx}) {name}\033[0m  {status}")
-            )
-        box.extend([
-            _box_row(),
-            _box_row("  \033[31m► 0) back\033[0m"),
-            _box_row(),
-            _box_row("  \033[34mESC closes the panel too\033[0m"),
-            _box_row(),
-            "╚═══════════════════════════════════════════════════╝",
-            "",
-        ])
+            status = toggle(current_algo == key)
+            box.append(_box_row(f"  \033[35m► {idx}) {name}\033[0m  {status}"))
+
+        box.extend(
+            [
+                _box_row(),
+                _box_row("  \033[31m► 0) back\033[0m"),
+                _box_row(),
+                _box_row("  \033[34mESC closes the panel too\033[0m"),
+                _box_row(),
+                "╚═══════════════════════════════════════════════════╝",
+                "",
+            ]
+        )
         print("\n".join(box))
+
         select_raw = read_until_enter("\033[36m► select an algorithm\033[0m: ")
-        if select_raw in ("\x1b", "\x03"):
+        if _is_cancel_signal(select_raw):
             flush()
             return None
-        select = int(select_raw)
-    except ValueError:
-        print("Invalid input. Please enter a number.")
-        return algo_panel(current_algo)
-    if select == 0:
-        return None
-    if select not in range(1, len(ALGOS) + 1):
+
+        try:
+            select = int(select_raw)
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+
+        if select == 0:
+            return None
+        if select in range(1, len(ALGOS) + 1):
+            flush()
+            return select
+
         print(f"Invalid selection. Please enter 0 to {len(ALGOS)}.")
-        return algo_panel(current_algo)
-    flush()
-    return select
 
 
-def print_promt(args: dict) -> None:
+def print_promt(args: MazeArgs | None) -> None:
     while True:
-        if args is not None:
-            select = panel()
-            match select:
-                case 1:
-                    args = params_panel(args)
-                case 2:
-                    flush()
-                    select = algo_panel(str(args['ALGORITHM']).lower())
-                    if select is None:
-                        return print_promt(args)
-                    args['ALGORITHM'] = ALGOS[select - 1][1]
-                case 3:
-                    print("Running program with current settings...")
-                    from src.selection import selection_function
-                    flush()
-                    selection_function(args)
-                case 4:
-                    print("stopping program...")
-                    break
-        elif args is None:
+        if args is None:
             print("No arguments provided we'll use default settings, or not")
             select = noargs_panel()
-            match select:
-                case 1:
-                    flush()
+
+            if select == 1:
+                flush()
+                args = default_settings()
+                print("Default settings loaded. Returning to main menu...")
+                continue
+
+            if select == 2:
+                args = change_params(default_settings())
+                continue
+
+            if select == 3:
+                selected_algo = algo_panel(None)
+                if selected_algo is not None:
                     args = default_settings()
-                    print("Default settings loaded. Returning to main menu...")
-                    return print_promt(args)
-                case 2:
-                    change_params(args)
-                case 3:
-                    flush()
-                    select = algo_panel(None)
-                    if select is not None:
-                        args['ALGORITHM'] = ALGOS[select - 1][1]  # implement variable for algo
-                case 4:
-                    print("Running program with current settings...")
-                    from src.selection import selection_function
-                    flush()
-                    selection_function(default_settings())
-                case 5:
-                    print("stopping program...")
-                    break
+                    args["ALGORITHM"] = ALGOS[selected_algo - 1][1]
+                continue
+
+            if select == 4:
+                print("Running program with current settings...")
+                from src.selection import selection_function
+
+                flush()
+                selection_function(default_settings())
+                continue
+
+            if select == 5:
+                print("stopping program...")
+                break
+
+        else:
+            select = panel()
+
+            if select == 1:
+                args = params_panel(args)
+                continue
+
+            if select == 2:
+                flush()
+                selected_algo = algo_panel(str(args["ALGORITHM"]).lower())
+                if selected_algo is not None:
+                    args["ALGORITHM"] = ALGOS[selected_algo - 1][1]
+                continue
+
+            if select == 3:
+                print("Running program with current settings...")
+                from src.selection import selection_function
+
+                flush()
+                selection_function(args)
+                continue
+
+            if select == 4:
+                print("stopping program...")
+                break
+
     flush()
