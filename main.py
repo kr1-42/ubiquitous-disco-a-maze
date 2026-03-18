@@ -29,4 +29,5 @@ def selection_function() -> None:
     m.print_maze()
     m.print_hexa_maze("hexa.txt")
 
+
 selection_function()
