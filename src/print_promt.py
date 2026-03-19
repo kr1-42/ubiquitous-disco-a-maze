@@ -71,6 +71,7 @@ def panel() -> int:
             _side_row(),
             _side_row("\033[35m► 1) Parameters\033[0m", "\033[35mwritten by:\033[0m"),
             _side_row("\033[35m► 2) Algorithm\033[0m", "\033[35m\033[0m"),
+            _side_row("\033[31m► 4) choose seed\033[0m", "\033[35m\033[0m"),
             _side_row("\033[35m► 3) run program\033[0m", "\033[35m- alfiorav\033[0m"),
             _side_row("\033[31m► 4) exit\033[0m", "\033[35m- kr1\033[0m"),
             _side_row("", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
