@@ -456,8 +456,7 @@ def selection_function(args: dict[str, int | str | tuple[int, int]], seed: int |
         m.random_draw_42(cols, rows)
     else:
         m.draw_42(cols, rows)
-
-    m.backtracking(m.grid[0][0], True, typed_args['PERFECT'])
+    m.backtracking(m.grid[0][0], True, args['PERFECT'])
     m.bfs(True)
     m.print_maze()
     m.print_hexa_maze("hexa.txt")

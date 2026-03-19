@@ -8,6 +8,7 @@ EXIT=20,20
 OUTPUT_FILE=maze.txt
 PERFECT=True
 # Optional keys
+RANDOM_42=FALSE
 SEED=42
 ALGORITHM=dfs
 DISPLAY_MODE=ascii

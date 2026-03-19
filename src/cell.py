@@ -33,6 +33,24 @@ class Cell:
         self.assign_hexa()
         next_cell.assign_hexa()
 
+    def create_wall(self, next_cell: "Cell") -> None:
+        if self.row == next_cell.row:
+            if self.col < next_cell.col:
+                self.east = True
+                next_cell.west = True
+            else:
+                self.west = True
+                next_cell.east = True
+        elif self.col == next_cell.col:
+            if self.row < next_cell.row:
+                self.south = True
+                next_cell.north = True
+            else:
+                self.north = True
+                next_cell.south = True
+        self.assign_hexa()
+        next_cell.assign_hexa()
+
     def assign_hexa(self) -> None:
         self.hexa = 0
         if self.north:
