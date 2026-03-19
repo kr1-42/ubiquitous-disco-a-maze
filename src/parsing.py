@@ -34,7 +34,10 @@ def check_parsed(parsed: dict[str, str]) -> dict[str, int | str | tuple[int, int
         'OUTPUT_FILE': None,
         'PERFECT': None,
         'SEED': None,
-        'ALGORITHM': None
+        'ALGORITHM': None,
+        'MAZE_ANIMATION': False,
+        'RES_ANIMATINON': False,
+        'RANDOM_42': False,
     }
     cases = {
             'WIDTH': check_width,

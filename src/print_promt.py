@@ -71,9 +71,9 @@ def panel() -> int:
             _side_row(),
             _side_row("\033[35m► 1) Parameters\033[0m", "\033[35mwritten by:\033[0m"),
             _side_row("\033[35m► 2) Algorithm\033[0m", "\033[35m\033[0m"),
-            _side_row("\033[31m► 4) choose seed\033[0m", "\033[35m\033[0m"),
-            _side_row("\033[35m► 3) run program\033[0m", "\033[35m- alfiorav\033[0m"),
-            _side_row("\033[31m► 4) exit\033[0m", "\033[35m- kr1\033[0m"),
+            _side_row("\033[31m► 3) choose seed\033[0m", "\033[35m\033[0m"),
+            _side_row("\033[35m► 4) run program\033[0m", "\033[35m- alfiorav\033[0m"),
+            _side_row("\033[31m► 5) exit\033[0m", "\033[35m- kr1\033[0m"),
             _side_row("", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
             _side_row(),
             _side_row(),
@@ -90,9 +90,9 @@ def panel() -> int:
             print("Invalid input. Please enter a number.")
             continue
 
-        if select in [1, 2, 3, 4]:
+        if select in [1, 2, 3, 4, 5]:
             return select
-        print("Invalid selection. Please enter 1, 2, 3, or 4.")
+        print("Invalid selection. Please enter 1, 2, 3, 4, or 5.")
 
 
 def noargs_panel() -> int:
@@ -149,6 +149,9 @@ def default_settings() -> MazeArgs:
         'EXIT': (19, 19),
         'PERFECT': True,
         'ALGORITHM': 'dfs',
+        'MAZE_ANIMATION': False,
+        'RES_ANIMATINON': False,
+        'RANDOM_42': False,
     }
 
 
@@ -228,7 +231,11 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             _box_row(f"  \033[35m► 2) width\033[0m    {_format_param_value(args['WIDTH'])}"),
             _box_row(f"  \033[35m► 3) entry\033[0m    {_format_param_value(args['ENTRY'])}"),
             _box_row(f"  \033[35m► 4) exit\033[0m     {_format_param_value(args['EXIT'])}"),
-            _box_row(f"  \033[35m► 5) perfect\033[0m  {_format_param_value(args['PERFECT'])}"),
+            _box_row(f"  \033[35m► 5) seed\033[0m     {_format_param_value(args['SEED'])}"),
+            _box_row(f"  \033[35m► 6) perfect\033[0m  {_format_param_value(args['PERFECT'])}"),
+            _box_row(f"  \033[35m► 7) maze_animation\033[0m     {_format_param_value(args['MAZE_ANIMATION'])}"),
+            _box_row(f"  \033[35m► 8) res_animation\033[0m     {_format_param_value(args['RES_ANIMATINON'])}"),
+            _box_row(f"  \033[35m► 9) random_42\033[0m     {_format_param_value(args['RANDOM_42'])}"),
             _box_row(),
             _box_row("  \033[31m► 0) back\033[0m"),
             _box_row(),
@@ -305,10 +312,27 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             continue
 
         if select == 5:
+            seed_raw = read_until_enter("Enter new seed (integer or empty to unset): ")
+            if _is_cancel_signal(seed_raw):
+                flush()
+                return args
+            args["SEED"] = int(seed_raw) if seed_raw.isdigit() else seed_raw.__hash__()
+            continue
+        if select == 6:
             args["PERFECT"] = not args["PERFECT"]
             continue
+        if select == 7:
+            args["MAZE_ANIMATION"] = not args["MAZE_ANIMATION"]
+            continue
+        if select == 8:
+            args["RES_ANIMATINON"] = not args["RES_ANIMATINON"]
+            continue
+        if select == 9:
+            args["RANDOM_42"] = not args["RANDOM_42"]
+            continue
 
-        print("Invalid selection. Please enter a number between 0 and 5.")
+
+        print("Invalid selection. Please enter a number between 0 and 9.")
 
 
 def change_params(args: MazeArgs | None) -> MazeArgs:
@@ -421,8 +445,14 @@ def print_promt(args: MazeArgs | None) -> None:
                 if selected_algo is not None:
                     args["ALGORITHM"] = ALGOS[selected_algo - 1][1]
                 continue
-
             if select == 3:
+                seed_raw = read_until_enter("Enter new seed (integer or empty to unset): ")
+                if _is_cancel_signal(seed_raw):
+                    flush()
+                    continue
+                args["SEED"] = int(seed_raw) if seed_raw.isdigit() else seed_raw.__hash__()
+                continue
+            if select == 4:
                 print("Running program with current settings...")
                 from src.selection import selection_function
 
@@ -430,7 +460,8 @@ def print_promt(args: MazeArgs | None) -> None:
                 selection_function(args)
                 continue
 
-            if select == 4:
+
+            if select == 5:
                 print("stopping program...")
                 break
 
