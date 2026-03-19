@@ -13,4 +13,4 @@ if __name__ == "__main__":
         print_promt(args=args)
         """programmare che colore randomico o scelto rimanga anche dopo la rigenerazione del labirinto, altrimenti è inutile"""
     except (EOFError, KeyboardInterrupt) as e:
-        print(f"\033[31mAn error occurred: {e}\033[0m")
+        print(f"\n\033[31mAn error occurred: {e}\033[0m")

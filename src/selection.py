@@ -48,8 +48,9 @@ def promt_after_maze_print():
             row("\033[33m► 2) change_color\033[0m      \033[35m║\033[0m"),
             row("\033[33m► 3) change variables\033[0m  \033[35m║ - alfiorav\033[0m"),
             row("\033[33m► 4) change algorithm\033[0m  \033[35m║ - kr1\033[0m"),
-            row("\033[31m►\033[33m \033[32m5\033[36m)\033[34m \033[35mr\033[31ma\033[33mn\033[32md\033[36mo\033[34mm\033[35m \033[31mc\033[33mo\033[32ml\033[36mo\033[34mr\033[0m      \033[35m║ -\033[0m \033[34mmeow.inc\033[0m"),
-            row("\033[31m► 6) exit\033[0m              \033[35m║\033[0m"),
+            row("\033[33m► 5) generate seed\033[0m]    \033[35m║\033[0m"),
+            row("\033[31m►\033[33m \033[32m6\033[36m)\033[34m \033[35mr\033[31ma\033[33mn\033[32md\033[36mo\033[34mm\033[35m \033[31mc\033[33mo\033[32ml\033[36mo\033[34mr\033[0m      \033[35m║ -\033[0m \033[34mmeow.inc\033[0m"),
+            row("\033[31m► 7) exit\033[0m              \033[35m║\033[0m"),
             row(),
             row(),
             "╚═══════════════════════════════════════════════════╝",
@@ -59,13 +60,15 @@ def promt_after_maze_print():
         select = int(input("\033[36m► select an option\033[0m: "))
     except ValueError:
         print("Invalid input. Please enter a number.")
-        tput_ed_flush(23)
-        return promt_after_maze_print()
+        tput_ed_flush(24)
+        promt_after_maze_print()
+        return
 
-    if select not in [1, 2, 3, 4, 5, 6]:
-        print("Invalid selection. Please enter 1, 2, 3, 4, 5, or 6.")
-        tput_ed_flush(23)
-        return promt_after_maze_print()
+    if select not in [1, 2, 3, 4, 5, 6, 7]:
+        print("Invalid selection. Please enter 1, 2, 3, 4, 5, 6, or 7.")
+        tput_ed_flush(24)
+        promt_after_maze_print()
+        return
     return select
 
 
@@ -201,6 +204,21 @@ def _ask_size(prompt: str, axis_name: str) -> int | None:
         print(
             f"\033[31mInvalid input. {axis_name} "
             "must be between 1 and 44.\033[0m"
+        )
+
+
+def _ask_seed(prompt: str, axis_name: str) -> int | None:
+    while True:
+        value = _read_int_value(prompt)
+        if value is None:
+            return None
+        if value == -1:
+            continue
+        if 1 <= value <= 1000000000:
+            return value
+        print(
+            f"\033[31mInvalid input. {axis_name} "
+            "must be between 1 and 1000000000.\033[0m"
         )
 
 
@@ -377,30 +395,48 @@ def change_params_after(args, m) -> None:
             typed_args['PERFECT'] = not bool(typed_args['PERFECT'])
 
 
-def after_maze_print(args: dict, m: Maze):
+def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
     select = promt_after_maze_print()
     if select == 1:
-        return selection_function(args)
+        selection_function(args)
+        return
     if select == 2:
         color_promt(m, select)
-        return after_maze_print(args, m)
+        after_maze_print(args, m)
+        return
     if select == 3:
         change_params_after(args, m)
-        return after_maze_print(args, m)
+        after_maze_print(args, m)
+        return
     if select == 4:
         tput_ed_flush()
         algo_select = algo_panel(args['ALGORITHM'])
         if algo_select is not None:
             args['ALGORITHM'] = ALGOS[algo_select - 1][1]
-            return selection_function(args)
+            selection_function(args)
+            return
         else:
-            return after_maze_print(args, m)
+            after_maze_print(args, m)
+            return
     if select == 5:
+        if seed is not None:
+            print(f"Current seed: {seed}")
+        else:
+            print("No seed generated yet.")
+        new_seed = _ask_seed("Enter new seed (1-1000000000): ", "Seed")
+        if new_seed is None:
+            after_maze_print(args, m)
+            return
+        random.seed(new_seed)
+        selection_function(args)
+        return
+    if select == 6:
         m.colors = random.choice(list(THEMES.values()))
         flush()
         m.print_maze()
-        return after_maze_print(args, m)
-    if select == 6:
+        after_maze_print(args, m)
+        return
+    if select == 7:
         tput_ed_flush(6)
         print("Goodbye :(")
         exit(1)
@@ -416,7 +452,7 @@ def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
         print(f"Generated seed: {seed}")
     random.seed(seed)
 
-    random_42 = True
+    random_42 = False
     cols = typed_args['HEIGHT']
     rows = typed_args['WIDTH']
     start = typed_args['ENTRY']
@@ -436,5 +472,4 @@ def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
     m.bfs(True)
     m.print_maze()
     m.print_hexa_maze("hexa.txt")
-    after_maze_print(args, m)
-
+    after_maze_print(args, m, seed)
