@@ -296,6 +296,68 @@ class Maze:
                 if animation:
                     self.print_maze()
 
+    def break_all_walls(self) -> None:
+        for r in self.grid:
+            for c in r:
+                self.grid[c.row][c.col].north = False
+                self.grid[c.row][c.col].west = False
+                if c.col != self.cols - 1:
+                    self.grid[c.row][c.col].east = False
+                if c.row != self.rows - 1:
+                    self.grid[c.row][c.col].south = False
+
+    def iterative_division(self,
+                           starting_cell: Optional["Cell"] = None,
+                           animation: float = False,
+                           perfect: float = True) -> None:
+        self.break_all_walls()
+        stack = []
+        
+        if self.cols > self.rows:
+            div_col = random.randint(0, self.cols - 1)
+            stack.append(((0, 0), (self.rows - 1, div_col)))
+            stack.append(((0, div_col), (self.rows - 1, self.cols - 1)))
+            for i in range(0, self.rows):
+                self.grid[i][div_col].create_wall(self.grid[i][div_col + 1])
+            opne = random.randint(0, self.rows-1)
+            self.grid[opne][div_col].break_wall(self.grid[opne][div_col + 1])
+
+        else:
+            div_row = random.randint(0, self.rows - 1)
+            stack.append(((0, 0), (div_row, self.cols - 1)))
+            stack.append(((div_row, 0), (self.rows - 1, self.cols - 1)))
+            if div_row < self.rows - 1:
+                for i in range(0, self.cols):
+                    self.grid[div_row][i].create_wall(self.grid[div_row + 1][i])
+            opne = random.randint(0, self.cols-1)
+            self.grid[div_row][opne].break_wall(self.grid[div_row + 1][opne])
+        while stack:
+            curr_area = stack.pop()
+            curr_width = curr_area[1][1] - curr_area[0][1]
+            curr_height = curr_area[1][0] - curr_area[0][0]
+            if curr_height <= 1 or curr_width <= 1:
+                continue
+            if curr_width > curr_height:
+                div_col = random.randint(0, curr_width - 1)
+                stack.append(((0, 0), (curr_height - 1, div_col)))
+                stack.append(((0, div_col), (curr_height - 1, curr_width - 1)))
+                for i in range(0, curr_height):
+                    self.grid[i][div_col].create_wall(self.grid[i][div_col + 1])
+                opne = random.randint(0, curr_height-1)
+                self.grid[opne][div_col].break_wall(self.grid[opne][div_col + 1])
+
+            else:
+                div_row = random.randint(0, curr_height - 1)
+                stack.append(((0, 0), (div_row, curr_width - 1)))
+                stack.append(((div_row, 0), (curr_height - 1, curr_width - 1)))
+                if div_row < curr_height - 1:
+                    for i in range(0, curr_width):
+                        self.grid[div_row][i].create_wall(self.grid[div_row + 1][i])
+                opne = random.randint(0, curr_width - 1)
+                self.grid[div_row][opne].break_wall(self.grid[div_row + 1][opne])
+
+
+    
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
         lines = []
         for r in self.grid:

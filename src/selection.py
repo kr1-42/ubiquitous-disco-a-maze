@@ -394,4 +394,3 @@ def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
     m.print_maze()
     m.print_hexa_maze("hexa.txt")
     after_maze_print(args, m)
-
