@@ -1,6 +1,5 @@
 from src.maze import Maze
-import random
-from src.selection import flush
+from src.print_promt import flush
 
 def selection_function() -> None:
     flush()
@@ -12,7 +11,7 @@ def selection_function() -> None:
         'PERFECT': True,
         'MAZE_ANIMATION': False,
         'RES_ANIMATINON': False,
-        'RANDOM_42': True,
+        'RANDOM_42': False,
         'SEED': None,
         'ALGORITHM': 'dfs',
     }
@@ -22,7 +21,7 @@ def selection_function() -> None:
         print(f"Generated seed: {seed}")
     random.seed(seed) """
     """ random_42 = args['RANDOM_42'] """
-    cols, rows = args['HEIGHT'], args['WIDTH']
+    cols, rows = args['WIDTH'], args['HEIGHT']
     start = args['ENTRY']
     end = args['EXIT']
     m = Maze(cols, rows, start, end)
@@ -38,5 +37,6 @@ def selection_function() -> None:
     """ m.bfs(args['RES_ANIMATINON']) """
     m.print_maze()
     m.print_hexa_maze("hexa.txt")
+
 
 selection_function()

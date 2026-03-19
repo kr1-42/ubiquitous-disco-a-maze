@@ -307,54 +307,39 @@ class Maze:
                     self.grid[c.row][c.col].south = False
 
     def iterative_division(self,
-                           starting_cell: Optional["Cell"] = None,
-                           animation: float = False,
-                           perfect: float = True) -> None:
+                      starting_cell: Optional["Cell"] = None,
+                      animation: float = False,
+                      perfect: float = True) -> None:
         self.break_all_walls()
         stack = []
-        
-        if self.cols > self.rows:
-            div_col = random.randint(0, self.cols - 1)
-            stack.append(((0, 0), (self.rows - 1, div_col)))
-            stack.append(((0, div_col), (self.rows - 1, self.cols - 1)))
-            for i in range(0, self.rows):
-                self.grid[i][div_col].create_wall(self.grid[i][div_col + 1])
-            opne = random.randint(0, self.rows-1)
-            self.grid[opne][div_col].break_wall(self.grid[opne][div_col + 1])
-
-        else:
-            div_row = random.randint(0, self.rows - 1)
-            stack.append(((0, 0), (div_row, self.cols - 1)))
-            stack.append(((div_row, 0), (self.rows - 1, self.cols - 1)))
-            if div_row < self.rows - 1:
-                for i in range(0, self.cols):
-                    self.grid[div_row][i].create_wall(self.grid[div_row + 1][i])
-            opne = random.randint(0, self.cols-1)
-            self.grid[div_row][opne].break_wall(self.grid[div_row + 1][opne])
+        stack.append(((0, 0), (self.rows - 1, self.cols - 1)))
         while stack:
             curr_area = stack.pop()
-            curr_width = curr_area[1][1] - curr_area[0][1]
-            curr_height = curr_area[1][0] - curr_area[0][0]
-            if curr_height <= 1 or curr_width <= 1:
-                continue
-            if curr_width > curr_height:
-                div_col = random.randint(0, curr_width - 1)
-                stack.append(((0, 0), (curr_height - 1, div_col)))
-                stack.append(((0, div_col), (curr_height - 1, curr_width - 1)))
-                for i in range(0, curr_height):
-                    self.grid[i][div_col].create_wall(self.grid[i][div_col + 1])
-                opne = random.randint(0, curr_height-1)
-                self.grid[opne][div_col].break_wall(self.grid[opne][div_col + 1])
+            y1, x1 = curr_area[0]
+            y2, x2 = curr_area[1]
+            width = x2 - x1
+            height = y2 - y1
 
+            if width <= 2 or height <= 2:
+                continue
+            if x2 - x1 > y2 - y1:
+                if x2 - x1 >= 1:
+                    wall_x = random.randint(x1 + 1, x2 - 1)
+                    hole_y = random.randint(y1, y2)
+                    for y in range(y1, y2 + 1):
+                        self.grid[y][wall_x].create_wall(self.grid[y][wall_x + 1])
+                    self.grid[hole_y][wall_x].break_wall(self.grid[hole_y][wall_x + 1])
+                    stack.append(((y1, x1), (y2, wall_x)))
+                    stack.append(((y1, wall_x + 1), (y2, x2)))
             else:
-                div_row = random.randint(0, curr_height - 1)
-                stack.append(((0, 0), (div_row, curr_width - 1)))
-                stack.append(((div_row, 0), (curr_height - 1, curr_width - 1)))
-                if div_row < curr_height - 1:
-                    for i in range(0, curr_width):
-                        self.grid[div_row][i].create_wall(self.grid[div_row + 1][i])
-                opne = random.randint(0, curr_width - 1)
-                self.grid[div_row][opne].break_wall(self.grid[div_row + 1][opne])
+                if y2 - y1 >= 1:
+                    wall_y = random.randint(y1 + 1, y2 - 1)
+                    hole_x = random.randint(x1, x2)
+                    for x in range(x1, x2 + 1):
+                        self.grid[wall_y][x].create_wall(self.grid[wall_y + 1][x])
+                    self.grid[wall_y][hole_x].break_wall(self.grid[wall_y + 1][hole_x])
+                    stack.append(((y1, x1), (wall_y, x2)))
+                    stack.append(((wall_y + 1, x1), (y2, x2)))
 
 
     
