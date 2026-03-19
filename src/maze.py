@@ -197,8 +197,8 @@ class Maze:
 
     def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
-            "#   ###",
-            "#     #",
+            "# # ###",
+            "# #   #",
             "### ###",
             "  # #  ",
             "  # ###"
@@ -215,8 +215,8 @@ class Maze:
 
     def random_draw_42(self, rows: int, cols: int) -> None:
         pattern = [
-            "#   ###",
-            "#     #",
+            "# # ###",
+            "# #   #",
             "### ###",
             "  # #  ",
             "  # ###"
@@ -225,7 +225,7 @@ class Maze:
         avaliable_rows = rows - 5
         while True:
             autorized = True
-            draw_row = random.randint(0, avaliable_rows)
+            draw_row = random.randint(1, avaliable_rows)
             draw_col = random.randint(1, avaliable_cols)
             for r, row in enumerate(pattern):
                 for c, ch in enumerate(row):
@@ -244,7 +244,7 @@ class Maze:
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
                      animation: bool = False,
-                     bad: bool = False) -> None:
+                     perfect: bool = True) -> None:
         stack = []
         curr_cell = None
         if starting_cell:
@@ -258,10 +258,10 @@ class Maze:
                 direction = random.choice(unvisited)
                 if curr_cell:
                     curr_cell.break_wall(direction)
-                if bad:
-                    direction.visited = random.randint(0, 100) < 80
-                else:
+                if perfect:
                     direction.visited = True
+                else:
+                    direction.visited = random.randint(0, 100) < 80
                 if curr_cell and self.unvisited_neighbours(curr_cell):
                     stack.append(curr_cell)
                 curr_cell = direction
@@ -273,7 +273,7 @@ class Maze:
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,
                       animation: float = False,
-                      bad: float = False) -> None:
+                      perfect: float = True) -> None:
         frontier = []
         if starting_cell:
             curr_cell = starting_cell
@@ -286,16 +286,63 @@ class Maze:
                 frontier.remove((next_cell, curr_cell))
                 if not next_cell.visited:
                     curr_cell.break_wall(next_cell)
-                if bad:
-                    next_cell.visited = random.randint(0, 100) < 99
-                else:
+                if perfect:
                     next_cell.visited = True
+                else:
+                    next_cell.visited = random.randint(0, 100) < 99
                 curr_cell = next_cell
                 for neighbor in self.unvisited_neighbours(curr_cell):
                     frontier.append((neighbor, next_cell))
                 if animation:
                     self.print_maze()
 
+    def break_all_walls(self) -> None:
+        for r in self.grid:
+            for c in r:
+                self.grid[c.row][c.col].north = False
+                self.grid[c.row][c.col].west = False
+                if c.col != self.cols - 1:
+                    self.grid[c.row][c.col].east = False
+                if c.row != self.rows - 1:
+                    self.grid[c.row][c.col].south = False
+
+    def iterative_division(self,
+                      starting_cell: Optional["Cell"] = None,
+                      animation: float = False,
+                      perfect: float = True) -> None:
+        self.break_all_walls()
+        stack = []
+        stack.append(((0, 0), (self.rows - 1, self.cols - 1)))
+        while stack:
+            curr_area = stack.pop()
+            y1, x1 = curr_area[0]
+            y2, x2 = curr_area[1]
+            width = x2 - x1
+            height = y2 - y1
+
+            if width <= 2 or height <= 2:
+                continue
+            if x2 - x1 > y2 - y1:
+                if x2 - x1 >= 1:
+                    wall_x = random.randint(x1 + 1, x2 - 1)
+                    hole_y = random.randint(y1, y2)
+                    for y in range(y1, y2 + 1):
+                        self.grid[y][wall_x].create_wall(self.grid[y][wall_x + 1])
+                    self.grid[hole_y][wall_x].break_wall(self.grid[hole_y][wall_x + 1])
+                    stack.append(((y1, x1), (y2, wall_x)))
+                    stack.append(((y1, wall_x + 1), (y2, x2)))
+            else:
+                if y2 - y1 >= 1:
+                    wall_y = random.randint(y1 + 1, y2 - 1)
+                    hole_x = random.randint(x1, x2)
+                    for x in range(x1, x2 + 1):
+                        self.grid[wall_y][x].create_wall(self.grid[wall_y + 1][x])
+                    self.grid[wall_y][hole_x].break_wall(self.grid[wall_y + 1][hole_x])
+                    stack.append(((y1, x1), (wall_y, x2)))
+                    stack.append(((wall_y + 1, x1), (y2, x2)))
+
+
+    
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
         lines = []
         for r in self.grid:

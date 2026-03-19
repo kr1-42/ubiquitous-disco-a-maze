@@ -143,12 +143,12 @@ def default_settings() -> MazeArgs:
     print("\033[36m║  Perfect Maze: True, Algorithm: DFS         \033[36m║\033[0m")
     print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
     return {
-        "HEIGHT": 20,
-        "WIDTH": 20,
-        "ENTRY": (0, 0),
-        "EXIT": (19, 19),
-        "PERFECT": True,
-        "ALGORITHM": "dfs",
+        'HEIGHT': 20,
+        'WIDTH': 20,
+        'ENTRY': (0, 0),
+        'EXIT': (19, 19),
+        'PERFECT': True,
+        'ALGORITHM': 'dfs',
     }
 
 
