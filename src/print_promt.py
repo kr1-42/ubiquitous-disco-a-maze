@@ -111,8 +111,9 @@ def noargs_panel() -> int:
             _side_row("\033[35m► 1) default settings\033[0m", "\033[35mwritten by:\033[0m"),
             _side_row("\033[35m► 2) load parameters\033[0m", "\033[35m\033[0m"),
             _side_row("\033[35m► 3) Algorithm\033[0m", "\033[35m- alfiorav\033[0m"),
-            _side_row("\033[35m► 4) run program\033[0m", "\033[35m- kr1\033[0m"),
-            _side_row("\033[31m► 5) exit\033[0m", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
+            _side_row("\033[35m► 4) seed\033[0m", "\033[35m\033[0m"),
+            _side_row("\033[35m► 5) run program\033[0m", "\033[35m- kr1\033[0m"),
+            _side_row("\033[31m► 6) exit\033[0m", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
             _side_row(),
             _side_row(),
             _side_row(),
@@ -128,9 +129,9 @@ def noargs_panel() -> int:
             print("Invalid input. Please enter a number.")
             continue
 
-        if select in [1, 2, 3, 4, 5]:
+        if select in [1, 2, 3, 4, 5, 6]:
             return select
-        print("Invalid selection. Please enter 1, 2, 3, 4, or 5.")
+        print("Invalid selection. Please enter 1, 2, 3, 4, or 5 or 6.")
 
 
 def default_settings() -> MazeArgs:

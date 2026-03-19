@@ -208,18 +208,8 @@ def _ask_size(prompt: str, axis_name: str) -> int | None:
 
 
 def _ask_seed(prompt: str, axis_name: str) -> int | None:
-    while True:
-        value = _read_int_value(prompt)
-        if value is None:
-            return None
-        if value == -1:
-            continue
-        if 1 <= value <= 1000000000:
-            return value
-        print(
-            f"\033[31mInvalid input. {axis_name} "
-            "must be between 1 and 1000000000.\033[0m"
-        )
+    value = input("the seed:").__hash__()
+    return value
 
 
 def _ask_point(prefix: str) -> tuple[int, int] | None:
@@ -398,7 +388,7 @@ def change_params_after(args, m) -> None:
 def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
     select = promt_after_maze_print()
     if select == 1:
-        selection_function(args)
+        selection_function(args, seed)
         return
     if select == 2:
         color_promt(m, select)
@@ -413,7 +403,7 @@ def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
         algo_select = algo_panel(args['ALGORITHM'])
         if algo_select is not None:
             args['ALGORITHM'] = ALGOS[algo_select - 1][1]
-            selection_function(args)
+            selection_function(args, seed)
             return
         else:
             after_maze_print(args, m)
@@ -428,7 +418,7 @@ def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
             after_maze_print(args, m)
             return
         random.seed(new_seed)
-        selection_function(args)
+        selection_function(args, seed)
         return
     if select == 6:
         m.colors = random.choice(list(THEMES.values()))
@@ -442,11 +432,10 @@ def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
         exit(1)
 
 
-def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
+def selection_function(args: dict[str, int | str | tuple[int, int]], seed: int | None) -> None:
     flush()
     typed_args = cast(MazeArgs, args)
 
-    seed = None
     if seed is None:
         seed = random.randint(0, 10**9)
         print(f"Generated seed: {seed}")
