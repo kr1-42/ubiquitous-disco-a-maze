@@ -352,12 +352,12 @@ def change_params_after(args, m) -> None:
     typed_args = cast(MazeArgs, args)
 
     while True:
-        tput_ed_flush(24)
+        tput_ed_flush(20)
         _print_change_params_box(typed_args)
 
         select_raw = read_until_enter("\033[36m► select an option\033[0m: ")
         if _is_cancel_signal(select_raw):
-            tput_ed_flush(24)
+            tput_ed_flush(20)
             return
 
         try:
@@ -374,34 +374,34 @@ def change_params_after(args, m) -> None:
             continue
 
         if select == 0:
-            tput_ed_flush(24)
+            tput_ed_flush(20)
             return
 
         if select == 1:
             if not _update_height(typed_args):
-                tput_ed_flush(24)
+                tput_ed_flush(20)
                 return
 
         elif select == 2:
             if not _update_width(typed_args):
-                tput_ed_flush(24)
+                tput_ed_flush(20)
                 return
 
         elif select == 3:
             if not _update_entry(typed_args):
-                tput_ed_flush(24)
+                tput_ed_flush(20)
                 return
 
         elif select == 4:
             if not _update_exit(typed_args):
-                tput_ed_flush(24)
+                tput_ed_flush(20)
                 return
 
 
         elif select == 5:
             new_seed = _ask_seed("Enter new seed (1-1000000000): ", "Seed")
             if new_seed is None:
-                tput_ed_flush(24)
+                tput_ed_flush(20)
                 return
             typed_args['SEED'] = new_seed
         elif select == 6:

@@ -193,7 +193,6 @@ class Maze:
                     bottom += self.colors['wall']
             print(line)
             print(bottom)
-        sleep(0.005)
 
     def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
@@ -342,7 +341,7 @@ class Maze:
                     stack.append(((wall_y + 1, x1), (y2, x2)))
 
 
-    
+
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
         lines = []
         for r in self.grid:
