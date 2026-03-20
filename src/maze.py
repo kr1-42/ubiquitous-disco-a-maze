@@ -193,6 +193,7 @@ class Maze:
                     bottom += self.colors['wall']
             print(line)
             print(bottom)
+        sleep(0.0005)
 
     def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
@@ -298,12 +299,13 @@ class Maze:
     def break_all_walls(self) -> None:
         for r in self.grid:
             for c in r:
-                self.grid[c.row][c.col].north = False
-                self.grid[c.row][c.col].west = False
-                if c.col != self.cols - 1:
-                    self.grid[c.row][c.col].east = False
-                if c.row != self.rows - 1:
-                    self.grid[c.row][c.col].south = False
+                if self.grid[c.row][c.col].cell_42 is False:
+                    self.grid[c.row][c.col].north = False
+                    self.grid[c.row][c.col].west = False
+                    if c.col != self.cols - 1:
+                        self.grid[c.row][c.col].east = False
+                    if c.row != self.rows - 1:
+                        self.grid[c.row][c.col].south = False
 
     def iterative_division(self,
                       starting_cell: Optional["Cell"] = None,
@@ -318,28 +320,28 @@ class Maze:
             y2, x2 = curr_area[1]
             width = x2 - x1
             height = y2 - y1
-
-            if width <= 2 or height <= 2:
+            if width < 1 or height < 1:
                 continue
-            if x2 - x1 > y2 - y1:
-                if x2 - x1 >= 1:
-                    wall_x = random.randint(x1 + 1, x2 - 1)
-                    hole_y = random.randint(y1, y2)
+            if width > height:
+                if width >= 1:
+                    wall_x = random.randrange(x1, x2)
+                    hole_y = random.randrange(y1, y2 + 1)
                     for y in range(y1, y2 + 1):
                         self.grid[y][wall_x].create_wall(self.grid[y][wall_x + 1])
                     self.grid[hole_y][wall_x].break_wall(self.grid[hole_y][wall_x + 1])
                     stack.append(((y1, x1), (y2, wall_x)))
                     stack.append(((y1, wall_x + 1), (y2, x2)))
             else:
-                if y2 - y1 >= 1:
-                    wall_y = random.randint(y1 + 1, y2 - 1)
-                    hole_x = random.randint(x1, x2)
+                if height >= 1:
+                    wall_y = random.randrange(y1, y2)
+                    hole_x = random.randrange(x1, x2 + 1)
                     for x in range(x1, x2 + 1):
                         self.grid[wall_y][x].create_wall(self.grid[wall_y + 1][x])
                     self.grid[wall_y][hole_x].break_wall(self.grid[wall_y + 1][hole_x])
                     stack.append(((y1, x1), (wall_y, x2)))
                     stack.append(((wall_y + 1, x1), (y2, x2)))
-
+            if animation:
+                self.print_maze()
 
 
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
