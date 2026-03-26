@@ -32,7 +32,7 @@ class Maze:
             for c in r:
                 c.visited = False
 
-    def unvisited_neighbours(self, cell: "Cell") -> list:
+    def unvisited_neighbours(self, cell: "Cell") -> list[Cell]:
         unvisited = []
         if (cell.row > 0
                 and not self.grid[cell.row - 1][cell.col].visited):
@@ -99,9 +99,9 @@ class Maze:
                 return se and nw
         return False
 
-
-    def print_maze(self) -> None:
+    def print_maze(self, color: str = "default") -> None:
         print('\033[3J\033[H')
+        self.colors = THEMES[color]
         print(self.colors['wall'] * (self.cols * 2 + 1))
         for r in self.grid:
             line = self.colors['wall']
@@ -244,7 +244,8 @@ class Maze:
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
                      animation: bool = False,
-                     perfect: bool = True) -> None:
+                     perfect: bool = True,
+                     color: str = "default") -> None:
         stack = []
         curr_cell = None
         if starting_cell:
@@ -268,7 +269,7 @@ class Maze:
             else:
                 curr_cell = stack.pop()
             if animation:
-                self.print_maze()
+                self.print_maze(color=color)
 
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,
@@ -327,8 +328,12 @@ class Maze:
                     wall_x = random.randrange(x1, x2)
                     hole_y = random.randrange(y1, y2 + 1)
                     for y in range(y1, y2 + 1):
-                        self.grid[y][wall_x].create_wall(self.grid[y][wall_x + 1])
-                    self.grid[hole_y][wall_x].break_wall(self.grid[hole_y][wall_x + 1])
+                        self.grid[y][wall_x].create_wall(
+                            self.grid[y][wall_x + 1]
+                        )
+                    self.grid[hole_y][wall_x].break_wall(
+                        self.grid[hole_y][wall_x + 1]
+                    )
                     stack.append(((y1, x1), (y2, wall_x)))
                     stack.append(((y1, wall_x + 1), (y2, x2)))
             else:
@@ -336,13 +341,16 @@ class Maze:
                     wall_y = random.randrange(y1, y2)
                     hole_x = random.randrange(x1, x2 + 1)
                     for x in range(x1, x2 + 1):
-                        self.grid[wall_y][x].create_wall(self.grid[wall_y + 1][x])
-                    self.grid[wall_y][hole_x].break_wall(self.grid[wall_y + 1][hole_x])
+                        self.grid[wall_y][x].create_wall(
+                            self.grid[wall_y + 1][x]
+                        )
+                    self.grid[wall_y][hole_x].break_wall(
+                        self.grid[wall_y + 1][hole_x]
+                    )
                     stack.append(((y1, x1), (wall_y, x2)))
                     stack.append(((wall_y + 1, x1), (y2, x2)))
             if animation:
                 self.print_maze()
-
 
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
         lines = []
@@ -357,7 +365,7 @@ class Maze:
             else:
                 print(line)
 
-    def bfs(self, animation: bool = False) -> None:
+    def bfs(self, animation: bool = False, color: str = "default") -> None:
         self.set_all_unvisited()
         stack = []
         neighbours: list[Cell] = []
@@ -390,5 +398,5 @@ class Maze:
                     curr_cell = n
                     curr_cell.path = True
                     if animation:
-                        self.print_maze()
+                        self.print_maze(color=color)
                     break

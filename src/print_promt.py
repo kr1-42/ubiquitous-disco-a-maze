@@ -3,6 +3,7 @@ import re
 import sys
 import termios
 import tty
+from typing import TypedDict
 
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -15,7 +16,17 @@ ALGOS = [
 ]
 
 
-MazeArgs = dict[str, int | bool | str | tuple[int, int]]
+class MazeArgs(TypedDict):
+    HEIGHT: int
+    WIDTH: int
+    ENTRY: tuple[int, int]
+    EXIT: tuple[int, int]
+    PERFECT: bool
+    ALGORITHM: str
+    MAZE_ANIMATION: bool
+    RES_ANIMATINON: bool
+    RANDOM_42: bool
+    SEED: int | None
 
 
 def _visible_len(text: str) -> int:
@@ -58,28 +69,64 @@ def flush() -> None:
 def panel() -> int:
     while True:
         box = [
-            "╔═══════════════════════════════════════════════════════════════════════════════════════╗",
-            "║       ___       ___       ___       ___       ___       ___       ___       ___       ║",
-            "║      /\\  \\     /\\__\\     /\\  \\     /\\  \\     /\\  \\     /\\  \\     /\\__\\     /\\  \\      ║",
-            "║     /::\\  \\   /::L_L_   /::\\  \\   _\\:\\  \\   /::\\  \\   _\\:\\  \\   /:| _|_   /::\\  \\     ║",
-            "║    /::\\:\\__\\ /:/L:\\__\\ /::\\:\\__\\ /::::\\__\\ /::\\:\\__\\ /\\/::\\__\\ /::|/\\__\\ /:/\\:\\__\\    ║",
-            "║    \\/\\::/  / \\/_/:/  / \\/\\::/  / \\::;;/__/ \\:\\:\\/  / \\::/\\/__/ \\/|::/  / \\:\\:\\/__/    ║",
-            "║      /:/  /    /:/  /    /:/  /   \\:\\__\\    \\:\\/  /   \\:\\__\\     |:/  /   \\::/  /     ║",
-            "║      \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/      ║",
-            "╠═══════════════════════════════════════════════════════════════════════════════════════╣",
+            (
+                "╔════════════════════════════════════════"
+                "═══════════════════════════════════════════════╗"
+            ),
+            (
+                "║       ___       ___       ___       ___     "
+                "  ___       ___       ___       ___       ║"
+            ),
+            (
+                "║      /\\  \\     /\\__\\     /\\  \\     /\\  \\ "
+                "    /\\  \\     /\\  \\     /\\__\\     /\\  \\      ║"
+            ),
+            (
+                "║     /::\\  \\   /::L_L_   /::\\  \\   _\\:\\  \\ "
+                "  /::\\  \\   _\\:\\  \\   /:| _|_   /::\\  \\     ║"
+            ),
+            (
+                "║    /::\\:\\__\\ /:/L:\\__\\ /::\\:\\__\\ /::::\\__\\ "
+                "/::\\:\\__\\ /\\/::\\__\\ /::|/\\__\\ /:/\\:\\__\\    ║"
+            ),
+            (
+                "║    \\/\\::/  / \\/_/:/  / \\/\\::/  / \\::;;/__/ "
+                "\\:\\:\\/  / \\::/\\/__/ \\/|::/  / \\:\\:\\/__/    ║"
+            ),
+            (
+                "║      /:/  /    /:/  /    /:/  /   \\:\\__\\    "
+                "\\:\\/  /   \\:\\__\\     |:/  /   \\::/  /     ║"
+            ),
+            (
+                "║      \\/__/     \\/__/     \\/__/     \\/__/     "
+                "\\/__/     \\/__/     \\/__/     \\/__/      ║"
+            ),
+            (
+                "╠════════════════════════════════════════"
+                "═══════════════════════════════════════════════╣"
+            ),
             _side_row(),
             _side_row(),
-            _side_row("\033[35m► 1) Parameters\033[0m", "\033[35mwritten by:\033[0m"),
+            _side_row(
+                "\033[35m► 1) Parameters\033[0m",
+                "\033[35mwritten by:\033[0m",
+            ),
             _side_row("\033[35m► 2) Algorithm\033[0m", "\033[35m\033[0m"),
             _side_row("\033[31m► 3) choose seed\033[0m", "\033[35m\033[0m"),
-            _side_row("\033[35m► 4) run program\033[0m", "\033[35m- alfiorav\033[0m"),
+            _side_row(
+                "\033[35m► 4) run program\033[0m",
+                "\033[35m- alfiorav\033[0m",
+            ),
             _side_row("\033[31m► 5) exit\033[0m", "\033[35m- kr1\033[0m"),
             _side_row("", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
             _side_row(),
             _side_row(),
             _side_row(),
             _side_row(),
-            "╚═══════════════════════════════════════════════════════════════════════════════════════╝",
+            (
+                "╚════════════════════════════════════════"
+                "═══════════════════════════════════════════════╝"
+            ),
             "",
         ]
         print("\n".join(box))
@@ -98,28 +145,73 @@ def panel() -> int:
 def noargs_panel() -> int:
     while True:
         box = [
-            "╔═══════════════════════════════════════════════════════════════════════════════════════╗",
-            "║       ___       ___       ___       ___       ___       ___       ___       ___       ║",
-            "║      /\\  \\     /\\__\\     /\\  \\     /\\  \\     /\\  \\     /\\  \\     /\\__\\     /\\  \\      ║",
-            "║     /  \\  \\   /  L_L_   /  \\  \\   _\\ \\  \\   /  \\  \\   _\\ \\  \\   / | _|_   /  \\  \\     ║",
-            "║    /  \\ \\__\\ / /L \\__\\ /  \\ \\__\\ /    \\__\\ /  \\ \\__\\ /\\/  \\__\\ /  |/\\__\\ / /\\ \\__\\    ║",
-            "║    \\/\\  /  / \\/_/ /  / \\/\\  /  / \\   _/__/ \\ \\/  / \\  /\\/__/ \\/|  /  / \\ \\/__/    ║",
-            "║      / /  /    / /  /    / /  /   \\ \\__\\    \\ \\/  /   \\ \\__\\     | /  /   \\  /  /     ║",
-            "║      \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/     \\/__/      ║",
-            "╠═══════════════════════════════════════════════════════════════════════════════════════╣",
+            (
+                "╔════════════════════════════════════════"
+                "═══════════════════════════════════════════════╗"
+            ),
+            (
+                "║       ___       ___       ___       ___     "
+                "  ___       ___       ___       ___       ║"
+            ),
+            (
+                "║      /\\  \\     /\\__\\     /\\  \\     /\\  \\ "
+                "    /\\  \\     /\\  \\     /\\__\\     /\\  \\      ║"
+            ),
+            (
+                "║     /  \\  \\   /  L_L_   /  \\  \\   _\\ \\  \\ "
+                "  /  \\  \\   _\\ \\  \\   / | _|_   /  \\  \\     ║"
+            ),
+            (
+                "║    /  \\ \\__\\ / /L \\__\\ /  \\ \\__\\ /    \\__\\ "
+                "/  \\ \\__\\ /\\/  \\__\\ /  |/\\__\\ / /\\ \\__\\    ║"
+            ),
+            (
+                "║    \\/\\  /  / \\/_/ /  / \\/\\  /  / \\   _/__/ "
+                "\\ \\/  / \\  /\\/__/ \\/|  /  / \\ \\/__/    ║"
+            ),
+            (
+                "║      / /  /    / /  /    / /  /   \\ \\__\\    "
+                "\\ \\/  /   \\ \\__\\     | /  /   \\  /  /     ║"
+            ),
+            (
+                "║      \\/__/     \\/__/     \\/__/     \\/__/     "
+                "\\/__/     \\/__/     \\/__/     \\/__/      ║"
+            ),
+            (
+                "╠════════════════════════════════════════"
+                "═══════════════════════════════════════════════╣"
+            ),
             _side_row(),
             _side_row(),
-            _side_row("\033[35m► 1) default settings\033[0m", "\033[35mwritten by:\033[0m"),
-            _side_row("\033[35m► 2) load parameters\033[0m", "\033[35m\033[0m"),
-            _side_row("\033[35m► 3) Algorithm\033[0m", "\033[35m- alfiorav\033[0m"),
+            _side_row(
+                "\033[35m► 1) default settings\033[0m",
+                "\033[35mwritten by:\033[0m",
+            ),
+            _side_row(
+                "\033[35m► 2) load parameters\033[0m",
+                "\033[35m\033[0m",
+            ),
+            _side_row(
+                "\033[35m► 3) Algorithm\033[0m",
+                "\033[35m- alfiorav\033[0m",
+            ),
             _side_row("\033[35m► 4) seed\033[0m", "\033[35m\033[0m"),
-            _side_row("\033[35m► 5) run program\033[0m", "\033[35m- kr1\033[0m"),
-            _side_row("\033[31m► 6) exit\033[0m", "\033[35m-\033[0m \033[34mmeow.inc\033[0m"),
+            _side_row(
+                "\033[35m► 5) run program\033[0m",
+                "\033[35m- kr1\033[0m",
+            ),
+            _side_row(
+                "\033[31m► 6) exit\033[0m",
+                "\033[35m-\033[0m \033[34mmeow.inc\033[0m",
+            ),
             _side_row(),
             _side_row(),
             _side_row(),
             _side_row(),
-            "╚═══════════════════════════════════════════════════════════════════════════════════════╝",
+            (
+                "╚════════════════════════════════════════"
+                "═══════════════════════════════════════════════╝"
+            ),
             "",
         ]
         print("\n".join(box))
@@ -137,11 +229,26 @@ def noargs_panel() -> int:
 
 def default_settings() -> MazeArgs:
     print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
-    print("\033[36m║\033[35m  Using default settings                    \033[36m║\033[0m")
-    print("\033[36m║  Height: 20, Width: 20                      \033[36m║\033[0m")
-    print("\033[36m║  Entry: (0, 0), Exit: (19, 19)               \033[36m║\033[0m")
-    print("\033[36m║  Perfect Maze: True, Algorithm: DFS         \033[36m║\033[0m")
-    print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
+    print(
+        "\033[36m║\033[35m  Using default settings                    "
+        "\033[36m║\033[0m"
+    )
+    print(
+        "\033[36m║  Height: 20, Width: 20                      "
+        "\033[36m║\033[0m"
+    )
+    print(
+        "\033[36m║  Entry: (0, 0), Exit: (19, 19)               "
+        "\033[36m║\033[0m"
+    )
+    print(
+        "\033[36m║  Perfect Maze: True, Algorithm: DFS         "
+        "\033[36m║\033[0m"
+    )
+    print(
+        "\033[36m╚════════════════════════════════════════════════╝"
+        "\033[0m\n"
+    )
     return {
         'HEIGHT': 20,
         'WIDTH': 20,
@@ -152,7 +259,9 @@ def default_settings() -> MazeArgs:
         'MAZE_ANIMATION': False,
         'RES_ANIMATINON': False,
         'RANDOM_42': False,
-    }
+        'SEED': None,
+        'COLOR': 'default'
+        }
 
 
 def get_key() -> str:
@@ -215,7 +324,10 @@ def _ask_point(label: str) -> tuple[int, int] | None:
         try:
             return (int(x_raw), int(y_raw))
         except ValueError:
-            print(f"Invalid input. {label.capitalize()} coordinates must be numbers.")
+            print(
+                f"Invalid input. {label.capitalize()} coordinates "
+                "must be numbers."
+            )
 
 
 def params_panel(args: MazeArgs) -> MazeArgs:
@@ -227,19 +339,49 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             _box_row("              \033[36m► Change Params\033[0m"),
             _box_row("      \033[33mValidate values before generate\033[0m"),
             _box_row(),
-            _box_row(f"  \033[35m► 1) height\033[0m   {_format_param_value(args['HEIGHT'])}"),
-            _box_row(f"  \033[35m► 2) width\033[0m    {_format_param_value(args['WIDTH'])}"),
-            _box_row(f"  \033[35m► 3) entry\033[0m    {_format_param_value(args['ENTRY'])}"),
-            _box_row(f"  \033[35m► 4) exit\033[0m     {_format_param_value(args['EXIT'])}"),
-            _box_row(f"  \033[35m► 5) seed\033[0m     {_format_param_value(args['SEED'])}"),
-            _box_row(f"  \033[35m► 6) perfect\033[0m  {_format_param_value(args['PERFECT'])}"),
-            _box_row(f"  \033[35m► 7) maze_animation\033[0m     {_format_param_value(args['MAZE_ANIMATION'])}"),
-            _box_row(f"  \033[35m► 8) res_animation\033[0m     {_format_param_value(args['RES_ANIMATINON'])}"),
-            _box_row(f"  \033[35m► 9) random_42\033[0m     {_format_param_value(args['RANDOM_42'])}"),
+            _box_row(
+                f"  \033[35m► 1) height\033[0m   "
+                f"{_format_param_value(args['HEIGHT'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 2) width\033[0m    "
+                f"{_format_param_value(args['WIDTH'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 3) entry\033[0m    "
+                f"{_format_param_value(args['ENTRY'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 4) exit\033[0m     "
+                f"{_format_param_value(args['EXIT'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 5) seed\033[0m     "
+                f"{_format_param_value(args['SEED'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 6) perfect\033[0m  "
+                f"{_format_param_value(args['PERFECT'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 7) maze_animation\033[0m     "
+                f"{_format_param_value(args['MAZE_ANIMATION'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 8) res_animation\033[0m     "
+                f"{_format_param_value(args['RES_ANIMATINON'])}"
+            ),
+            _box_row(
+                f"  \033[35m► 9) random_42\033[0m     "
+                f"{_format_param_value(args['RANDOM_42'])}"
+            ),
             _box_row(),
             _box_row("  \033[31m► 0) back\033[0m"),
             _box_row(),
-            _box_row("  \033[34mRanges: size 1-44, points must be in bounds\033[0m"),
+            _box_row(
+                "  \033[34mRanges: size 1-44, points must be "
+                "in bounds\033[0m"
+            ),
             _box_row("  \033[34mESC closes the panel too\033[0m"),
             "╚═══════════════════════════════════════════════════╝",
             "",
@@ -288,7 +430,10 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             if entry is None:
                 flush()
                 return args
-            if not (0 <= entry[0] < args["WIDTH"] and 0 <= entry[1] < args["HEIGHT"]):
+            if not (
+                0 <= entry[0] < args["WIDTH"]
+                and 0 <= entry[1] < args["HEIGHT"]
+            ):
                 print("Invalid input. Entry is out of bounds.")
                 continue
             if entry == args["EXIT"]:
@@ -302,7 +447,10 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             if exit_point is None:
                 flush()
                 return args
-            if not (0 <= exit_point[0] < args["WIDTH"] and 0 <= exit_point[1] < args["HEIGHT"]):
+            if not (
+                0 <= exit_point[0] < args["WIDTH"]
+                and 0 <= exit_point[1] < args["HEIGHT"]
+            ):
                 print("Invalid input. Exit coordinates are out of bounds.")
                 continue
             if exit_point == args["ENTRY"]:
@@ -312,11 +460,15 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             continue
 
         if select == 5:
-            seed_raw = read_until_enter("Enter new seed (integer or empty to unset): ")
+            seed_raw = read_until_enter(
+                "Enter new seed (integer or empty to unset): "
+            )
             if _is_cancel_signal(seed_raw):
                 flush()
                 return args
-            args["SEED"] = int(seed_raw) if seed_raw.isdigit() else seed_raw.__hash__()
+            args["SEED"] = (
+                int(seed_raw) if seed_raw.isdigit() else seed_raw.__hash__()
+            )
             continue
         if select == 6:
             args["PERFECT"] = not args["PERFECT"]
@@ -330,17 +482,24 @@ def params_panel(args: MazeArgs) -> MazeArgs:
         if select == 9:
             args["RANDOM_42"] = not args["RANDOM_42"]
             continue
-
-
         print("Invalid selection. Please enter a number between 0 and 9.")
 
 
 def change_params(args: MazeArgs | None) -> MazeArgs:
     flush()
     print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
-    print("\033[36m║\033[35m  Enter Parameters                         \033[36m║\033[0m")
-    print("\033[36m║\033[35m  ESC to exit dialog                       \033[36m║\033[0m")
-    print("\033[36m╚════════════════════════════════════════════════╝\033[0m\n")
+    print(
+        "\033[36m║\033[35m  Enter Parameters                         "
+        "\033[36m║\033[0m"
+    )
+    print(
+        "\033[36m║\033[35m  ESC to exit dialog                       "
+        "\033[36m║\033[0m"
+    )
+    print(
+        "\033[36m╚════════════════════════════════════════════════╝"
+        "\033[0m\n"
+    )
 
     base_args = args or default_settings()
     return params_panel(base_args)
@@ -446,11 +605,17 @@ def print_promt(args: MazeArgs | None) -> None:
                     args["ALGORITHM"] = ALGOS[selected_algo - 1][1]
                 continue
             if select == 3:
-                seed_raw = read_until_enter("Enter new seed (integer or empty to unset): ")
+                seed_raw = read_until_enter(
+                    "Enter new seed (integer or empty to unset): "
+                )
                 if _is_cancel_signal(seed_raw):
                     flush()
                     continue
-                args["SEED"] = int(seed_raw) if seed_raw.isdigit() else seed_raw.__hash__()
+                args["SEED"] = (
+                    int(seed_raw)
+                    if seed_raw.isdigit()
+                    else seed_raw.__hash__()
+                )
                 continue
             if select == 4:
                 print("Running program with current settings...")
@@ -459,8 +624,6 @@ def print_promt(args: MazeArgs | None) -> None:
                 flush()
                 selection_function(args)
                 continue
-
-
             if select == 5:
                 print("stopping program...")
                 break

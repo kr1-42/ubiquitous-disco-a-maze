@@ -7,8 +7,8 @@ import tty
 from typing import TypedDict, cast
 
 from .maze import Maze
-from .print_promt import ALGOS, algo_panel, flush
 from .maze_color import THEMES
+from .print_promt import ALGOS, algo_panel, flush
 
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -26,6 +26,7 @@ class MazeArgs(TypedDict):
     RES_ANIMATINON: bool
     RANDOM_42: bool
     SEED: int | None
+    COLOR: str
 
 
 def _ansi_row(text: str = "", inside_width: int = INSIDE_WIDTH) -> str:
@@ -34,7 +35,7 @@ def _ansi_row(text: str = "", inside_width: int = INSIDE_WIDTH) -> str:
     return f"║{text}{' ' * padding}║"
 
 
-def promt_after_maze_print():
+def promt_after_maze_print() -> int | None:
     def row(text: str = "") -> str:
         return _ansi_row(text)
 
@@ -48,12 +49,27 @@ def promt_after_maze_print():
             row(),
             row("═══════════════════════════════════════════════════"),
             row(),
-            row("\033[33m► 1) regenerate\033[0m        \033[35m║ written by:\033[0m"),
+            row(
+                "\033[33m► 1) regenerate\033[0m"
+                "        \033[35m║ written by:\033[0m"
+            ),
             row("\033[33m► 2) change_color\033[0m      \033[35m║\033[0m"),
-            row("\033[33m► 3) change variables\033[0m  \033[35m║ - alfiorav\033[0m"),
-            row("\033[33m► 4) change algorithm\033[0m  \033[35m║ - kr1\033[0m"),
+            row(
+                "\033[33m► 3) change variables\033[0m"
+                "  \033[35m║ - alfiorav\033[0m"
+            ),
+            row(
+                "\033[33m► 4) change algorithm\033[0m"
+                "  \033[35m║ - kr1\033[0m"
+            ),
             row("\033[33m► 5) generate seed\033[0m]    \033[35m║\033[0m"),
-            row("\033[31m►\033[33m \033[32m6\033[36m)\033[34m \033[35mr\033[31ma\033[33mn\033[32md\033[36mo\033[34mm\033[35m \033[31mc\033[33mo\033[32ml\033[36mo\033[34mr\033[0m      \033[35m║ -\033[0m \033[34mmeow.inc\033[0m"),
+            row(
+                "\033[31m►\033[33m \033[32m6\033[36m)\033[34m "  # noqa: E501
+                "\033[35mr\033[31ma\033[33mn\033[32md"  # noqa: E501
+                "\033[36mo\033[34mm\033[35m \033[31mc\033[33mo"  # noqa: E501
+                "\033[32ml\033[36mo\033[34mr\033[0m"  # noqa: E501
+                "      \033[35m║ -\033[0m \033[34mmeow.inc\033[0m"  # noqa: E501
+            ),
             row("\033[31m► 7) exit\033[0m              \033[35m║\033[0m"),
             row(),
             row(),
@@ -66,18 +82,17 @@ def promt_after_maze_print():
         print("Invalid input. Please enter a number.")
         tput_ed_flush(24)
         promt_after_maze_print()
-        return
+        return None
 
     if select not in [1, 2, 3, 4, 5, 6, 7]:
         print("Invalid selection. Please enter 1, 2, 3, 4, 5, 6, or 7.")
         tput_ed_flush(24)
         promt_after_maze_print()
-        return
+        return None
     return select
 
 
 def tput(*args: str) -> None:
-    # Emit terminal control codes through `tput` to preserve the maze on screen.
     subprocess.run(["tput", *args], check=True)
 
 
@@ -94,7 +109,7 @@ def _find_current_theme_name(m: Maze) -> str:
     return "custom"
 
 
-def color_promt(m: Maze, flag: int = 2):
+def color_promt(m: Maze, flag: int = 2) -> None:
     themes = list(THEMES.keys())
     menu_height = len(themes) + 12
 
@@ -150,7 +165,7 @@ def color_promt(m: Maze, flag: int = 2):
     m.print_maze()
 
 
-def get_key():
+def get_key() -> str:
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
     try:
@@ -160,9 +175,9 @@ def get_key():
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 
-def read_until_enter(prompt="> "):
+def read_until_enter(prompt: str = "> ") -> str:
     print(prompt, end="", flush=True)
-    chars = []
+    chars: list[str] = []
 
     while True:
         ch = get_key()
@@ -212,7 +227,7 @@ def _ask_size(prompt: str, axis_name: str) -> int | None:
 
 
 def _ask_seed(prompt: str, axis_name: str) -> int | None:
-    value = input("the seed:").__hash__()
+    value = input("the seed: ").__hash__()
     return value
 
 
@@ -264,13 +279,16 @@ def _print_change_params_box(args: MazeArgs) -> None:
             f"  \033[35m► 6) perfect\033[0m  {_status(bool(args['PERFECT']))}"
         ),
         _ansi_row(
-            f"  \033[35m► 7) maze_animation\033[0m     {_status(bool(args['MAZE_ANIMATION']))}"
+            "  \033[35m► 7) maze_animation\033[0m"
+            f"     {_status(bool(args['MAZE_ANIMATION']))}"
         ),
         _ansi_row(
-            f"  \033[35m► 8) res_animation\033[0m     {_status(bool(args['RES_ANIMATINON']))}"
+            "  \033[35m► 8) res_animation\033[0m"
+            f"     {_status(bool(args['RES_ANIMATINON']))}"
         ),
         _ansi_row(
-            f"  \033[35m► 9) random_42\033[0m     {_status(bool(args['RANDOM_42']))}"
+            "  \033[35m► 9) random_42\033[0m"
+            f"     {_status(bool(args['RANDOM_42']))}"
         ),
         _ansi_row(),
         _ansi_row("  \033[31m► 0) apply + back\033[0m"),
@@ -347,13 +365,11 @@ def _update_exit(args: MazeArgs) -> bool:
     return True
 
 
-def change_params_after(args, m) -> None:
+def change_params_after(args: MazeArgs, m: Maze) -> None:
     _ = m
-    typed_args = cast(MazeArgs, args)
-
     while True:
         tput_ed_flush(20)
-        _print_change_params_box(typed_args)
+        _print_change_params_box(args)
 
         select_raw = read_until_enter("\033[36m► select an option\033[0m: ")
         if _is_cancel_signal(select_raw):
@@ -378,46 +394,51 @@ def change_params_after(args, m) -> None:
             return
 
         if select == 1:
-            if not _update_height(typed_args):
+            if not _update_height(args):
                 tput_ed_flush(20)
                 return
 
         elif select == 2:
-            if not _update_width(typed_args):
+            if not _update_width(args):
                 tput_ed_flush(20)
                 return
 
         elif select == 3:
-            if not _update_entry(typed_args):
+            if not _update_entry(args):
                 tput_ed_flush(20)
                 return
 
         elif select == 4:
-            if not _update_exit(typed_args):
+            if not _update_exit(args):
                 tput_ed_flush(20)
                 return
-
 
         elif select == 5:
             new_seed = _ask_seed("Enter new seed (1-1000000000): ", "Seed")
             if new_seed is None:
                 tput_ed_flush(20)
                 return
-            typed_args['SEED'] = new_seed
+            args['SEED'] = new_seed
         elif select == 6:
-            typed_args['PERFECT'] = not bool(typed_args['PERFECT'])
+            args['PERFECT'] = not bool(args['PERFECT'])
 
         elif select == 7:
-            typed_args['MAZE_ANIMATION'] = not bool(typed_args['MAZE_ANIMATION'])
+            args['MAZE_ANIMATION'] = not bool(
+                args['MAZE_ANIMATION']
+            )
         elif select == 8:
-            typed_args['RES_ANIMATINON'] = not bool(typed_args['RES_ANIMATINON'])
+            args['RES_ANIMATINON'] = not bool(
+                args['RES_ANIMATINON']
+            )
         elif select == 9:
-            typed_args['RANDOM_42'] = not bool(typed_args['RANDOM_42'])
+            args['RANDOM_42'] = not bool(args['RANDOM_42'])
 
 
-def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
+def after_maze_print(args: MazeArgs, m: Maze) -> None:
     select = promt_after_maze_print()
     if select == 1:
+        args['SEED'] = random.randint(0, 10**9)
+        random.seed(args['SEED'])
         selection_function(args)
         return
     if select == 2:
@@ -439,21 +460,22 @@ def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
             after_maze_print(args, m)
             return
     if select == 5:
-        if seed is not None:
-            print(f"Current seed: {seed}")
+        if args['SEED'] is not None:
+            print(f"Current seed: {args['SEED']}")
         else:
             print("No seed generated yet.")
         new_seed = _ask_seed("Enter new seed (1-1000000000): ", "Seed")
         if new_seed is None:
             after_maze_print(args, m)
             return
+        args['SEED'] = new_seed
         random.seed(new_seed)
         selection_function(args)
         return
     if select == 6:
-        m.colors = random.choice(list(THEMES.values()))
         flush()
-        m.print_maze()
+        args["COLOR"] = random.choice(list(THEMES.keys()))
+        m.print_maze(color=args.get('COLOR', args['COLOR']))
         after_maze_print(args, m)
         return
     if select == 7:
@@ -462,31 +484,30 @@ def after_maze_print(args: dict, m: Maze, seed: int | None = None) -> None:
         exit(1)
 
 
-def selection_function(args: dict[str, int | str | tuple[int, int]]) -> None:
+def selection_function(args: MazeArgs) -> None:
     flush()
-    typed_args = cast(MazeArgs, args)
+    seed_value = args['SEED']
+    if seed_value is None:
+        seed_value = random.randint(0, 10**9)
+        args['SEED'] = seed_value
+    random.seed(seed_value)
 
-    if args.get("SEED") is None:
-        seed = random.randint(0, 10**9)
-        print(f"Generated seed: {seed}")
-    random.seed(args.get("SEED") if args.get("SEED") is not None else seed)
-
-    cols = typed_args['HEIGHT']
-    rows = typed_args['WIDTH']
-    start = typed_args['ENTRY']
-    end = typed_args['EXIT']
+    cols = args['HEIGHT']
+    rows = args['WIDTH']
+    start = args['ENTRY']
+    end = args['EXIT']
 
     m = Maze(cols, rows, start, end)
     start_row, start_col = m.start
     end_row, end_col = m.end
     m.grid[start_row][start_col].start = True
     m.grid[end_row][end_col].end = True
-    if typed_args['RANDOM_42'] is True:
+    if args['RANDOM_42'] is True:
         m.random_draw_42(cols, rows)
     else:
         m.draw_42(cols, rows)
-    m.backtracking(m.grid[0][0], True, args['PERFECT'])
-    m.bfs(True)
-    m.print_maze()
+    m.backtracking(m.grid[0][0], True, args['PERFECT'], args.get('COLOR', args['COLOR']))
+    m.bfs(True, args.get('COLOR', args['COLOR']))
+    m.print_maze(args.get('COLOR', 'default'))
     m.print_hexa_maze("hexa.txt")
     after_maze_print(args, m)

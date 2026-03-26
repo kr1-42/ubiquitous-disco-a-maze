@@ -2,9 +2,25 @@ from .check_config_cases import check_entry, check_exit
 from .check_config_cases import check_height, check_width
 from .check_config_cases import get_output, get_perfect
 from sys import argv, stderr
+from typing import Any, Callable, TypedDict, cast
 
 
-ParsedArg = str | int | tuple[str, int, int]
+class MazeArgs(TypedDict):
+    HEIGHT: int
+    WIDTH: int
+    ENTRY: tuple[int, int]
+    EXIT: tuple[int, int]
+    PERFECT: bool
+    ALGORITHM: str
+    MAZE_ANIMATION: bool
+    RES_ANIMATINON: bool
+    RANDOM_42: bool
+    SEED: int | None
+    COLOR: str
+
+
+CheckerResult = int | bool | str | tuple[int, int] | object
+Checker = Callable[[str, dict[str, Any]], CheckerResult]
 
 
 def parse_input_file(input_file: str) -> dict[str, str] | None:
@@ -25,8 +41,10 @@ def parse_input_file(input_file: str) -> dict[str, str] | None:
     return ret
 
 
-def check_parsed(parsed: dict[str, str]) -> dict[str, int | str | tuple[int, int]] | str:
-    ret: dict = {
+def check_parsed(
+        parsed: dict[str, str]
+        ) -> MazeArgs | str:
+    ret: dict[str, Any] = {
         'WIDTH': None,
         'HEIGHT': None,
         'ENTRY': None,
@@ -38,6 +56,7 @@ def check_parsed(parsed: dict[str, str]) -> dict[str, int | str | tuple[int, int
         'MAZE_ANIMATION': False,
         'RES_ANIMATINON': False,
         'RANDOM_42': False,
+        'COLOR': "default"
     }
     cases = {
             'WIDTH': check_width,
@@ -52,25 +71,24 @@ def check_parsed(parsed: dict[str, str]) -> dict[str, int | str | tuple[int, int
             ),
             'ALGORITHM': (
                 lambda value, _wh:
-                [value.lower()] if value.lower() in ['dfs', 'prim']
+                value.lower() if value.lower() in ['dfs', 'prim']
                 else "ALGORITHM must be either 'DFS' or 'Prim'"
             )
             }
     for key in parsed:
-        checker = cases.get(key)
+        checker = cast(Checker | None, cases.get(key))
         pre_ret_check = checker(parsed[key], ret) if checker else None
         if isinstance(pre_ret_check, str):
             return pre_ret_check
         if pre_ret_check is not None:
             ret[key] = pre_ret_check
-    return ret
+    return cast(MazeArgs, ret)
 
 
-def parse_args() -> dict[str, int | str | tuple[int, int]]:
+def parse_args() -> MazeArgs:
     if len(argv) != 2:
         print("Usage: python parsing.py <input_file>")
         exit(1)
-
     parsed = parse_input_file(argv[1])
     if parsed is None:
         print("Error: Invalid input file")
@@ -79,6 +97,4 @@ def parse_args() -> dict[str, int | str | tuple[int, int]]:
     if isinstance(ret, str):
         print(f"Error: {ret}", file=stderr)
         exit(1)
-    for arg in ret:
-        print(arg)
     return ret
