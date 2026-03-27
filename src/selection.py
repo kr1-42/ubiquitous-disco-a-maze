@@ -22,6 +22,7 @@ class MazeArgs(TypedDict):
     EXIT: tuple[int, int]
     PERFECT: bool
     ALGORITHM: str
+    ANIMATION_SPEED: float
     MAZE_ANIMATION: bool
     RES_ANIMATINON: bool
     RANDOM_42: bool
@@ -62,7 +63,7 @@ def promt_after_maze_print() -> int | None:
                 "\033[33m► 4) change algorithm\033[0m"
                 "  \033[35m║ - kr1\033[0m"
             ),
-            row("\033[33m► 5) generate seed\033[0m]    \033[35m║\033[0m"),
+            row("\033[33m► 5) generate seed\033[0m     \033[35m║\033[0m"),
             row(
                 "\033[31m►\033[33m \033[32m6\033[36m)\033[34m "  # noqa: E501
                 "\033[35mr\033[31ma\033[33mn\033[32md"  # noqa: E501
@@ -70,7 +71,8 @@ def promt_after_maze_print() -> int | None:
                 "\033[32ml\033[36mo\033[34mr\033[0m"  # noqa: E501
                 "      \033[35m║ -\033[0m \033[34mmeow.inc\033[0m"  # noqa: E501
             ),
-            row("\033[31m► 7) exit\033[0m              \033[35m║\033[0m"),
+            row("\033[33m► 7) change speed\033[0m      \033[35m║\033[0m"),
+            row("\033[31m► 8) exit\033[0m              \033[35m║\033[0m"),
             row(),
             row(),
             "╚═══════════════════════════════════════════════════╝",
@@ -84,8 +86,8 @@ def promt_after_maze_print() -> int | None:
         promt_after_maze_print()
         return None
 
-    if select not in [1, 2, 3, 4, 5, 6, 7]:
-        print("Invalid selection. Please enter 1, 2, 3, 4, 5, 6, or 7.")
+    if select not in [1, 2, 3, 4, 5, 6, 7, 8]:
+        print("Invalid selection. Please enter 1, 2, 3, 4, 5, 6, 7 or .")
         tput_ed_flush(24)
         promt_after_maze_print()
         return None
@@ -109,20 +111,20 @@ def _find_current_theme_name(m: Maze) -> str:
     return "custom"
 
 
-def color_promt(m: Maze, flag: int = 2) -> None:
+def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
     themes = list(THEMES.keys())
     menu_height = len(themes) + 12
 
-    if flag == 2:
-        tput_ed_flush()
-    elif flag == 1:
-        tput_ed_flush(menu_height)
+    while True:
+        if flag == 2:
+            tput_ed_flush()
+        elif flag == 1:
+            tput_ed_flush(menu_height)
 
-    def row(text: str = "") -> str:
-        return _ansi_row(text)
+        def row(text: str = "") -> str:
+            return _ansi_row(text)
 
-    current_theme = _find_current_theme_name(m)
-    try:
+        current_theme = args.get('COLOR', _find_current_theme_name(m))
         box = [
             "╔═══════════════════════════════════════════════════╗",
             row(),
@@ -141,28 +143,39 @@ def color_promt(m: Maze, flag: int = 2) -> None:
             "",
         ])
         print("\n".join(box))
-        select = int(input("\033[36m► select an option\033[0m: "))
-    except ValueError:
-        print("Invalid input. Please enter a number.")
-        return color_promt(m, 1)
 
-    if select == 0:
-        selected_theme = random.choice(list(THEMES.keys()))
+        # input con gestione degli errori
+        try:
+            select = int(input("\033[36m► select an option\033[0m: "))
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            flag = 1  # per ridisegnare la schermata più in basso
+            continue  # ricomincia il loop
+
+        if select == 0:
+            selected_theme = random.choice(themes)
+            args["COLOR"] = selected_theme
+            m.colors = THEMES[selected_theme]
+            flush()
+            m.print_maze(color=args['COLOR'])
+            return  # uscita dalla funzione
+
+        if select == len(themes) + 1:
+            tput_ed_flush(menu_height)
+            return  # back al menu principale
+
+        if select < 0 or select > len(themes):
+            print(f"Invalid selection. Please enter 0 to {len(themes) + 1}.")
+            flag = 1
+            continue  # ricomincia il loop
+
+        # Se siamo qui, l'input è valido e corrisponde a un tema
+        selected_theme = themes[select - 1]
+        args["COLOR"] = selected_theme
         m.colors = THEMES[selected_theme]
         flush()
-        m.print_maze()
-        return
-    if select == len(themes) + 1:
-        tput_ed_flush(menu_height)
-        return
-    if select < 1 or select > len(themes):
-        print(f"Invalid selection. Please enter 0 to {len(themes) + 1}.")
-        return color_promt(m, 1)
-
-    selected_theme = themes[select - 1]
-    m.colors = THEMES[selected_theme]
-    flush()
-    m.print_maze()
+        m.print_maze(color=args['COLOR'])
+        return  # uscita dalla funzione
 
 
 def get_key() -> str:
@@ -230,6 +243,9 @@ def _ask_seed(prompt: str, axis_name: str) -> int | None:
     value = input("the seed: ").__hash__()
     return value
 
+def _ask_speed(prompt: str, axis_name: str) -> float | None:
+    value = input("the speed: ")
+    return value
 
 def _ask_point(prefix: str) -> tuple[int, int] | None:
     while True:
@@ -435,53 +451,80 @@ def change_params_after(args: MazeArgs, m: Maze) -> None:
 
 
 def after_maze_print(args: MazeArgs, m: Maze) -> None:
-    select = promt_after_maze_print()
-    if select == 1:
-        args['SEED'] = random.randint(0, 10**9)
-        random.seed(args['SEED'])
-        selection_function(args)
-        return
-    if select == 2:
-        color_promt(m, select)
-        after_maze_print(args, m)
-        return
-    if select == 3:
-        change_params_after(args, m)
-        after_maze_print(args, m)
-        return
-    if select == 4:
-        tput_ed_flush()
-        algo_select = algo_panel(args['ALGORITHM'])
-        if algo_select is not None:
-            args['ALGORITHM'] = ALGOS[algo_select - 1][1]
+    while True:
+        select = promt_after_maze_print()
+
+        if select == 1:
+            args['SEED'] = random.randint(0, 10**9)
+            random.seed(args['SEED'])
             selection_function(args)
             return
-        else:
-            after_maze_print(args, m)
+
+        elif select == 2:
+            color_promt(m, args)
+
+        elif select == 3:
+            change_params_after(args, m)
+
+        elif select == 4:
+            tput_ed_flush()
+            algo_select = algo_panel(args['ALGORITHM'])
+            if algo_select is not None:
+                args['ALGORITHM'] = ALGOS[algo_select - 1][1]
+                selection_function(args)
+                return
+
+        elif select == 5:
+            if args['SEED'] is not None:
+                print(f"Current seed: {args['SEED']}")
+            else:
+                print("No seed generated yet.")
+
+            new_seed = _ask_seed("Enter new seed (1-1000000000): ", "Seed")
+            if new_seed is not None:
+                args['SEED'] = new_seed
+                random.seed(new_seed)
+                selection_function(args)
+                return
+
+        elif select == 6:
+            flush()
+            args["COLOR"] = random.choice(list(THEMES.keys()))
+            m.print_maze(color=args['COLOR'])
+
+        elif select == 7:
+            flush()
+            m.print_maze(color=args['COLOR'])
+            print(f"current animation speed:{m.anim_speed}")
+            new_speed = _ask_speed("Enter speed (1-0.0000000001): ", "speed")
+            args['ANIMATION_SPEED'] = new_speed
+            selection_function(args)
             return
-    if select == 5:
-        if args['SEED'] is not None:
-            print(f"Current seed: {args['SEED']}")
-        else:
-            print("No seed generated yet.")
-        new_seed = _ask_seed("Enter new seed (1-1000000000): ", "Seed")
-        if new_seed is None:
-            after_maze_print(args, m)
-            return
-        args['SEED'] = new_seed
-        random.seed(new_seed)
-        selection_function(args)
-        return
-    if select == 6:
-        flush()
-        args["COLOR"] = random.choice(list(THEMES.keys()))
-        m.print_maze(color=args.get('COLOR', args['COLOR']))
-        after_maze_print(args, m)
-        return
-    if select == 7:
-        tput_ed_flush(6)
-        print("Goodbye :(")
-        exit(1)
+
+        elif select == 8:
+            tput_ed_flush(6)
+            print("Goodbye :(")
+            exit(1)
+
+def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int):
+    match args['ALGORITHM']:
+        case 'back':
+            if args['RANDOM_42'] is True:
+                m.random_draw_42(cols, rows)
+            else:
+                m.draw_42(cols, rows)
+            m.backtracking(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
+            """ m.fix_3x3_gaps() """
+        case 'prim':
+            if args['RANDOM_42'] is True:
+                m.random_draw_42(cols, rows)
+            else:
+                m.draw_42(cols, rows)
+            m.prim_algoritm(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
+            """ m.fix_3x3_gaps() """
+        case 'div':
+            m.iterative_division(args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
+            
 
 
 def selection_function(args: MazeArgs) -> None:
@@ -496,18 +539,14 @@ def selection_function(args: MazeArgs) -> None:
     rows = args['WIDTH']
     start = args['ENTRY']
     end = args['EXIT']
-
     m = Maze(cols, rows, start, end)
+    m.anim_speed = float(args["ANIMATION_SPEED"])
     start_row, start_col = m.start
     end_row, end_col = m.end
     m.grid[start_row][start_col].start = True
     m.grid[end_row][end_col].end = True
-    if args['RANDOM_42'] is True:
-        m.random_draw_42(cols, rows)
-    else:
-        m.draw_42(cols, rows)
-    m.backtracking(m.grid[0][0], True, args['PERFECT'], args.get('COLOR', args['COLOR']))
-    m.bfs(True, args.get('COLOR', args['COLOR']))
+    selection_algoritm(m, args, cols, rows)
+    m.bfs(args["RES_ANIMATINON"], args.get('COLOR', args['COLOR']))
     m.print_maze(args.get('COLOR', 'default'))
     m.print_hexa_maze("hexa.txt")
     after_maze_print(args, m)

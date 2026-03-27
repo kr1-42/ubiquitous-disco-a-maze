@@ -10,9 +10,9 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 CANCEL_SIGNALS = ("\x1b", "\x03")
 
 ALGOS = [
-    ("Depth-First Search (DFS)", "dfs"),
+    ("Backtracking Algorithm", "back"),
     ("Prim's Algorithm", "prim"),
-    ("Kruskal's Algorithm", "kruskal"),
+    ("Recursive Division Algorithm (without 42)", "div"),
 ]
 
 
@@ -23,6 +23,7 @@ class MazeArgs(TypedDict):
     EXIT: tuple[int, int]
     PERFECT: bool
     ALGORITHM: str
+    ANIMATION_SPEED: float
     MAZE_ANIMATION: bool
     RES_ANIMATINON: bool
     RANDOM_42: bool
@@ -255,13 +256,16 @@ def default_settings() -> MazeArgs:
         'ENTRY': (0, 0),
         'EXIT': (19, 19),
         'PERFECT': True,
-        'ALGORITHM': 'dfs',
+        'ALGORITHM': 'back',
+        'ANIMATION_SPEED': 0.0005,
         'MAZE_ANIMATION': False,
         'RES_ANIMATINON': False,
         'RANDOM_42': False,
         'SEED': None,
         'COLOR': 'default'
         }
+
+
 
 
 def get_key() -> str:
@@ -580,6 +584,20 @@ def print_promt(args: MazeArgs | None) -> None:
                 continue
 
             if select == 4:
+                seed_raw = read_until_enter(
+                    "Enter new seed (integer or empty to unset): "
+                )
+                if _is_cancel_signal(seed_raw):
+                    flush()
+                    continue
+                args["SEED"] = (
+                    int(seed_raw)
+                    if seed_raw.isdigit()
+                    else seed_raw.__hash__()
+                )
+                continue
+
+            if select == 5:
                 print("Running program with current settings...")
                 from src.selection import selection_function
 
@@ -587,7 +605,7 @@ def print_promt(args: MazeArgs | None) -> None:
                 selection_function(default_settings())
                 continue
 
-            if select == 5:
+            if select == 6:
                 print("stopping program...")
                 break
 

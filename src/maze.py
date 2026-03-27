@@ -19,6 +19,7 @@ class Maze:
             [Cell(r, c) for c in range(cols)]
             for r in range(rows)]
         self.colors = THEMES['default']
+        self.anim_speed = 0.0005
 
     def has_unvisited_cells(self) -> bool:
         for r in self.grid:
@@ -193,7 +194,7 @@ class Maze:
                     bottom += self.colors['wall']
             print(line)
             print(bottom)
-        sleep(0.0005)
+        sleep(self.anim_speed)
 
     def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
@@ -241,6 +242,33 @@ class Maze:
                     self.grid[draw_row + r][draw_col + c].visited = True
                     self.grid[draw_row + r][draw_col + c].cell_42 = True
 
+    def fix_3x3_gaps(self):
+        for r in range(1, self.rows - 1):
+            for c in range(1, self.cols - 1):
+                center = self.grid[r][c]
+                if not center.visited:
+                    continue
+                cells_3x3 = [self.grid[r + dr][c + dc] 
+                            for dr in (-1, 0, 1) 
+                            for dc in (-1, 0, 1)]
+                
+                # Verifica che tutte le 8 celle attorno siano visitate
+                if all(cell.visited for cell in cells_3x3):
+                    # scegli una cella centrale casuale
+                    target = random.choice(cells_3x3)
+                    
+                    # scegli un vicino che non sia bordato da muri su tutti i lati
+                    directions = []
+                    r_t, c_t = target.row, target.col
+                    if r_t > 0 and not self.grid[r_t-1][c_t].all_walls(): directions.append((target, self.grid[r_t-1][c_t]))
+                    if r_t < self.rows-1 and not self.grid[r_t+1][c_t].all_walls(): directions.append((target, self.grid[r_t+1][c_t]))
+                    if c_t > 0 and not self.grid[r_t][c_t-1].all_walls(): directions.append((target, self.grid[r_t][c_t-1]))
+                    if c_t < self.cols-1 and not self.grid[r_t][c_t+1].all_walls(): directions.append((target, self.grid[r_t][c_t+1]))
+
+                    if directions:
+                        wall = random.choice(directions)
+                        wall[0].create_wall(wall[1])
+
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
                      animation: bool = False,
@@ -262,7 +290,7 @@ class Maze:
                 if perfect:
                     direction.visited = True
                 else:
-                    direction.visited = random.randint(0, 100) < 80
+                    direction.visited = random.randint(0, 100) < 40
                 if curr_cell and self.unvisited_neighbours(curr_cell):
                     stack.append(curr_cell)
                 curr_cell = direction
@@ -274,7 +302,8 @@ class Maze:
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,
                       animation: float = False,
-                      perfect: float = True) -> None:
+                      perfect: float = True,
+                      color: str = "default") -> None:
         frontier = []
         if starting_cell:
             curr_cell = starting_cell
@@ -295,7 +324,7 @@ class Maze:
                 for neighbor in self.unvisited_neighbours(curr_cell):
                     frontier.append((neighbor, next_cell))
                 if animation:
-                    self.print_maze()
+                    self.print_maze(color=color)
 
     def break_all_walls(self) -> None:
         for r in self.grid:
@@ -309,9 +338,9 @@ class Maze:
                         self.grid[c.row][c.col].south = False
 
     def iterative_division(self,
-                      starting_cell: Optional["Cell"] = None,
                       animation: float = False,
-                      perfect: float = True) -> None:
+                      perfect: float = True,
+                      color: str = "default") -> None:
         self.break_all_walls()
         stack = []
         stack.append(((0, 0), (self.rows - 1, self.cols - 1)))
@@ -350,7 +379,7 @@ class Maze:
                     stack.append(((y1, x1), (wall_y, x2)))
                     stack.append(((wall_y + 1, x1), (y2, x2)))
             if animation:
-                self.print_maze()
+                self.print_maze(color=color)
 
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
         lines = []
