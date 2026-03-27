@@ -1,6 +1,6 @@
 from src.maze import Maze
 from src.print_promt import flush
-import random
+""" import random """
 
 def selection_function() -> None:
     flush()
@@ -10,17 +10,17 @@ def selection_function() -> None:
         'ENTRY': (10, 10),
         'EXIT': (14, 19),
         'PERFECT': True,
-        'MAZE_ANIMATION': False,
-        'RES_ANIMATINON': False,
+        'MAZE_ANIMATION': True,
+        'RES_ANIMATINON':   True,
         'RANDOM_42': True,
         'SEED': None,
         'ALGORITHM': 'dfs',
     }
-    seed = None
+    """ seed = None
     if seed is None:
         seed = random.randint(0, 10**9)
         print(f"Generated seed: {seed}")
-    random.seed(seed)
+    random.seed(seed) """
     random_42 = args['RANDOM_42']
     cols, rows = args['WIDTH'], args['HEIGHT']
     start = args['ENTRY']
@@ -30,12 +30,12 @@ def selection_function() -> None:
     end_row, end_col = m.end
     m.grid[start_row][start_col].start = True
     m.grid[end_row][end_col].end = True
-    if random_42 is True:
+    """ if random_42 is True:
         m.random_draw_42(cols, rows)
     else:
-        m.draw_42(cols, rows)
-    m.prim_algoritm(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'])
-    m.bfs(args['RES_ANIMATINON'])
+        m.draw_42(cols, rows) """
+    m.iterative_division(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'])
+    """ m.bfs(args['RES_ANIMATINON']) """
     m.print_maze()
     m.print_hexa_maze("hexa.txt")
 

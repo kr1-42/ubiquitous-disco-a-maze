@@ -193,7 +193,7 @@ class Maze:
                     bottom += self.colors['wall']
             print(line)
             print(bottom)
-        sleep(0.0005)
+        sleep(0.00005)
 
     def draw_42(self, rows: int, cols: int) -> None:
         pattern = [
@@ -308,9 +308,9 @@ class Maze:
                         self.grid[c.row][c.col].south = False
 
     def iterative_division(self,
-                      starting_cell: Optional["Cell"] = None,
-                      animation: float = False,
-                      perfect: float = True) -> None:
+                           starting_cell: Optional["Cell"] = None,
+                           animation: float = True,
+                           perfect: float = True) -> None:
         self.break_all_walls()
         stack = []
         stack.append(((0, 0), (self.rows - 1, self.cols - 1)))
