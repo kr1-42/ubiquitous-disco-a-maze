@@ -71,8 +71,8 @@ def check_parsed(
             ),
             'ALGORITHM': (
                 lambda value, _wh:
-                value.lower() if value.lower() in ['dfs', 'prim']
-                else "ALGORITHM must be either 'DFS' or 'Prim'"
+                value.lower() if value.lower() in ['back', 'prim', 'div']
+                else "ALGORITHM must be either 'back', 'prim', or 'div'"
             )
             }
     for key in parsed:
