@@ -90,6 +90,29 @@ class Maze:
                     and not cell.west):
                 unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
+    
+    def fix_3x3_gaps(self):
+        for r in range(1, self.rows - 1):
+            for c in range(1, self.cols - 1):
+                if (not self.grid[r][c].north
+                        and not self.grid[r][c].south
+                        and not self.grid[r][c].east
+                        and not self.grid[r][c].west):
+                    if (not self.grid[r + 1][c].east
+                            and not self.grid[r + 1][c].west
+                            and not self.grid[r - 1][c].east
+                            and not self.grid[r - 1][c].west
+                            and not self.grid[r][c + 1].north
+                            and not self.grid[r][c + 1].south
+                            and not self.grid[r][c - 1].north
+                            and not self.grid[r][c - 1].south):
+                        direction = (
+                            self.grid[r + 1][c],
+                            self.grid[r - 1][c],
+                            self.grid[r][c + 1],
+                            self.grid[r][c - 1],
+                        )
+                        self.grid[r][c].create_wall(random.choice(direction))
 
     def remove_diagonal_wall(self, curr_cell: Cell) -> bool:
         if curr_cell:
@@ -222,6 +245,8 @@ class Maze:
             "  # #  ",
             "  # ###"
         ]
+        pattern2 = {
+        }
         avaliable_cols = cols - 8
         avaliable_rows = rows - 5
         while True:
@@ -242,32 +267,8 @@ class Maze:
                     self.grid[draw_row + r][draw_col + c].visited = True
                     self.grid[draw_row + r][draw_col + c].cell_42 = True
 
-    def fix_3x3_gaps(self):
-        for r in range(1, self.rows - 1):
-            for c in range(1, self.cols - 1):
-                center = self.grid[r][c]
-                if not center.visited:
-                    continue
-                cells_3x3 = [self.grid[r + dr][c + dc] 
-                            for dr in (-1, 0, 1) 
-                            for dc in (-1, 0, 1)]
-                
-                # Verifica che tutte le 8 celle attorno siano visitate
-                if all(cell.visited for cell in cells_3x3):
-                    # scegli una cella centrale casuale
-                    target = random.choice(cells_3x3)
+    
                     
-                    # scegli un vicino che non sia bordato da muri su tutti i lati
-                    directions = []
-                    r_t, c_t = target.row, target.col
-                    if r_t > 0 and not self.grid[r_t-1][c_t].all_walls(): directions.append((target, self.grid[r_t-1][c_t]))
-                    if r_t < self.rows-1 and not self.grid[r_t+1][c_t].all_walls(): directions.append((target, self.grid[r_t+1][c_t]))
-                    if c_t > 0 and not self.grid[r_t][c_t-1].all_walls(): directions.append((target, self.grid[r_t][c_t-1]))
-                    if c_t < self.cols-1 and not self.grid[r_t][c_t+1].all_walls(): directions.append((target, self.grid[r_t][c_t+1]))
-
-                    if directions:
-                        wall = random.choice(directions)
-                        wall[0].create_wall(wall[1])
 
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
@@ -290,7 +291,7 @@ class Maze:
                 if perfect:
                     direction.visited = True
                 else:
-                    direction.visited = random.randint(0, 100) < 40
+                    direction.visited = random.randint(0, 100) < 20
                 if curr_cell and self.unvisited_neighbours(curr_cell):
                     stack.append(curr_cell)
                 curr_cell = direction
@@ -319,7 +320,7 @@ class Maze:
                 if perfect:
                     next_cell.visited = True
                 else:
-                    next_cell.visited = random.randint(0, 100) < 99
+                    next_cell.visited = random.randint(0, 100) < 70
                 curr_cell = next_cell
                 for neighbor in self.unvisited_neighbours(curr_cell):
                     frontier.append((neighbor, next_cell))
