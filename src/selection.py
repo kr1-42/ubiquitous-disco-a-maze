@@ -524,7 +524,7 @@ def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int):
             """ m.fix_3x3_gaps() """
         case 'div':
             m.iterative_division(args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
-            
+
 
 
 def selection_function(args: MazeArgs) -> None:
