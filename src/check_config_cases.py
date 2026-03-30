@@ -35,7 +35,7 @@ def check_entry(value: str, wh: MazeArgs) -> tuple[int, int] | str:
 
         entryx = int(values[0])
         entryy = int(values[1])
-        if entryx < 0 and entryy < 0:
+        if entryx < 0 or entryy < 0:
             return "ENTRY must be a valid integer pair"
         if entryx >= wh['WIDTH'] or entryy >= wh['HEIGHT']:
             return "ENTRY must be within the bounds of WIDTH and HEIGHT"
@@ -52,7 +52,7 @@ def check_exit(value: str, wh: MazeArgs) -> tuple[int, int] | str:
 
         exitx = int(values[0])
         exity = int(values[1])
-        if exitx < 0 and exity < 0:
+        if exitx < 0 or exity < 0:
             return "EXIT must be a valid integer pair"
         if wh:
             if exitx == wh['ENTRY'][0] and exity == wh['ENTRY'][1]:

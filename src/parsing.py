@@ -88,6 +88,30 @@ def check_parsed(
             ret[key] = pre_ret_check
     return cast(MazeArgs, ret)
 
+""" pattern = [
+            "# # ###",
+            "# #   #",
+            "### ###",
+            "  # #  ",
+            "  # ###"
+        ]
+ center_col = cols // 2
+        center_row = rows // 2
+        start_row = center_row - 4 // 2
+        start_col = center_col - 6 // 2 """
+def check_ee_42(args: MazeArgs) -> None:
+    center_col = args['WIDTH'] // 2
+    center_row = args['HEIGHT'] // 2
+    start_row = center_row - 4 // 2
+    start_col = center_col - 6 // 2
+    for i in range(4):
+        for j in range(6):
+            if (i == 0 or i == 3) and (j == 0 or j == 5):
+                continue
+            if args['ENTRY'][0] == start_col + j and args['ENTRY'][1] == start_row + i:
+                raise ValueError("ENTRY cannot be on the position of the 42")
+            if args['EXIT'][0] == start_col + j and args['EXIT'][1] == start_row + i:
+                raise ValueError("EXIT cannot be on the position of the 42")
 
 def parse_args() -> MazeArgs:
     if len(argv) != 2:
@@ -100,5 +124,11 @@ def parse_args() -> MazeArgs:
     ret = check_parsed(parsed)
     if isinstance(ret, str):
         print(f"Error: {ret}", file=stderr)
+        exit(1)
+    try:
+        if ret['RANDOM_42'] is False:
+            check_ee_42(ret)
+    except ValueError as e:
+        print(f"Error: {e}", file=stderr)
         exit(1)
     return ret

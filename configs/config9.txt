@@ -13,5 +13,5 @@ PERFECT=True
 
 # Optional keys
 SEED=42
-ALGORITHM=dfs
+ALGORITHM=back
 DISPLAY_MODE=ascii

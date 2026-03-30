@@ -412,7 +412,7 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             if height is None:
                 flush()
                 return args
-            if args["ENTRY"][1] >= height or args["EXIT"][1] >= height:
+            if args["ENTRY"][1] >= height and args["EXIT"][1] >= height:
                 print("Invalid input. Entry/exit Y out of bounds.")
                 continue
             args["HEIGHT"] = height
@@ -423,7 +423,7 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             if width is None:
                 flush()
                 return args
-            if args["ENTRY"][0] >= width or args["EXIT"][0] >= width:
+            if args["ENTRY"][0] >= width and args["EXIT"][0] >= width:
                 print("Invalid input. Entry/exit X out of bounds.")
                 continue
             args["WIDTH"] = width
