@@ -56,7 +56,8 @@ def check_parsed(
         'MAZE_ANIMATION': False,
         'RES_ANIMATINON': False,
         'RANDOM_42': False,
-        'COLOR': "default"
+        'COLOR': "default",
+        'ANIMATION_SPEED': 0.0005
     }
     cases = {
             'WIDTH': check_width,
@@ -71,13 +72,16 @@ def check_parsed(
             ),
             'ALGORITHM': (
                 lambda value, _wh:
-                value.lower() if value.lower() in ['dfs', 'prim']
-                else "ALGORITHM must be either 'DFS' or 'Prim'"
+                value.lower() if value.lower() in ['back', 'prim', 'div']
+                else "ALGORITHM must be either 'back', 'prim', or 'div'"
             )
             }
     for key in parsed:
         checker = cast(Checker | None, cases.get(key))
         pre_ret_check = checker(parsed[key], ret) if checker else None
+        if key == 'ALGORITHM' and pre_ret_check is not None:
+            ret[key] = pre_ret_check
+            continue
         if isinstance(pre_ret_check, str):
             return pre_ret_check
         if pre_ret_check is not None:
