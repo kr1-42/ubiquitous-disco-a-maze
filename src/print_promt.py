@@ -590,6 +590,8 @@ def print_promt(args: MazeArgs | None) -> None:
                 if _is_cancel_signal(seed_raw):
                     flush()
                     continue
+                if args is None:
+                    args = default_settings()
                 args["SEED"] = (
                     int(seed_raw)
                     if seed_raw.isdigit()
