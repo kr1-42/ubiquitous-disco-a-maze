@@ -514,14 +514,14 @@ def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int):
             else:
                 m.draw_42(cols, rows)
             m.backtracking(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
-            """ m.fix_3x3_gaps() """
+            m.fix_3x3_gaps()
         case 'prim':
             if args['RANDOM_42'] is True:
                 m.random_draw_42(cols, rows)
             else:
                 m.draw_42(cols, rows)
             m.prim_algoritm(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
-            """ m.fix_3x3_gaps() """
+            m.fix_3x3_gaps()
         case 'div':
             m.iterative_division(args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
 
