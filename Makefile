@@ -34,7 +34,7 @@ debug:
 	fi
 
 install:
-	poetry install
+	python3 -m poetry install
 
 #@description: esegue i test con 10 esempi di configurazione
 NUMBERS=0 1 2 3 4 5 6 7 8 9
@@ -53,4 +53,3 @@ lint-strict:
 clean:
 	rm -rf __pycache__ .mypy_cache .pytest_cache
 	rm -rf src/__pycache__ src/.mypy_cache src/.pytest_cache
-
