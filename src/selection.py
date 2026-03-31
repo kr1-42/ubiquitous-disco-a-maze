@@ -328,8 +328,10 @@ def _update_height(args: MazeArgs) -> bool:
             continue
         if args['ENTRY'][1] >= height or args['EXIT'][1] >= height:
             print("\033[31mInvalid input. Entry/exit Y out of bounds.\033[0m")
+            flush += 1
             continue
         args['HEIGHT'] = height
+        tput_ed_flush(flush)
         break
     return True
 
@@ -346,6 +348,7 @@ def _update_width(args: MazeArgs) -> bool:
             flush += 1
             continue
         args['WIDTH'] = width
+        tput_ed_flush(flush)
         break
     return True
 
@@ -395,6 +398,7 @@ def _update_entry(args: MazeArgs) -> bool:
         args['ENTRY'] = point
         if check_if_inside_42(args) == 1:
             args['ENTRY'] = old_entry
+            flush += 1
             continue
         else:
             break
@@ -430,6 +434,7 @@ def _update_exit(args: MazeArgs) -> bool:
         if check_if_inside_42(args) == 1:
             breakpoint()
             args['EXIT'] = old_exit
+            flush += 1
             continue
         else:
             break
