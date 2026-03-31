@@ -81,13 +81,13 @@ def promt_after_maze_print() -> int | None:
         select = int(input("\033[36m► select an option\033[0m: "))
     except ValueError:
         print("Invalid input. Please enter a number.")
-        tput_ed_flush(23)
+        tput_ed_flush(22)
         promt_after_maze_print()
         return None
 
     if select not in [1, 2, 3, 4, 5, 6, 7, 8]:
-        print("Invalid selection. Please enter 1, 2, 3, 4, 5, 6, 7 or .")
-        tput_ed_flush(23)
+        print("Invalid selection. Please enter 1, 2, 3, 4, 5, 6, 7 or 8")
+        tput_ed_flush(22)
         promt_after_maze_print()
         return None
     return select
@@ -112,11 +112,11 @@ def _find_current_theme_name(m: Maze) -> str:
 
 def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
     themes = list(THEMES.keys())
-    menu_height = len(themes) + 12
+    menu_height = len(themes) + 13
 
     while True:
         if flag == 2:
-            tput_ed_flush()
+            tput_ed_flush(21)
         elif flag == 1:
             tput_ed_flush(menu_height)
 
@@ -145,7 +145,11 @@ def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
 
         # input con gestione degli errori
         try:
-            select = int(input("\033[36m► select an option\033[0m: "))
+            select_try = read_until_enter("\033[36m► select an option\033[0m: ")
+            if _is_cancel_signal(select_try):
+                tput_ed_flush(menu_height)
+                return
+            select = int(select_try)
         except ValueError:
             print("Invalid input. Please enter a number.")
             flag = 1  # per ridisegnare la schermata più in basso
@@ -316,24 +320,33 @@ def _print_change_params_box(args: MazeArgs) -> None:
 
 
 def _update_height(args: MazeArgs) -> bool:
-    height = _ask_size("Enter new height (1-44): ", "Height")
-    if height is None:
-        return False
-    if args['ENTRY'][1] >= height or args['EXIT'][1] >= height:
-        print("\033[31mInvalid input. Entry/exit Y out of bounds.\033[0m")
-        return True
-    args['HEIGHT'] = height
+    flush = -1
+    while True:
+        height = _ask_size("Enter new height (1-44): ", "Height")
+        flush += 1
+        if height is None:
+            continue
+        if args['ENTRY'][1] >= height or args['EXIT'][1] >= height:
+            print("\033[31mInvalid input. Entry/exit Y out of bounds.\033[0m")
+            continue
+        args['HEIGHT'] = height
+        break
     return True
 
 
 def _update_width(args: MazeArgs) -> bool:
-    width = _ask_size("Enter new width (1-44): ", "Width")
-    if width is None:
-        return False
-    if args['ENTRY'][0] >= width or args['EXIT'][0] >= width:
-        print("\033[31mInvalid input. Entry/exit X out of bounds.\033[0m")
-        return True
-    args['WIDTH'] = width
+    flush = -1
+    while True:
+        width = _ask_size("Enter new width (1-44): ", "Width")
+        flush += 1
+        if width is None:
+            continue
+        if args['ENTRY'][0] >= width or args['EXIT'][0] >= width:
+            print("\033[31mInvalid input. Entry/exit X out of bounds.\033[0m")
+            flush += 1
+            continue
+        args['WIDTH'] = width
+        break
     return True
 
 
@@ -358,21 +371,25 @@ def check_if_inside_42(args: MazeArgs) -> int:
 
 
 def _update_entry(args: MazeArgs) -> bool:
+    flush = -1
     while True:
         point = _ask_point("entry")
+        flush += 1
         if point is None:
-            return False
+            continue
 
         entry_x, entry_y = point
         in_bounds = 0 <= entry_x < args['WIDTH'] and 0 <= entry_y < args['HEIGHT']
         if not in_bounds:
             print("\033[31mInvalid input. Entry is out of bounds.\033[0m")
-            return True
+            flush += 1
+            continue
         if point == args['EXIT']:
             print(
                 "\033[31mInvalid input. "
                 "Entry and exit cannot be the same.\033[0m"
             )
+            flush += 1
             continue
         old_entry = args['ENTRY']
         args['ENTRY'] = point
@@ -381,12 +398,15 @@ def _update_entry(args: MazeArgs) -> bool:
             continue
         else:
             break
+    tput_ed_flush(flush)
     return True
 
 
 def _update_exit(args: MazeArgs) -> bool:
+    flush = -1
     while True:
         point = _ask_point("exit")
+        flush += 1
         if point is None:
             continue
         exit_x, exit_y = point
@@ -396,12 +416,14 @@ def _update_exit(args: MazeArgs) -> bool:
                 "\033[31mInvalid input. "
                 "Exit coordinates are out of bounds.\033[0m"
             )
+            flush += 1
             continue
         if point == args['ENTRY']:
             print(
                 "\033[31mInvalid input. "
                 "Exit and entry cannot be the same.\033[0m"
             )
+            flush += 1
             continue
         old_exit = args['EXIT']
         args['EXIT'] = point
@@ -411,6 +433,7 @@ def _update_exit(args: MazeArgs) -> bool:
             continue
         else:
             break
+    tput_ed_flush(flush)
     return False
 
 
