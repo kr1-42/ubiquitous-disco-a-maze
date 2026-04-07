@@ -145,7 +145,7 @@ def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
 
         # input con gestione degli errori
         try:
-            select_try = read_until_enter("\033[36m► select an option\033[0m: ")
+            select_try = read_until_enter("\033[36m► select a option\033[0m: ")
             if _is_cancel_signal(select_try):
                 tput_ed_flush(menu_height)
                 return
@@ -219,7 +219,7 @@ def _is_cancel_signal(value: str) -> bool:
 def _read_int_value(prompt: str) -> int | None:
     raw = read_until_enter(prompt)
     if _is_cancel_signal(raw):
-        return None
+        return -1
     try:
         return int(raw)
     except ValueError:
@@ -326,7 +326,11 @@ def _update_height(args: MazeArgs) -> bool:
         flush += 1
         if height is None:
             continue
-        if args['ENTRY'][1] >= height or args['EXIT'][1] >= height:
+        if height <= 6 or height > 44:
+            print("\033[31mInvalid input. Height must be between 7 and 44.\033[0m")
+            flush += 1
+            continue
+        if args['ENTRY'][0] >= height or args['EXIT'][0] >= height:
             print("\033[31mInvalid input. Entry/exit Y out of bounds.\033[0m")
             flush += 1
             continue
@@ -343,7 +347,11 @@ def _update_width(args: MazeArgs) -> bool:
         flush += 1
         if width is None:
             continue
-        if args['ENTRY'][0] >= width or args['EXIT'][0] >= width:
+        if width < 9 or width > 44:
+            print("\033[31mInvalid input. Width must be between 9 and 44.\033[0m")
+            flush += 1
+            continue
+        if args['ENTRY'][1] >= width or args['EXIT'][1] >= width:
             print("\033[31mInvalid input. Entry/exit X out of bounds.\033[0m")
             flush += 1
             continue
@@ -508,7 +516,10 @@ def change_params_after(args: MazeArgs, m: Maze) -> None:
                 args['RES_ANIMATINON']
             )
         elif select == 9:
-            args['RANDOM_42'] = not bool(args['RANDOM_42'])
+            if args['ALGORITHM'] in ['back', 'prim']:
+                args['RANDOM_42'] = not bool(args['RANDOM_42'])
+            else:
+                print("\033[31mInvalid selection. Recursive division cannot handle 42.\033[0m")
 
 
 def after_maze_print(args: MazeArgs, m: Maze) -> None:
@@ -601,7 +612,11 @@ def selection_function(args: MazeArgs) -> None:
     start = args['ENTRY']
     end = args['EXIT']
     m = Maze(cols, rows, start, end)
-    m.anim_speed = float(args["ANIMATION_SPEED"])
+    try:
+        m.anim_speed = float(args["ANIMATION_SPEED"])
+    except ValueError:
+        print("\033[31mInvalid animation speed. Using default value.\033[0m")
+        m.anim_speed = 0.0005
     start_row, start_col = m.start
     end_row, end_col = m.end
     m.grid[start_row][start_col].start = True
