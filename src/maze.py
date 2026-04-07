@@ -19,7 +19,7 @@ class Maze:
             [Cell(r, c) for c in range(cols)]
             for r in range(rows)]
         self.colors = THEMES['default']
-        self.anim_speed = 0.0005
+        self.anim_speed = 0.5
 
     def has_unvisited_cells(self) -> bool:
         for r in self.grid:
@@ -91,29 +91,51 @@ class Maze:
                 unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
 
-    def fix_3x3_gaps(self):
-        for r in range(1, self.rows - 1):
-            for c in range(1, self.cols - 1):
-                if (not self.grid[r][c].north
-                        and not self.grid[r][c].south
-                        and not self.grid[r][c].east
-                        and not self.grid[r][c].west):
-                    if (not self.grid[r + 1][c].east
-                            and not self.grid[r + 1][c].west
-                            and not self.grid[r - 1][c].east
-                            and not self.grid[r - 1][c].west
-                            and not self.grid[r][c + 1].north
-                            and not self.grid[r][c + 1].south
-                            and not self.grid[r][c - 1].north
-                            and not self.grid[r][c - 1].south):
-                        direction = (
-                            self.grid[r + 1][c],
-                            self.grid[r - 1][c],
-                            self.grid[r][c + 1],
-                            self.grid[r][c - 1],
-                        )
-                        self.grid[r][c].create_wall(random.choice(direction))
+    def if_is_3x3(self, r: int, c: int) -> bool:
+        for dr, dc in [(-1, -1), (-1, 0), (0, -1), (0, 0)]:
+            r0, c0 = r + dr, c + dc
+            if 0 <= r0 < self.rows - 1 and 0 <= c0 < self.cols - 1:
+                c1 = self.grid[r0][c0]
+                c2 = self.grid[r0][c0+1]
+                c3 = self.grid[r0+1][c0]
+                c4 = self.grid[r0+1][c0+1]
+                if not c1.south and not c1.east and \
+                not c2.south and not c2.west and \
+                not c3.north and not c3.east and \
+                not c4.north and not c4.west:
+                    return True
+        return False
 
+    def break_random_walls(self, count: int = 1):
+        all_cells = [
+        self.grid[r][c]
+        for r in range(self.rows)
+        for c in range(self.cols)
+        if not self.grid[r][c].cell_42
+        ]
+        broken_successfully = 0
+        while broken_successfully < count:
+            cell = random.choice(all_cells)
+            neighbors = []
+            r, c = cell.row, cell.col
+            if cell.north and r > 0 and not self.grid[r - 1][c].cell_42:
+                neighbors.append(self.grid[r - 1][c])
+            if cell.south and r < self.rows - 1 and not self.grid[r + 1][c].cell_42:
+                neighbors.append(self.grid[r + 1][c])
+            if cell.east and c < self.cols - 1 and not self.grid[r][c + 1].cell_42:
+                neighbors.append(self.grid[r][c + 1])
+            if cell.west and c > 0 and not self.grid[r][c - 1].cell_42:
+                neighbors.append(self.grid[r][c - 1])
+            if neighbors:
+                neighbor = random.choice(neighbors)
+                cell.break_wall(neighbor)
+                if cell.hexa == 0 or neighbor.hexa == 0 or \
+                self.if_is_3x3(cell.row, cell.col) or \
+                self.if_is_3x3(neighbor.row, neighbor.col):
+                    cell.create_wall(neighbor)
+                else:
+                    broken_successfully += 1
+    
     def remove_diagonal_wall(self, curr_cell: Cell) -> bool:
         if curr_cell:
             if curr_cell.row + 1 < self.rows and curr_cell.col + 1 < self.cols:
@@ -267,13 +289,12 @@ class Maze:
                     self.grid[draw_row + r][draw_col + c].visited = True
                     self.grid[draw_row + r][draw_col + c].cell_42 = True
 
-
-
+    
+                    
 
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
                      animation: bool = False,
-                     perfect: bool = True,
                      color: str = "default") -> None:
         stack = []
         curr_cell = None
@@ -288,10 +309,7 @@ class Maze:
                 direction = random.choice(unvisited)
                 if curr_cell:
                     curr_cell.break_wall(direction)
-                if perfect:
                     direction.visited = True
-                else:
-                    direction.visited = random.randint(0, 100) < 60
                 if curr_cell and self.unvisited_neighbours(curr_cell):
                     stack.append(curr_cell)
                 curr_cell = direction
@@ -303,7 +321,6 @@ class Maze:
     def prim_algoritm(self,
                       starting_cell: Optional["Cell"] = None,
                       animation: float = False,
-                      perfect: float = True,
                       color: str = "default") -> None:
         frontier = []
         if starting_cell:
@@ -317,10 +334,7 @@ class Maze:
                 frontier.remove((next_cell, curr_cell))
                 if not next_cell.visited:
                     curr_cell.break_wall(next_cell)
-                if perfect:
                     next_cell.visited = True
-                else:
-                    next_cell.visited = random.randint(0, 100) < 70
                 curr_cell = next_cell
                 for neighbor in self.unvisited_neighbours(curr_cell):
                     frontier.append((neighbor, next_cell))
@@ -340,7 +354,6 @@ class Maze:
 
     def iterative_division(self,
                       animation: float = False,
-                      perfect: float = True,
                       color: str = "default") -> None:
         self.break_all_walls()
         stack = []
@@ -381,6 +394,7 @@ class Maze:
                     stack.append(((wall_y + 1, x1), (y2, x2)))
             if animation:
                 self.print_maze(color=color)
+        
 
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
         lines = []
