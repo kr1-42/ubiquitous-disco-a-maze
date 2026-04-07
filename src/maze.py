@@ -90,7 +90,7 @@ class Maze:
                     and not cell.west):
                 unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
-    
+
     def fix_3x3_gaps(self):
         for r in range(1, self.rows - 1):
             for c in range(1, self.cols - 1):
@@ -267,8 +267,8 @@ class Maze:
                     self.grid[draw_row + r][draw_col + c].visited = True
                     self.grid[draw_row + r][draw_col + c].cell_42 = True
 
-    
-                    
+
+
 
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
@@ -291,7 +291,7 @@ class Maze:
                 if perfect:
                     direction.visited = True
                 else:
-                    direction.visited = random.randint(0, 100) < 20
+                    direction.visited = random.randint(0, 100) < 60
                 if curr_cell and self.unvisited_neighbours(curr_cell):
                     stack.append(curr_cell)
                 curr_cell = direction

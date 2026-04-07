@@ -12,7 +12,7 @@ CANCEL_SIGNALS = ("\x1b", "\x03")
 ALGOS = [
     ("Backtracking Algorithm", "back"),
     ("Prim's Algorithm", "prim"),
-    ("Recursive Division Algorithm (without 42)", "div"),
+    ("Recursive Division Algorithm (extra)", "div"),
 ]
 
 
@@ -310,9 +310,9 @@ def _ask_size(prompt: str, axis_name: str) -> int | None:
         except ValueError:
             print(f"Invalid input. {axis_name} must be a number.")
             continue
-        if 1 <= value <= 44:
+        if 9 <= value <= 44:
             return value
-        print(f"Invalid input. {axis_name} must be between 1 and 44.")
+        print(f"Invalid input. {axis_name} must be between 9 and 44.")
 
 
 def _ask_point(label: str) -> tuple[int, int] | None:
@@ -412,6 +412,12 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             if height is None:
                 flush()
                 return args
+            if height < 7 and\
+                    (args["ENTRY"][1] >= height or args["EXIT"][1] >= height):
+                print(
+                    "Invalid input. Entry/exit Y out of bounds for small mazes"
+                    )
+                continue
             if args["ENTRY"][1] >= height and args["EXIT"][1] >= height:
                 print("Invalid input. Entry/exit Y out of bounds.")
                 continue
@@ -423,6 +429,12 @@ def params_panel(args: MazeArgs) -> MazeArgs:
             if width is None:
                 flush()
                 return args
+            if width < 10 and\
+                    (args["ENTRY"][0] >= width or args["EXIT"][0] >= width):
+                print(
+                    "Invalid input. Entry/exit X out of bounds for small mazes"
+                    )
+                continue
             if args["ENTRY"][0] >= width and args["EXIT"][0] >= width:
                 print("Invalid input. Entry/exit X out of bounds.")
                 continue
