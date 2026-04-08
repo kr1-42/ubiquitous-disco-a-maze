@@ -106,7 +106,7 @@ class Maze:
                     return True
         return False
 
-    def break_random_walls(self, count: int = 1):
+    def break_random_walls(self, count: int = 1) -> None:
         all_cells = [
         self.grid[r][c]
         for r in range(self.rows)
@@ -342,15 +342,17 @@ class Maze:
                     self.print_maze(color=color)
 
     def break_all_walls(self) -> None:
-        for r in self.grid:
-            for c in r:
-                if self.grid[c.row][c.col].cell_42 is False:
-                    self.grid[c.row][c.col].north = False
-                    self.grid[c.row][c.col].west = False
-                    if c.col != self.cols - 1:
-                        self.grid[c.row][c.col].east = False
-                    if c.row != self.rows - 1:
-                        self.grid[c.row][c.col].south = False
+        for r in range(self.rows):
+            for c in range(self.cols):
+                cell = self.grid[r][c]
+                cell.visited = False
+                cell.footsteps = 0
+                cell.path = False
+                cell.north = True if r == 0 else False
+                cell.south = True if r == self.rows - 1 else False
+                cell.west = True if c == 0 else False
+                cell.east = True if c == self.cols - 1 else False
+            cell.assign_hexa()
 
     def iterative_division(self,
                       animation: float = False,

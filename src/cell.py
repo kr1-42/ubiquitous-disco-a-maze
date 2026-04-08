@@ -55,9 +55,12 @@ class Cell:
         self.hexa = 0
         if self.north:
             self.hexa |= 1
-        if self.south:
-            self.hexa |= 2
         if self.east:
+            self.hexa |= 2
+        if self.south:
             self.hexa |= 4
         if self.west:
             self.hexa |= 8
+
+    def __repr__(self):
+        return f"cell pos: ({self.col}, {self.row})"
