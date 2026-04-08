@@ -397,17 +397,35 @@ class Maze:
         
 
     def print_hexa_maze(self, filename: Optional[str] = None) -> None:
-        lines = []
-        for r in self.grid:
-            line = ""
-            for c in r:
-                line += format(c.hexa, "X")
-            lines.append(line)
-            if filename:
-                with open(filename, "w") as f:
-                    f.write("\n".join(lines))
-            else:
-                print(line)
+        path_string = ""
+        if self.start and self.end:
+            curr_row, curr_col = self.start
+            curr_cell = self.grid[curr_row][curr_col]
+            while not (curr_row == self.end[0] and curr_col == self.end[1]):
+                found = False
+                for n in self.visited_without_wall(curr_cell):
+                    if n.footsteps == curr_cell.footsteps - 1:
+                        if n.row < curr_row: path_string += "N"
+                        elif n.row > curr_row: path_string += "S"
+                        elif n.col > curr_col: path_string += "E"
+                        elif n.col < curr_col: path_string += "W"
+                        
+                        curr_cell = n
+                        curr_row, curr_col = n.row, n.col
+                        found = True
+                        break
+                if not found: break
+        try:
+            with open(filename, "w") as f:
+                for row in self.grid:
+                    line = "".join(format(cell.hexa, "X") for cell in row)
+                    f.write(line + "\n")
+                f.write("\n")
+                f.write(f"{self.start[1]},{self.start[0]}\n")
+                f.write(f"{self.end[1]},{self.end[0]}\n")
+                f.write(path_string + "\n")
+        except Exception as e:
+            print(f"Errore durante il salvataggio: {e}")
 
     def bfs(self, animation: bool = False, color: str = "default") -> None:
         self.set_all_unvisited()
