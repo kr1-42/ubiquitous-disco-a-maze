@@ -572,7 +572,7 @@ def algo_panel(current_algo: str | None = None) -> int | None:
         print(f"Invalid selection. Please enter 0 to {len(ALGOS)}.")
 
 
-def print_promt(args: MazeArgs | None) -> None:
+def print_promt(args: MazeArgs) -> None:
     while True:
         if args is None:
             print("No arguments provided we'll use default settings, or not")
