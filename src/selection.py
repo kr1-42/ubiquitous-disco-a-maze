@@ -585,17 +585,21 @@ def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int):
                 m.random_draw_42(cols, rows)
             else:
                 m.draw_42(cols, rows)
-            m.backtracking(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
-            m.fix_3x3_gaps()
+            m.backtracking(m.grid[0][0], args['MAZE_ANIMATION'], args.get('COLOR', args['COLOR']))
+            if not args["PERFECT"]:
+                m.break_random_walls(50)
         case 'prim':
             if args['RANDOM_42'] is True:
                 m.random_draw_42(cols, rows)
             else:
                 m.draw_42(cols, rows)
-            m.prim_algoritm(m.grid[0][0], args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
-            m.fix_3x3_gaps()
+            m.prim_algoritm(m.grid[0][0], args['MAZE_ANIMATION'], args.get('COLOR', args['COLOR']))
+            if not args["PERFECT"]:
+                m.break_random_walls(30)
         case 'div':
-            m.iterative_division(args['MAZE_ANIMATION'], args['PERFECT'], args.get('COLOR', args['COLOR']))
+            m.iterative_division(args['MAZE_ANIMATION'], args.get('COLOR', args['COLOR']))
+            if not args["PERFECT"]:
+                m.break_random_walls(30)
 
 
 
@@ -616,7 +620,7 @@ def selection_function(args: MazeArgs) -> None:
         m.anim_speed = float(args["ANIMATION_SPEED"])
     except ValueError:
         print("\033[31mInvalid animation speed. Using default value.\033[0m")
-        m.anim_speed = 0.0005
+        m.anim_speed = 0.5
     start_row, start_col = m.start
     end_row, end_col = m.end
     m.grid[start_row][start_col].start = True

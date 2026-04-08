@@ -57,7 +57,7 @@ def check_parsed(
         'RES_ANIMATINON': False,
         'RANDOM_42': False,
         'COLOR': "default",
-        'ANIMATION_SPEED': 0.0005
+        'ANIMATION_SPEED': 1
     }
     cases = {
             'WIDTH': check_width,

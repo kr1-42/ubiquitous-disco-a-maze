@@ -257,7 +257,7 @@ def default_settings() -> MazeArgs:
         'EXIT': (19, 19),
         'PERFECT': True,
         'ALGORITHM': 'back',
-        'ANIMATION_SPEED': 0.0005,
+        'ANIMATION_SPEED': 0.5,
         'MAZE_ANIMATION': False,
         'RES_ANIMATINON': False,
         'RANDOM_42': False,
