@@ -35,7 +35,7 @@ def _ansi_row(text: str = "", inside_width: int = INSIDE_WIDTH) -> str:
     return f"║{text}{' ' * padding}║"
 
 
-def promt_after_maze_print() -> int | None:
+def promt_after_maze_print(m: Maze, args: MazeArgs) -> int | None:
     def row(text: str = "") -> str:
         return _ansi_row(text)
 
@@ -81,15 +81,15 @@ def promt_after_maze_print() -> int | None:
         select = int(input("\033[36m► select an option\033[0m: "))
     except ValueError:
         print("Invalid input. Please enter a number.")
-        tput_ed_flush(22)
-        promt_after_maze_print()
-        return None
+        flush()
+        m.print_maze(color=args['COLOR'])
+        return promt_after_maze_print(m, args)
 
     if select not in [1, 2, 3, 4, 5, 6, 7, 8]:
         print("Invalid selection. Please enter 1, 2, 3, 4, 5, 6, 7 or 8")
-        tput_ed_flush(22)
-        promt_after_maze_print()
-        return None
+        flush()
+        m.print_maze(color=args['COLOR'])
+        return promt_after_maze_print(m, args)
     return select
 
 
@@ -97,10 +97,7 @@ def tput(*args: str) -> None:
     subprocess.run(["tput", *args], check=True)
 
 
-def tput_ed_flush(n: int = 20) -> None:
-    for _ in range(n):
-        tput("cuu1")
-        tput("ed")
+# tput_ed_flush is deprecated - use flush() from print_promt instead
 
 
 def _find_current_theme_name(m: Maze) -> str:
@@ -116,9 +113,11 @@ def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
 
     while True:
         if flag == 2:
-            tput_ed_flush(21)
+            flush()
+            m.print_maze(color=args['COLOR'])
         elif flag == 1:
-            tput_ed_flush(menu_height)
+            flush()
+            m.print_maze(color=args['COLOR'])
 
         def row(text: str = "") -> str:
             return _ansi_row(text)
@@ -147,7 +146,8 @@ def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
         try:
             select_try = read_until_enter("\033[36m► select a option\033[0m: ")
             if _is_cancel_signal(select_try):
-                tput_ed_flush(menu_height)
+                flush()
+                m.print_maze(color=args['COLOR'])
                 return
             select = int(select_try)
         except ValueError:
@@ -164,7 +164,8 @@ def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
             return  # uscita dalla funzione
 
         if select == len(themes) + 1:
-            tput_ed_flush(menu_height)
+            flush()
+            m.print_maze(color=args['COLOR'])
             return  # back al menu principale
 
         if select < 0 or select > len(themes):
@@ -319,44 +320,46 @@ def _print_change_params_box(args: MazeArgs) -> None:
     print("\n".join(box))
 
 
-def _update_height(args: MazeArgs) -> bool:
-    flush = -1
+def _update_height(m: Maze, args: MazeArgs) -> bool:
+    line_count = -1
     while True:
         height = _ask_size("Enter new height (1-44): ", "Height")
-        flush += 1
+        line_count += 1
         if height is None:
             continue
         if height <= 6 or height > 44:
             print("\033[31mInvalid input. Height must be between 7 and 44.\033[0m")
-            flush += 1
+            line_count += 1
             continue
         if args['ENTRY'][0] >= height or args['EXIT'][0] >= height:
             print("\033[31mInvalid input. Entry/exit Y out of bounds.\033[0m")
-            flush += 1
+            line_count += 1
             continue
         args['HEIGHT'] = height
-        tput_ed_flush(flush)
+        flush()
+        m.print_maze(color=args['COLOR'])
         break
     return True
 
 
-def _update_width(args: MazeArgs) -> bool:
-    flush = -1
+def _update_width(m: Maze, args: MazeArgs) -> bool:
+    line_count = -1
     while True:
         width = _ask_size("Enter new width (1-44): ", "Width")
-        flush += 1
+        line_count += 1
         if width is None:
             continue
         if width < 9 or width > 44:
             print("\033[31mInvalid input. Width must be between 9 and 44.\033[0m")
-            flush += 1
+            line_count += 1
             continue
         if args['ENTRY'][1] >= width or args['EXIT'][1] >= width:
             print("\033[31mInvalid input. Entry/exit X out of bounds.\033[0m")
-            flush += 1
+            line_count += 1
             continue
         args['WIDTH'] = width
-        tput_ed_flush(flush)
+        flush()
+        m.print_maze(color=args['COLOR'])
         break
     return True
 
@@ -381,11 +384,11 @@ def check_if_inside_42(args: MazeArgs) -> int:
 
 
 
-def _update_entry(args: MazeArgs) -> bool:
-    flush = -1
+def _update_entry(m: Maze, args: MazeArgs) -> bool:
+    line_count = -1
     while True:
         point = _ask_point("entry")
-        flush += 1
+        line_count += 1
         if point is None:
             continue
 
@@ -393,32 +396,33 @@ def _update_entry(args: MazeArgs) -> bool:
         in_bounds = 0 <= entry_x < args['WIDTH'] and 0 <= entry_y < args['HEIGHT']
         if not in_bounds:
             print("\033[31mInvalid input. Entry is out of bounds.\033[0m")
-            flush += 1
+            line_count += 1
             continue
         if point == args['EXIT']:
             print(
                 "\033[31mInvalid input. "
                 "Entry and exit cannot be the same.\033[0m"
             )
-            flush += 1
+            line_count += 1
             continue
         old_entry = args['ENTRY']
         args['ENTRY'] = point
         if check_if_inside_42(args) == 1:
             args['ENTRY'] = old_entry
-            flush += 1
+            line_count += 1
             continue
         else:
             break
-    tput_ed_flush(flush)
+    flush()
+    m.print_maze(color=args['COLOR'])
     return True
 
 
-def _update_exit(args: MazeArgs) -> bool:
-    flush = -1
+def _update_exit(m: Maze, args: MazeArgs) -> bool:
+    line_count = -1
     while True:
         point = _ask_point("exit")
-        flush += 1
+        line_count += 1
         if point is None:
             continue
         exit_x, exit_y = point
@@ -428,37 +432,39 @@ def _update_exit(args: MazeArgs) -> bool:
                 "\033[31mInvalid input. "
                 "Exit coordinates are out of bounds.\033[0m"
             )
-            flush += 1
+            line_count += 1
             continue
         if point == args['ENTRY']:
             print(
                 "\033[31mInvalid input. "
                 "Exit and entry cannot be the same.\033[0m"
             )
-            flush += 1
+            line_count += 1
             continue
         old_exit = args['EXIT']
         args['EXIT'] = point
         if check_if_inside_42(args) == 1:
             breakpoint()
             args['EXIT'] = old_exit
-            flush += 1
+            line_count += 1
             continue
         else:
             break
-    tput_ed_flush(flush)
+    flush()
+    m.print_maze(color=args['COLOR'])
     return False
 
 
 def change_params_after(args: MazeArgs, m: Maze) -> None:
-    _ = m
     while True:
-        tput_ed_flush(21)
+        flush()
+        m.print_maze(color=args['COLOR'])
         _print_change_params_box(args)
 
         select_raw = read_until_enter("\033[36m► select an option\033[0m: ")
         if _is_cancel_signal(select_raw):
-            tput_ed_flush(20)
+            flush()
+            m.print_maze(color=args['COLOR'])
             return
 
         try:
@@ -475,33 +481,39 @@ def change_params_after(args: MazeArgs, m: Maze) -> None:
             continue
 
         if select == 0:
-            tput_ed_flush(20)
+            flush()
+            m.print_maze(color=args['COLOR'])
             return
 
         if select == 1:
-            if not _update_height(args):
-                tput_ed_flush(20)
+            if not _update_height(m, args):
+                flush()
+                m.print_maze(color=args['COLOR'])
                 return
 
         elif select == 2:
-            if not _update_width(args):
-                tput_ed_flush(20)
+            if not _update_width(m, args):
+                flush()
+                m.print_maze(color=args['COLOR'])
                 return
 
         elif select == 3:
-            if not _update_entry(args):
-                tput_ed_flush(20)
+            if not _update_entry(m, args):
+                flush()
+                m.print_maze(color=args['COLOR'])
                 return
 
         elif select == 4:
-            if not _update_exit(args):
-                tput_ed_flush(20)
+            if not _update_exit(m, args):
+                flush()
+                m.print_maze(color=args['COLOR'])
                 return
 
         elif select == 5:
             new_seed = _ask_seed("Enter new seed (1-1000000000): ", "Seed")
             if new_seed is None:
-                tput_ed_flush(20)
+                flush()
+                m.print_maze(color=args['COLOR'])
                 return
             args['SEED'] = new_seed
         elif select == 6:
@@ -524,7 +536,7 @@ def change_params_after(args: MazeArgs, m: Maze) -> None:
 
 def after_maze_print(args: MazeArgs, m: Maze) -> None:
     while True:
-        select = promt_after_maze_print()
+        select = promt_after_maze_print(m, args)
 
         if select == 1:
             args['SEED'] = random.randint(0, 10**9)
@@ -539,7 +551,8 @@ def after_maze_print(args: MazeArgs, m: Maze) -> None:
             change_params_after(args, m)
 
         elif select == 4:
-            tput_ed_flush()
+            flush()
+            m.print_maze(color=args['COLOR'])
             algo_select = algo_panel(args['ALGORITHM'])
             if algo_select is not None:
                 args['ALGORITHM'] = ALGOS[algo_select - 1][1]
@@ -574,7 +587,8 @@ def after_maze_print(args: MazeArgs, m: Maze) -> None:
             return
 
         elif select == 8:
-            tput_ed_flush(6)
+            flush()
+            m.print_maze(color=args['COLOR'])
             print("Goodbye :(")
             exit(1)
 
