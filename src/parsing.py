@@ -88,17 +88,6 @@ def check_parsed(
             ret[key] = pre_ret_check
     return cast(MazeArgs, ret)
 
-""" pattern = [
-            "# # ###",
-            "# #   #",
-            "### ###",
-            "  # #  ",
-            "  # ###"
-        ]
- center_col = cols // 2
-        center_row = rows // 2
-        start_row = center_row - 4 // 2
-        start_col = center_col - 6 // 2 """
 def check_ee_42(args: MazeArgs) -> None:
     center_col = args['WIDTH'] // 2
     center_row = args['HEIGHT'] // 2
