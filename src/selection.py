@@ -642,5 +642,5 @@ def selection_function(args: MazeArgs) -> None:
     selection_algoritm(m, args, cols, rows)
     m.bfs(args["RES_ANIMATINON"], args.get('COLOR', args['COLOR']))
     m.print_maze(args.get('COLOR', 'default'))
-    m.print_hexa_maze("hexa.txt")
+    m.print_hexa_maze(args.get["OUTPUT_FILE"])
     after_maze_print(args, m)
