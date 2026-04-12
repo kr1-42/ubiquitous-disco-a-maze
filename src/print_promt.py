@@ -3,7 +3,7 @@ import re
 import sys
 import termios
 import tty
-from typing import TypedDict
+from .parsing import MazeArgs
 
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -14,20 +14,6 @@ ALGOS = [
     ("Prim's Algorithm", "prim"),
     ("Recursive Division Algorithm (extra)", "div"),
 ]
-
-
-class MazeArgs(TypedDict):
-    HEIGHT: int
-    WIDTH: int
-    ENTRY: tuple[int, int]
-    EXIT: tuple[int, int]
-    PERFECT: bool
-    ALGORITHM: str
-    ANIMATION_SPEED: float
-    MAZE_ANIMATION: bool
-    RES_ANIMATINON: bool
-    RANDOM_42: bool
-    SEED: int | None
 
 
 def _visible_len(text: str) -> int:
@@ -256,6 +242,7 @@ def default_settings() -> MazeArgs:
         'ENTRY': (0, 0),
         'EXIT': (19, 19),
         'PERFECT': True,
+        'OUTPUT_FILE': "hexa.txt",
         'ALGORITHM': 'back',
         'ANIMATION_SPEED': 0.5,
         'MAZE_ANIMATION': False,

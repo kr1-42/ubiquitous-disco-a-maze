@@ -3,6 +3,7 @@ from time import sleep
 from typing import Optional
 import random
 from .maze_color import THEMES
+from io import TextIOWrapper
 
 
 class Maze:
@@ -49,7 +50,7 @@ class Maze:
             unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
 
-    def unvisited_without_wall(self, cell: Optional["Cell"]) -> list:
+    def unvisited_without_wall(self, cell: Optional["Cell"]) -> list["Cell"]:
         unvisited = []
         if cell:
             if (cell.row > 0
@@ -70,7 +71,7 @@ class Maze:
                 unvisited.append(self.grid[cell.row][cell.col - 1])
         return unvisited
 
-    def visited_without_wall(self, cell: Optional["Cell"]) -> list:
+    def visited_without_wall(self, cell: Optional["Cell"]) -> list["Cell"]:
         unvisited = []
         if cell:
             if (cell.row > 0
@@ -135,7 +136,7 @@ class Maze:
                     cell.create_wall(neighbor)
                 else:
                     broken_successfully += 1
-    
+
     def remove_diagonal_wall(self, curr_cell: Cell) -> bool:
         if curr_cell:
             if curr_cell.row + 1 < self.rows and curr_cell.col + 1 < self.cols:
@@ -267,8 +268,6 @@ class Maze:
             "  # #  ",
             "  # ###"
         ]
-        pattern2 = {
-        }
         avaliable_cols = cols - 8
         avaliable_rows = rows - 5
         while True:
@@ -289,8 +288,8 @@ class Maze:
                     self.grid[draw_row + r][draw_col + c].visited = True
                     self.grid[draw_row + r][draw_col + c].cell_42 = True
 
-    
-                    
+
+
 
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
@@ -396,9 +395,9 @@ class Maze:
                     stack.append(((wall_y + 1, x1), (y2, x2)))
             if animation:
                 self.print_maze(color=color)
-        
 
-    def print_hexa_maze(self, filename: Optional[str] = None) -> None:
+
+    def print_hexa_maze(self, file: TextIOWrapper | str) -> None:
         path_string = ""
         if self.start and self.end:
             curr_row, curr_col = self.start
@@ -411,21 +410,32 @@ class Maze:
                         elif n.row > curr_row: path_string += "S"
                         elif n.col > curr_col: path_string += "E"
                         elif n.col < curr_col: path_string += "W"
-                        
+
                         curr_cell = n
                         curr_row, curr_col = n.row, n.col
                         found = True
                         break
                 if not found: break
+        def _write_hexa(target: TextIOWrapper) -> None:
+            for row in self.grid:
+                line = "".join(format(cell.hexa, "X") for cell in row)
+                target.write(line + "\n")
+            target.write("\n")
+            target.write(f"{self.start[1]},{self.start[0]}\n")
+            target.write(f"{self.end[1]},{self.end[0]}\n")
+            target.write(path_string + "\n")
+
         try:
-            with open(filename, "w") as f:
-                for row in self.grid:
-                    line = "".join(format(cell.hexa, "X") for cell in row)
-                    f.write(line + "\n")
-                f.write("\n")
-                f.write(f"{self.start[1]},{self.start[0]}\n")
-                f.write(f"{self.end[1]},{self.end[0]}\n")
-                f.write(path_string + "\n")
+            if isinstance(file, str):
+                with open(file, "w") as f:
+                    _write_hexa(f)
+            elif isinstance(file, TextIOWrapper):
+                file.seek(0)
+                file.truncate()
+                _write_hexa(file)
+                file.flush()
+            else:
+                raise ValueError("OUTPUT must be a file path or writable file object")
         except Exception as e:
             print(f"Errore durante il salvataggio: {e}")
 

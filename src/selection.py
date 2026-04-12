@@ -8,25 +8,11 @@ from typing import TypedDict, cast
 from .maze import Maze
 from .maze_color import THEMES
 from .print_promt import ALGOS, algo_panel, flush
-
+from .parsing import MazeArgs
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 INSIDE_WIDTH = 51
 
-
-class MazeArgs(TypedDict):
-    HEIGHT: int
-    WIDTH: int
-    ENTRY: tuple[int, int]
-    EXIT: tuple[int, int]
-    PERFECT: bool
-    ALGORITHM: str
-    ANIMATION_SPEED: float
-    MAZE_ANIMATION: bool
-    RES_ANIMATINON: bool
-    RANDOM_42: bool
-    SEED: int | None
-    COLOR: str
 
 
 def _ansi_row(text: str = "", inside_width: int = INSIDE_WIDTH) -> str:
@@ -247,8 +233,17 @@ def _ask_seed(prompt: str, axis_name: str) -> int | None:
     value = input("the seed: ").__hash__()
     return value
 
+
 def _ask_speed(prompt: str, axis_name: str) -> float | None:
-    value = input("the speed: ")
+    raw = input("the speed: ")
+    try:
+        value = float(raw)
+    except ValueError:
+        print("\033[31mInvalid input. Please enter a decimal number.\033[0m")
+        return None
+    if value <= 0:
+        print("\033[31mInvalid input. Speed must be greater than 0.\033[0m")
+        return None
     return value
 
 def _ask_point(prefix: str) -> tuple[int, int] | None:
@@ -582,6 +577,8 @@ def after_maze_print(args: MazeArgs, m: Maze) -> None:
             m.print_maze(color=args['COLOR'])
             print(f"current animation speed:{m.anim_speed}")
             new_speed = _ask_speed("Enter speed (1-0.0000000001): ", "speed")
+            if new_speed is None:
+                continue
             args['ANIMATION_SPEED'] = new_speed
             selection_function(args)
             return
@@ -592,7 +589,7 @@ def after_maze_print(args: MazeArgs, m: Maze) -> None:
             print("Goodbye :(")
             exit(1)
 
-def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int):
+def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int) -> None:
     match args['ALGORITHM']:
         case 'back':
             if args['RANDOM_42'] is True:
@@ -632,7 +629,7 @@ def selection_function(args: MazeArgs) -> None:
     m = Maze(cols, rows, start, end)
     try:
         m.anim_speed = float(args["ANIMATION_SPEED"])
-    except ValueError:
+    except (ValueError, TypeError):
         print("\033[31mInvalid animation speed. Using default value.\033[0m")
         m.anim_speed = 0.5
     start_row, start_col = m.start
@@ -642,5 +639,5 @@ def selection_function(args: MazeArgs) -> None:
     selection_algoritm(m, args, cols, rows)
     m.bfs(args["RES_ANIMATINON"], args.get('COLOR', args['COLOR']))
     m.print_maze(args.get('COLOR', 'default'))
-    m.print_hexa_maze("hexa.txt")
+    m.print_hexa_maze(args['OUTPUT_FILE'])
     after_maze_print(args, m)

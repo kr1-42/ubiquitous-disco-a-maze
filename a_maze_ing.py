@@ -1,6 +1,6 @@
 from typing import cast
 
-from src.print_promt import MazeArgs, print_promt
+from src.print_promt import print_promt
 from src.parsing import parse_args
 from sys import argv
 

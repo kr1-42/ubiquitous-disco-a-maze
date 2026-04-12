@@ -3,6 +3,7 @@ from .check_config_cases import check_height, check_width
 from .check_config_cases import get_output, get_perfect
 from sys import argv, stderr
 from typing import Any, Callable, TypedDict, cast
+from io import TextIOWrapper
 
 
 class MazeArgs(TypedDict):
@@ -10,8 +11,10 @@ class MazeArgs(TypedDict):
     WIDTH: int
     ENTRY: tuple[int, int]
     EXIT: tuple[int, int]
+    OUTPUT_FILE: TextIOWrapper | str
     PERFECT: bool
     ALGORITHM: str
+    ANIMATION_SPEED: float
     MAZE_ANIMATION: bool
     RES_ANIMATINON: bool
     RANDOM_42: bool

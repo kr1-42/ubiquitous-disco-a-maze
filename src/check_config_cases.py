@@ -1,6 +1,6 @@
 
 from io import TextIOWrapper
-from .selection import MazeArgs
+from .parsing import MazeArgs
 
 
 def check_width(value: str, _wh: MazeArgs) -> int | str:
@@ -69,8 +69,7 @@ def get_output(value: str, _wh: MazeArgs) -> str | TextIOWrapper:
         return "OUTPUT must be a non-empty string"
     else:
         try:
-            with open(value, 'w') as fd:
-                return fd
+            return open(value, 'w')
         except Exception:
             return f"OUTPUT must be a valid file path: {value}"
 

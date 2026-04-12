@@ -62,5 +62,5 @@ class Cell:
         if self.west:
             self.hexa |= 8
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"cell pos: ({self.col}, {self.row})"

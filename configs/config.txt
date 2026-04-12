@@ -5,7 +5,7 @@ WIDTH=21
 HEIGHT=21
 ENTRY=0,0
 EXIT=10,15
-OUTPUT_FILE = maze.txt
+OUTPUT_FILE=maze.txt
 PERFECT = true
 # Optional keys
 RANDOM_42=FALSE
