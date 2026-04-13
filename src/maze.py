@@ -20,7 +20,7 @@ class Maze:
             [Cell(r, c) for c in range(cols)]
             for r in range(rows)]
         self.colors = THEMES['default']
-        self.anim_speed = 0.5
+        self.anim_speed = 0.0001
 
     def has_unvisited_cells(self) -> bool:
         for r in self.grid:

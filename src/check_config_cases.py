@@ -1,6 +1,11 @@
 
+from __future__ import annotations
+
 from io import TextIOWrapper
-from .parsing import MazeArgs
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .parsing import MazeArgs
 
 
 def check_width(value: str, _wh: MazeArgs) -> int | str:

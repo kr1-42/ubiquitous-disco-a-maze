@@ -631,7 +631,7 @@ def selection_function(args: MazeArgs) -> None:
         m.anim_speed = float(args["ANIMATION_SPEED"])
     except (ValueError, TypeError):
         print("\033[31mInvalid animation speed. Using default value.\033[0m")
-        m.anim_speed = 0.5
+        m.anim_speed = 0.001
     start_row, start_col = m.start
     end_row, end_col = m.end
     m.grid[start_row][start_col].start = True
@@ -639,5 +639,5 @@ def selection_function(args: MazeArgs) -> None:
     selection_algoritm(m, args, cols, rows)
     m.bfs(args["RES_ANIMATINON"], args.get('COLOR', args['COLOR']))
     m.print_maze(args.get('COLOR', 'default'))
-    m.print_hexa_maze(args.get["OUTPUT_FILE"])
+    m.print_hexa_maze(args["OUTPUT_FILE"])
     after_maze_print(args, m)
