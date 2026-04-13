@@ -1,3 +1,23 @@
+"""Color themes for maze visualization.
+
+This module defines multiple color themes using ANSI escape codes for
+rendering maze components in the terminal with different visual styles.
+
+Available themes:
+    - default: Classic black and white theme
+    - bright: Vibrant neon colors
+    - Pastel: Soft muted colors
+    - Neon: Bright fluorescent colors
+    - Garden: Green forest theme
+    - Lava: Red and orange hot theme
+    - Ice: Cold blue and white theme
+    - Pac Man: Blue and yellow arcade theme
+    - Doom: Dark red and orange retro theme
+    - Tron: Cyan and white high-tech theme
+    - Hacker: Green on black terminal theme
+    - Super mario: Red and yellow classic theme
+    - Portal: Blue and orange science fiction theme
+"""
 THEMES = {'default': {
                 "wall": "\033[48;2;254;254;254m  \033[0m",
                 "path": "\033[48;2;0;0;0m  \033[0m",
@@ -133,7 +153,7 @@ THEMES = {'default': {
                 "path_solution": "\033[48;2;0;0;0m  \033[0m",
                 "start": "\033[48;2;255;255;255m  \033[0m",
                 "end": "\033[48;2;255;255;255m  \033[0m",
-          },  
+          },
           'Gulia': {
                 "wall": "\033[48;2;133;98;54m  \033[0m",
                 "path": "\033[48;2;22;3;42m  \033[0m",

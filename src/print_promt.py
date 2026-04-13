@@ -17,10 +17,12 @@ ALGOS = [
 
 
 def _visible_len(text: str) -> int:
+    """Calculate visible length of text without ANSI escape codes."""
     return len(ANSI_RE.sub("", text))
 
 
 def _ansi_pad(text: str, width: int) -> str:
+    """Pad text with spaces to specified width, accounting for ANSI codes."""
     return f"{text}{' ' * max(width - _visible_len(text), 0)}"
 
 
@@ -30,14 +32,17 @@ def _side_row(
     left_width: int = 31,
     right_width: int = 55,
 ) -> str:
+    """Create a formatted row with left and right columns separated by pipes."""
     return f"║{_ansi_pad(left, left_width)}║{_ansi_pad(right, right_width)}║"
 
 
 def _box_row(text: str = "", width: int = 51) -> str:
+    """Create a formatted row centered in a box with borders."""
     return f"║{_ansi_pad(text, width)}║"
 
 
 def _format_param_value(value: object) -> str:
+    """Format a parameter value for display with color coding."""
     if isinstance(value, bool):
         color = "32" if value else "31"
         label = "ON" if value else "OFF"
@@ -46,14 +51,17 @@ def _format_param_value(value: object) -> str:
 
 
 def _is_cancel_signal(value: str) -> bool:
+    """Check if value is a cancel signal (Escape or Ctrl+C)."""
     return value in CANCEL_SIGNALS
 
 
 def flush() -> None:
+    """Clear the terminal screen."""
     os.system("cls" if os.name == "nt" else "clear")
 
 
 def panel() -> int:
+    """Display main menu panel and return selected option."""
     while True:
         box = [
             (
@@ -130,6 +138,7 @@ def panel() -> int:
 
 
 def noargs_panel() -> int:
+    """Display menu panel when no arguments provided and return selected option."""
     while True:
         box = [
             (
@@ -215,6 +224,7 @@ def noargs_panel() -> int:
 
 
 def default_settings() -> MazeArgs:
+    """Return default maze settings."""
     print("\033[36m╔════════════════════════════════════════════════╗\033[0m")
     print(
         "\033[36m║\033[35m  Using default settings                    "
@@ -256,6 +266,14 @@ def default_settings() -> MazeArgs:
 
 
 def get_key() -> str:
+    """Read and return a single raw key press from terminal.
+    
+    Returns:
+        Single character representing the key press.
+    
+    Note:
+        Temporarily disables terminal buffering to capture raw input.
+    """
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
     try:
@@ -266,6 +284,7 @@ def get_key() -> str:
 
 
 def read_until_enter(prompt: str = "") -> str:
+    """Read user input until Enter key is pressed and return the input."""
     if prompt:
         print(prompt, end="", flush=True)
     chars: list[str] = []
@@ -288,6 +307,15 @@ def read_until_enter(prompt: str = "") -> str:
 
 
 def _ask_size(prompt: str, axis_name: str) -> int | None:
+    """Prompt user for maze dimension (height or width) in range 9-44.
+    
+    Args:
+        prompt: Text prompt displayed to user.
+        axis_name: Name of dimension being set (for error messages).
+    
+    Returns:
+        Integer dimension value between 9 and 44, or None if cancelled.
+    """
     while True:
         raw = read_until_enter(prompt)
         if _is_cancel_signal(raw):
@@ -303,6 +331,14 @@ def _ask_size(prompt: str, axis_name: str) -> int | None:
 
 
 def _ask_point(label: str) -> tuple[int, int] | None:
+    """Prompt user for X and Y coordinates.
+    
+    Args:
+        label: Name of point being set (e.g., 'entry', 'exit').
+    
+    Returns:
+        Tuple of (x, y) integer coordinates, or None if cancelled.
+    """
     while True:
         x_raw = read_until_enter(f"Enter new {label} X: ")
         if _is_cancel_signal(x_raw):
@@ -322,6 +358,14 @@ def _ask_point(label: str) -> tuple[int, int] | None:
 
 
 def params_panel(args: MazeArgs) -> MazeArgs:
+    """Display and handle maze parameter configuration panel.
+    
+    Args:
+        args: Current MazeArgs dictionary to be modified.
+    
+    Returns:
+        Updated MazeArgs dictionary with new parameter values.
+    """
     while True:
         flush()
         box = [

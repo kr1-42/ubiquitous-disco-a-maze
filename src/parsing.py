@@ -1,3 +1,8 @@
+"""Configuration parsing and validation for maze generation parameters.
+
+This module handles parsing maze configuration files and validating all
+maze parameters including dimensions, entry/exit points, algorithms, and output.
+"""
 from .check_config_cases import check_entry, check_exit
 from .check_config_cases import check_height, check_width
 from .check_config_cases import get_output, get_perfect
@@ -7,6 +12,23 @@ from io import TextIOWrapper
 
 
 class MazeArgs(TypedDict):
+    """Type definition for maze arguments dictionary containing all maze parameters.
+    
+    Attributes:
+        HEIGHT: Maze height in cells.
+        WIDTH: Maze width in cells.
+        ENTRY: Tuple of (x, y) coordinates for maze entry point.
+        EXIT: Tuple of (x, y) coordinates for maze exit point.
+        OUTPUT_FILE: Output file path or file object for saving maze.
+        PERFECT: Whether to generate a perfect maze (no loops).
+        ALGORITHM: Maze generation algorithm ('back', 'prim', or 'div').
+        ANIMATION_SPEED: Float value for animation delay in seconds.
+        MAZE_ANIMATION: Boolean enabling maze generation animation.
+        RES_ANIMATINON: Boolean enabling solution finding animation.
+        RANDOM_42: Boolean to place 42 logo at random position.
+        SEED: Optional seed value for random number generation.
+        COLOR: Color theme name for maze display.
+    """
     HEIGHT: int
     WIDTH: int
     ENTRY: tuple[int, int]
@@ -27,6 +49,18 @@ Checker = Callable[[str, dict[str, Any]], CheckerResult]
 
 
 def parse_input_file(input_file: str) -> dict[str, str] | None:
+    """Parse configuration file and return dictionary of key-value pairs.
+    
+    Args:
+        input_file: Path to configuration file.
+    
+    Returns:
+        Dictionary of configuration key-value pairs, or None if invalid format.
+    
+    Note:
+        Lines starting with '#' are treated as comments and ignored.
+        Empty lines are skipped.
+    """
     with open(input_file, 'r') as f:
         lines = f.readlines()
 
@@ -47,6 +81,18 @@ def parse_input_file(input_file: str) -> dict[str, str] | None:
 def check_parsed(
         parsed: dict[str, str]
         ) -> MazeArgs | str:
+    """Validate and convert parsed configuration into MazeArgs format.
+    
+    Args:
+        parsed: Dictionary of unparsed configuration strings.
+    
+    Returns:
+        Validated MazeArgs dictionary, or error message string if validation fails.
+    
+    Note:
+        Applies all validation checks to ensure parameters are within bounds
+        and compatible with each other.
+    """
     ret: dict[str, Any] = {
         'WIDTH': None,
         'HEIGHT': None,
@@ -60,7 +106,7 @@ def check_parsed(
         'RES_ANIMATINON': False,
         'RANDOM_42': False,
         'COLOR': "default",
-        'ANIMATION_SPEED': 1
+        'ANIMATION_SPEED': 0.01
     }
     cases = {
             'WIDTH': check_width,
@@ -92,6 +138,14 @@ def check_parsed(
     return cast(MazeArgs, ret)
 
 def check_ee_42(args: MazeArgs) -> None:
+    """Verify that entry and exit positions don't overlap with 42 logo pattern.
+    
+    Args:
+        args: MazeArgs dictionary containing maze parameters.
+    
+    Raises:
+        ValueError: If entry or exit point is within 42 logo area.
+    """
     center_col = args['WIDTH'] // 2
     center_row = args['HEIGHT'] // 2
     start_row = center_row - 4 // 2
@@ -106,6 +160,14 @@ def check_ee_42(args: MazeArgs) -> None:
                 raise ValueError("EXIT cannot be on the position of the 42")
 
 def parse_args() -> MazeArgs:
+    """Parse command line arguments from configuration file and return validated MazeArgs.
+    
+    Returns:
+        Validated MazeArgs dictionary with all parameters.
+    
+    Raises:
+        SystemExit: If configuration file is not provided or invalid.
+    """
     if len(argv) != 2:
         print("Usage: python parsing.py <input_file>")
         exit(1)
