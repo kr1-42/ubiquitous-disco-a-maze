@@ -1,9 +1,29 @@
 
+"""Configuration validation functions for maze parameters.
+
+This module provides validators for maze configuration parameters including
+width, height, entry/exit points, output files, and other settings.
+"""
+from __future__ import annotations
 from io import TextIOWrapper
-from .parsing import MazeArgs
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .parsing import MazeArgs
 
 
 def check_width(value: str, _wh: MazeArgs) -> int | str:
+    """Validate and return width value.
+    
+    Args:
+        value: String representation of width.
+        _wh: Maze arguments dictionary (for context).
+    
+    Returns:
+        Validated width as integer, or error message string.
+    
+    Raises:
+        Does not raise exceptions; returns error strings instead.
+    """
     try:
         width = int(value)
         if width <= 9 or width > 45:
@@ -14,6 +34,15 @@ def check_width(value: str, _wh: MazeArgs) -> int | str:
 
 
 def check_height(value: str, wh: MazeArgs) -> int | str:
+    """Validate and return height value.
+    
+    Args:
+        value: String representation of height.
+        wh: Maze arguments dictionary containing width for cross-validation.
+    
+    Returns:
+        Validated height as integer, or error message string.
+    """
     try:
         height = int(value)
         if height <= 7 or height > 45:
@@ -28,6 +57,15 @@ def check_height(value: str, wh: MazeArgs) -> int | str:
 
 
 def check_entry(value: str, wh: MazeArgs) -> tuple[int, int] | str:
+    """Validate and return entry point coordinates.
+    
+    Args:
+        value: String in format 'x,y' representing entry coordinates.
+        wh: Maze arguments dictionary containing maze dimensions.
+    
+    Returns:
+        Tuple of (x, y) coordinates as integers, or error message string.
+    """
     try:
         values = value.split(',')
         if len(values) != 2:
@@ -45,6 +83,15 @@ def check_entry(value: str, wh: MazeArgs) -> tuple[int, int] | str:
 
 
 def check_exit(value: str, wh: MazeArgs) -> tuple[int, int] | str:
+    """Validate and return exit point coordinates.
+    
+    Args:
+        value: String in format 'x,y' representing exit coordinates.
+        wh: Maze arguments dictionary containing maze dimensions and entry point.
+    
+    Returns:
+        Tuple of (x, y) coordinates as integers, or error message string.
+    """
     try:
         values = value.split(',')
         if len(values) != 2:
@@ -65,6 +112,15 @@ def check_exit(value: str, wh: MazeArgs) -> tuple[int, int] | str:
 
 
 def get_output(value: str, _wh: MazeArgs) -> str | TextIOWrapper:
+    """Validate and open output file.
+    
+    Args:
+        value: File path string for output.
+        _wh: Maze arguments dictionary (for context).
+    
+    Returns:
+        File object if path is valid, or error message string.
+    """
     if value == '':
         return "OUTPUT must be a non-empty string"
     else:
@@ -75,6 +131,15 @@ def get_output(value: str, _wh: MazeArgs) -> str | TextIOWrapper:
 
 
 def get_perfect(value: str, _wh: MazeArgs) -> bool | str:
+    """Validate and return perfect maze setting.
+    
+    Args:
+        value: String value 'true' or 'false'.
+        _wh: Maze arguments dictionary (for context).
+    
+    Returns:
+        Boolean value if valid, or error message string.
+    """
     if value.lower() == 'true':
         return True
     elif value.lower() == 'false':

@@ -1,3 +1,8 @@
+"""Post-maze selection menus and parameter modification dialogs.
+
+This module handles user interactions after maze generation including
+parameter adjustment, algorithm selection, color themes, and solution viewing.
+"""
 import random
 import re
 import subprocess
@@ -16,12 +21,30 @@ INSIDE_WIDTH = 51
 
 
 def _ansi_row(text: str = "", inside_width: int = INSIDE_WIDTH) -> str:
+    """Create a formatted row with borders accounting for ANSI escape codes."""
     visible_text = ANSI_RE.sub("", text)
     padding = max(inside_width - len(visible_text), 0)
     return f"║{text}{' ' * padding}║"
 
 
 def promt_after_maze_print(m: Maze, args: MazeArgs) -> int | None:
+    """Display post-maze menu after maze generation and return user's choice.
+    
+    Args:
+        m: Maze object to display and potentially regenerate.
+        args: MazeArgs dictionary with current settings.
+    
+    Returns:
+        Integer (1-8) representing user's menu selection:
+        - 1: Regenerate maze
+        - 2: Change color theme
+        - 3: Change variables  
+        - 4: Change algorithm
+        - 5: Generate new seed
+        - 6: Random color
+        - 7: Change animation speed
+        - 8: Exit
+    """
     def row(text: str = "") -> str:
         return _ansi_row(text)
 
@@ -80,6 +103,7 @@ def promt_after_maze_print(m: Maze, args: MazeArgs) -> int | None:
 
 
 def tput(*args: str) -> None:
+    """Execute tput command with given arguments."""
     subprocess.run(["tput", *args], check=True)
 
 
@@ -87,6 +111,14 @@ def tput(*args: str) -> None:
 
 
 def _find_current_theme_name(m: Maze) -> str:
+    """Find the name of the current maze color theme from THEMES.
+    
+    Args:
+        m: Maze object with current color scheme.
+    
+    Returns:
+        Name of matching theme, or 'custom' if no match found.
+    """
     for name, theme in THEMES.items():
         if theme == m.colors:
             return name
@@ -94,6 +126,16 @@ def _find_current_theme_name(m: Maze) -> str:
 
 
 def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
+    """Display color theme selection menu and apply user's choice.
+    
+    Args:
+        m: Maze object to display with selected color.
+        args: MazeArgs dictionary containing color setting to update.
+        flag: Internal flag for display state (2=normal, 1=redraw required).
+    
+    Note:
+        User can select 0 for random theme, or specific theme numbers.
+    """
     themes = list(THEMES.keys())
     menu_height = len(themes) + 13
 
@@ -169,6 +211,14 @@ def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
 
 
 def get_key() -> str:
+    """Read and return a single raw key press from terminal.
+    
+    Returns:
+        Single character representing the key press.
+    
+    Note:
+        Temporarily disables terminal buffering to capture raw input.
+    """
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
     try:
@@ -179,6 +229,18 @@ def get_key() -> str:
 
 
 def read_until_enter(prompt: str = "> ") -> str:
+    """Read user input until Enter key is pressed and return the result.
+    
+    Args:
+        prompt: Text prompt displayed to user (default: '> ').
+    
+    Returns:
+        String of user input without newline, or escape/ctrl-c signal.
+    
+    Note:
+        Backspace and Delete keys delete characters from input.
+        ESC and Ctrl+C return their respective signal characters.
+    """
     print(prompt, end="", flush=True)
     chars: list[str] = []
 
@@ -200,10 +262,26 @@ def read_until_enter(prompt: str = "> ") -> str:
 
 
 def _is_cancel_signal(value: str) -> bool:
+    """Check if value is a cancel signal (Escape or Ctrl+C).
+    
+    Args:
+        value: Character to check.
+    
+    Returns:
+        True if value is ESC or Ctrl+C, False otherwise.
+    """
     return value in ("\x1b", "\x03")
 
 
 def _read_int_value(prompt: str) -> int | None:
+    """Prompt user for integer input and return the value.
+    
+    Args:
+        prompt: Text prompt displayed to user.
+    
+    Returns:
+        Parsed integer value, or -1 if input is invalid or cancelled.
+    """
     raw = read_until_enter(prompt)
     if _is_cancel_signal(raw):
         return -1
@@ -215,6 +293,7 @@ def _read_int_value(prompt: str) -> int | None:
 
 
 def _ask_size(prompt: str, axis_name: str) -> int | None:
+    """Prompt user for maze dimension between 1 and 44."""
     while True:
         value = _read_int_value(prompt)
         if value is None:
@@ -230,11 +309,29 @@ def _ask_size(prompt: str, axis_name: str) -> int | None:
 
 
 def _ask_seed(prompt: str, axis_name: str) -> int | None:
+    """Prompt user for seed input and return its hash value.
+    
+    Args:
+        prompt: Text prompt displayed to user (unused).
+        axis_name: Axis name for context (unused).
+    
+    Returns:
+        Hash of user's seed input as integer.
+    """
     value = input("the seed: ").__hash__()
     return value
 
 
 def _ask_speed(prompt: str, axis_name: str) -> float | None:
+    """Prompt user for animation speed as a float value.
+    
+    Args:
+        prompt: Text prompt displayed to user (unused).
+        axis_name: Axis name for context (unused).
+    
+    Returns:
+        Positive float representing animation speed, or None if invalid.
+    """
     raw = input("the speed: ")
     try:
         value = float(raw)
@@ -247,6 +344,7 @@ def _ask_speed(prompt: str, axis_name: str) -> float | None:
     return value
 
 def _ask_point(prefix: str) -> tuple[int, int] | None:
+    """Prompt user for X and Y coordinates for entry or exit point."""
     while True:
         x_value = _read_int_value(f"Enter new {prefix} X: ")
         if x_value is None:
@@ -263,12 +361,25 @@ def _ask_point(prefix: str) -> tuple[int, int] | None:
 
 
 def _status(value: bool) -> str:
+    """Return colored status string representing ON or OFF state.
+    
+    Args:
+        value: Boolean value to represent.
+    
+    Returns:
+        Colored ANSI string showing '[ON]' in green or '[OFF]' in red.
+    """
     if value:
         return "\033[32m[ON]\033[0m"
     return "\033[31m[OFF]\033[0m"
 
 
 def _print_change_params_box(args: MazeArgs) -> None:
+    """Display menu for changing maze parameters.
+    
+    Args:
+        args: Current MazeArgs dictionary with all parameters to display.
+    """
     box = [
         "╔═══════════════════════════════════════════════════╗",
         _ansi_row(),
@@ -316,6 +427,15 @@ def _print_change_params_box(args: MazeArgs) -> None:
 
 
 def _update_height(m: Maze, args: MazeArgs) -> bool:
+    """Prompt user to update maze height and refresh display.
+    
+    Args:
+        m: Maze object to refresh display.
+        args: MazeArgs dictionary to update with new height.
+    
+    Returns:
+        Boolean indicating whether operation completed successfully.
+    """
     line_count = -1
     while True:
         height = _ask_size("Enter new height (1-44): ", "Height")
@@ -338,6 +458,15 @@ def _update_height(m: Maze, args: MazeArgs) -> bool:
 
 
 def _update_width(m: Maze, args: MazeArgs) -> bool:
+    """Prompt user to update maze width and refresh display.
+    
+    Args:
+        m: Maze object to refresh display.
+        args: MazeArgs dictionary to update with new width.
+    
+    Returns:
+        Boolean indicating whether operation completed successfully.
+    """
     line_count = -1
     while True:
         width = _ask_size("Enter new width (1-44): ", "Width")
@@ -360,6 +489,14 @@ def _update_width(m: Maze, args: MazeArgs) -> bool:
 
 
 def check_if_inside_42(args: MazeArgs) -> int:
+    """Check if entry or exit point overlaps with 42 logo pattern area.
+    
+    Args:
+        args: MazeArgs dictionary containing entry, exit, and dimensions.
+    
+    Returns:
+        0 if clear, 1 if entry or exit is inside the 42 logo area.
+    """
     center_col = args['WIDTH'] // 2
     center_row = args['HEIGHT'] // 2
     start_row = center_row - 4 // 2
@@ -380,6 +517,15 @@ def check_if_inside_42(args: MazeArgs) -> int:
 
 
 def _update_entry(m: Maze, args: MazeArgs) -> bool:
+    """Prompt user to update maze entry point and refresh display.
+    
+    Args:
+        m: Maze object to refresh display.
+        args: MazeArgs dictionary to update with new entry point.
+    
+    Returns:
+        Boolean indicating whether operation completed successfully.
+    """
     line_count = -1
     while True:
         point = _ask_point("entry")
@@ -414,6 +560,15 @@ def _update_entry(m: Maze, args: MazeArgs) -> bool:
 
 
 def _update_exit(m: Maze, args: MazeArgs) -> bool:
+    """Prompt user to update maze exit point and refresh display.
+    
+    Args:
+        m: Maze object to refresh display.
+        args: MazeArgs dictionary to update with new exit point.
+    
+    Returns:
+        Boolean indicating whether operation completed successfully.
+    """
     line_count = -1
     while True:
         point = _ask_point("exit")
@@ -451,6 +606,15 @@ def _update_exit(m: Maze, args: MazeArgs) -> bool:
 
 
 def change_params_after(args: MazeArgs, m: Maze) -> None:
+    """Display parameter modification menu after maze generation.
+    
+    Args:
+        args: MazeArgs dictionary to be modified.
+        m: Maze object for display refresh.
+    
+    Note:
+        User can modify height, width, entry, exit, seed, and other settings.
+    """
     while True:
         flush()
         m.print_maze(color=args['COLOR'])
@@ -639,5 +803,5 @@ def selection_function(args: MazeArgs) -> None:
     selection_algoritm(m, args, cols, rows)
     m.bfs(args["RES_ANIMATINON"], args.get('COLOR', args['COLOR']))
     m.print_maze(args.get('COLOR', 'default'))
-    m.print_hexa_maze(args.get["OUTPUT_FILE"])
+    m.print_hexa_maze(args.get("OUTPUT_FILE"))
     after_maze_print(args, m)

@@ -1,3 +1,8 @@
+"""Maze generation and solution algorithms.
+
+This module provides the Maze class which implements various maze generation algorithms
+(backtracking, Prim's, recursive division) and a breadth-first search solver for finding paths.
+"""
 from .cell import Cell
 from time import sleep
 from typing import Optional
@@ -7,11 +12,35 @@ from io import TextIOWrapper
 
 
 class Maze:
+    """Represents a maze with a grid of cells and various generation algorithms.
+    
+    The Maze class manages a 2D grid of cells and provides implementations of
+    multiple maze generation algorithms including depth-first search backtracking,
+    Prim's algorithm, and recursive division. It also includes pathfinding and
+    visualization capabilities.
+    
+    Attributes:
+        rows: Number of rows in maze grid.
+        cols: Number of columns in maze grid.
+        start: Tuple of (x, y) coordinates for maze entry point.
+        end: Tuple of (x, y) coordinates for maze exit point.
+        grid: 2D list of Cell objects.
+        colors: Current color theme for visualization.
+        anim_speed: Animation delay in seconds.
+    """
     def __init__(self,
                  rows: int,
                  cols: int,
                  start: tuple[int, int],
                  end: tuple[int, int]) -> None:
+        """Initialize maze with given dimensions, start, and end positions.
+        
+        Args:
+            rows: Number of rows in maze grid.
+            cols: Number of columns in maze grid.
+            start: Tuple of (x, y) coordinates for entry point.
+            end: Tuple of (x, y) coordinates for exit point.
+        """
         self.rows = rows
         self.cols = cols
         self.start = start
@@ -20,9 +49,10 @@ class Maze:
             [Cell(r, c) for c in range(cols)]
             for r in range(rows)]
         self.colors = THEMES['default']
-        self.anim_speed = 0.5
+        self.anim_speed = 0.01
 
     def has_unvisited_cells(self) -> bool:
+        """Check if there are any unvisited cells in the maze."""
         for r in self.grid:
             for c in r:
                 if not c.visited:
@@ -30,11 +60,13 @@ class Maze:
         return False
 
     def set_all_unvisited(self) -> None:
+        """Mark all cells as unvisited."""
         for r in self.grid:
             for c in r:
                 c.visited = False
 
     def unvisited_neighbours(self, cell: "Cell") -> list[Cell]:
+        """Return list of unvisited neighboring cells."""
         unvisited = []
         if (cell.row > 0
                 and not self.grid[cell.row - 1][cell.col].visited):
@@ -51,6 +83,7 @@ class Maze:
         return unvisited
 
     def unvisited_without_wall(self, cell: Optional["Cell"]) -> list["Cell"]:
+        """Return list of unvisited neighbors accessible without a wall."""
         unvisited = []
         if cell:
             if (cell.row > 0
@@ -72,6 +105,7 @@ class Maze:
         return unvisited
 
     def visited_without_wall(self, cell: Optional["Cell"]) -> list["Cell"]:
+        """Return list of visited neighbors accessible without a wall."""
         unvisited = []
         if cell:
             if (cell.row > 0
@@ -93,6 +127,7 @@ class Maze:
         return unvisited
 
     def if_is_3x3(self, r: int, c: int) -> bool:
+        """Check if a 3x3 area starting at position has all walls intact."""
         for dr, dc in [(-1, -1), (-1, 0), (0, -1), (0, 0)]:
             r0, c0 = r + dr, c + dc
             if 0 <= r0 < self.rows - 1 and 0 <= c0 < self.cols - 1:
@@ -108,6 +143,7 @@ class Maze:
         return False
 
     def break_random_walls(self, count: int = 1) -> None:
+        """Randomly break walls between cells while maintaining maze validity."""
         all_cells = [
         self.grid[r][c]
         for r in range(self.rows)
@@ -138,6 +174,7 @@ class Maze:
                     broken_successfully += 1
 
     def remove_diagonal_wall(self, curr_cell: Cell) -> bool:
+        """Check if diagonal wall can be removed between cells."""
         if curr_cell:
             if curr_cell.row + 1 < self.rows and curr_cell.col + 1 < self.cols:
                 diagonal_cell = self.grid[curr_cell.row + 1][curr_cell.col + 1]
@@ -147,6 +184,15 @@ class Maze:
         return False
 
     def print_maze(self, color: str = "default") -> None:
+        """Display the maze in the terminal with specified color theme.
+        
+        Args:
+            color: Color theme name from available THEMES.
+        
+        Note:
+            Renders walls, paths, start/end points, and solution paths using ANSI colors.
+            Includes optional animation delay between renders.
+        """
         print('\033[3J\033[H')
         self.colors = THEMES[color]
         print(self.colors['wall'] * (self.cols * 2 + 1))
@@ -243,6 +289,15 @@ class Maze:
         sleep(self.anim_speed)
 
     def draw_42(self, rows: int, cols: int) -> None:
+        """Draw the 42 school logo pattern in the center of the maze.
+        
+        Args:
+            rows: Number of rows in maze grid.
+            cols: Number of columns in maze grid.
+        
+        Note:
+            Creates a non-traversable 42 logo shape in the maze center.
+        """
         pattern = [
             "# # ###",
             "# #   #",
@@ -261,6 +316,16 @@ class Maze:
                     self.grid[start_row + r][start_col + c].cell_42 = True
 
     def random_draw_42(self, rows: int, cols: int) -> None:
+        """Draw the 42 school logo pattern at a random location in the maze.
+        
+        Args:
+            rows: Number of rows in maze grid.
+            cols: Number of columns in maze grid.
+        
+        Note:
+            Ensures patterndoes not overlap with start or end positions.
+            Creates a non-traversable 42 logo shape at random valid location.
+        """
         pattern = [
             "# # ###",
             "# #   #",
@@ -295,6 +360,16 @@ class Maze:
                      starting_cell: Optional["Cell"] = None,
                      animation: bool = False,
                      color: str = "default") -> None:
+        """Generate maze using depth-first search backtracking algorithm.
+        
+        Args:
+            starting_cell: Initial cell to start generation. If None, uses first cell.
+            animation: Whether to display generation animation.
+            color: Color theme name for maze rendering.
+        
+        Note:
+            Creates a perfect maze (no loops) with all cells reachable from start.
+        """
         stack = []
         curr_cell = None
         if starting_cell:
@@ -321,6 +396,16 @@ class Maze:
                       starting_cell: Optional["Cell"] = None,
                       animation: float = False,
                       color: str = "default") -> None:
+        """Generate maze using Prim's algorithm.
+        
+        Args:
+            starting_cell: Initial cell to start generation. If None, uses first cell.
+            animation: Whether to display generation animation.
+            color: Color theme name for maze rendering.
+        
+        Note:
+            Creates a perfect maze using randomized Prim's spanning tree algorithm.
+        """
         frontier = []
         if starting_cell:
             curr_cell = starting_cell
@@ -341,6 +426,7 @@ class Maze:
                     self.print_maze(color=color)
 
     def break_all_walls(self) -> None:
+        """Remove all internal walls from the maze."""
         for r in range(self.rows):
             for c in range(self.cols):
                 cell = self.grid[r][c]
@@ -356,6 +442,16 @@ class Maze:
     def iterative_division(self,
                       animation: float = False,
                       color: str = "default") -> None:
+        """Generate maze using iterative division algorithm.
+        
+        Args:
+            animation: Whether to display generation animation.
+            color: Color theme name for maze rendering.
+        
+        Note:
+            Divides the maze space recursively into smaller chambers,
+            connecting them with passages. Creates perfect mazes efficiently.
+        """
         self.break_all_walls()
         stack = []
         stack.append(((0, 0), (self.rows - 1, self.cols - 1)))
@@ -398,6 +494,15 @@ class Maze:
 
 
     def print_hexa_maze(self, file: TextIOWrapper | str) -> None:
+        """Save maze as hexadecimal representation to file with solution path.
+        
+        Args:
+            file: File path string or open TextIOWrapper object for output.
+        
+        Note:
+            Encodes maze walls using hexadecimal digits and includes start position,
+            end position, and solution path directions (N/S/E/W).
+        """
         path_string = ""
         if self.start and self.end:
             curr_row, curr_col = self.start
@@ -440,6 +545,16 @@ class Maze:
             print(f"Errore durante il salvataggio: {e}")
 
     def bfs(self, animation: bool = False, color: str = "default") -> None:
+        """Find and display solution path using breadth-first search algorithm.
+        
+        Args:
+            animation: Whether to display solving animation.
+            color: Color theme name for maze rendering.
+        
+        Note:
+            Finds shortest path from start to end position and marks path with
+            cell.path flag, which is rendered when displaying the maze.
+        """
         self.set_all_unvisited()
         stack = []
         neighbours: list[Cell] = []
