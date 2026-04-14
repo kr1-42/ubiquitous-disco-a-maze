@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mazegen"
-version = "1.4.5"
+version = "12345.0.0"
 description = "A reusable maze generation library with multiple algorithms"
 readme = "README.md"
 license = {text = "MIT"}
