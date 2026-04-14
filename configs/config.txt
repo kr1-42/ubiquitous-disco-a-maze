@@ -1,7 +1,7 @@
 # Sample configuration for A-Maze-ing
 # One KEY=VALUE per line. Lines starting with # are comments.
 
-WIDTH=                 21
+WIDTH=21
 HEIGHT=21
 ENTRY=0,0
 EXIT=10,15

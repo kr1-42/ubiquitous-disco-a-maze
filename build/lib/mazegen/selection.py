@@ -789,7 +789,7 @@ def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int) -> None:
                 m.break_random_walls(30)
 
 
-def selection_function(args: MazeArgs, menu: bool = True) -> None:
+def selection_function(args: MazeArgs) -> None:
     flush()
     seed_value = args['SEED']
     if seed_value is None:
@@ -815,5 +815,4 @@ def selection_function(args: MazeArgs, menu: bool = True) -> None:
     m.bfs(args["RES_ANIMATINON"], args.get('COLOR', args['COLOR']))
     m.print_maze(args.get('COLOR', 'default'))
     m.print_hexa_maze(args.get("OUTPUT_FILE"))
-    if menu:
-        after_maze_print(args, m)
+    after_maze_print(args, m)

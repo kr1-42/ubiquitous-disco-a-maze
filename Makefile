@@ -34,6 +34,7 @@ debug:
 	fi
 
 install:
+	pip install poetry
 	python3 -m poetry install
 
 #@description: esegue i test con 10 esempi di configurazione

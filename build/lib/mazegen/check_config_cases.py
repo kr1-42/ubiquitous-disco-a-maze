@@ -71,6 +71,7 @@ def check_entry(value: str, wh: MazeArgs) -> tuple[int, int] | str:
         values = value.split(',')
         if len(values) != 2:
             return "ENTRY must be in the format 'x,y'"
+
         entryx = int(values[0])
         entryy = int(values[1])
         if entryx < 0 or entryy < 0:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mazegen"
-version = "1.0.2"
+version = "1.4.5"
 description = "A reusable maze generation library with multiple algorithms"
 readme = "README.md"
 license = {text = "MIT"}
@@ -30,10 +30,8 @@ classifiers = [
 "Homepage" = "https://github.com/kr1-42/ubiquitous-disco-a-maze"
 
 [tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.package-dir]
-"" = "src"
+where = ["."]
+include = ["src*"]
 
 [tool.poetry.dependencies]
 pydantic = "^2.12.5"
