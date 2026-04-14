@@ -3,8 +3,8 @@
 This module provides the entry point for the A-Maze-Ing application,
 which generates mazes using various algorithms and finds solution paths.
 """
-from src.print_promt import print_promt
-from src.parsing import parse_args
+from mazegen.print_promt import print_promt
+from mazegen.parsing import parse_args
 from sys import argv
 
 if __name__ == "__main__":

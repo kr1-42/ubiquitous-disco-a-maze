@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+mazegen/__init__.py
+mazegen/cell.py
+mazegen/check_config_cases.py
+mazegen/maze.py
+mazegen/maze_color.py
+mazegen/mazegen.py
+mazegen/parsing.py
+mazegen/print_promt.py
+mazegen/selection.py
+mazegen.egg-info/PKG-INFO
+mazegen.egg-info/SOURCES.txt
+mazegen.egg-info/dependency_links.txt
+mazegen.egg-info/top_level.txt

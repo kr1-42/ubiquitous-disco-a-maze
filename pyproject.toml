@@ -31,7 +31,7 @@ classifiers = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["src*"]
+include = ["mazegen*"]
 
 [tool.poetry.dependencies]
 pydantic = "^2.12.5"

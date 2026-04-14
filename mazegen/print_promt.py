@@ -644,7 +644,7 @@ def print_promt(args: MazeArgs) -> None:
 
             if select == 5:
                 print("Running program with current settings...")
-                from src.selection import selection_function
+                from mazegen.selection import selection_function
 
                 flush()
                 selection_function(default_settings())
@@ -682,7 +682,7 @@ def print_promt(args: MazeArgs) -> None:
                 continue
             if select == 4:
                 print("Running program with current settings...")
-                from src.selection import selection_function
+                from mazegen.selection import selection_function
 
                 flush()
                 selection_function(args)
