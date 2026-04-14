@@ -32,7 +32,8 @@ def _side_row(
     left_width: int = 31,
     right_width: int = 55,
 ) -> str:
-    """Create a formatted row with left and right columns separated by pipes."""
+    """Create a formatted row with left
+    and right columns separated by pipes."""
     return f"║{_ansi_pad(left, left_width)}║{_ansi_pad(right, right_width)}║"
 
 
@@ -138,7 +139,8 @@ def panel() -> int:
 
 
 def noargs_panel() -> int:
-    """Display menu panel when no arguments provided and return selected option."""
+    """Display menu panel when no arguments
+    provided and return selected option."""
     while True:
         box = [
             (
@@ -263,14 +265,12 @@ def default_settings() -> MazeArgs:
         }
 
 
-
-
 def get_key() -> str:
     """Read and return a single raw key press from terminal.
-    
+
     Returns:
         Single character representing the key press.
-    
+
     Note:
         Temporarily disables terminal buffering to capture raw input.
     """
@@ -308,11 +308,11 @@ def read_until_enter(prompt: str = "") -> str:
 
 def _ask_size(prompt: str, axis_name: str) -> int | None:
     """Prompt user for maze dimension (height or width) in range 9-44.
-    
+
     Args:
         prompt: Text prompt displayed to user.
         axis_name: Name of dimension being set (for error messages).
-    
+
     Returns:
         Integer dimension value between 9 and 44, or None if cancelled.
     """
@@ -332,10 +332,10 @@ def _ask_size(prompt: str, axis_name: str) -> int | None:
 
 def _ask_point(label: str) -> tuple[int, int] | None:
     """Prompt user for X and Y coordinates.
-    
+
     Args:
         label: Name of point being set (e.g., 'entry', 'exit').
-    
+
     Returns:
         Tuple of (x, y) integer coordinates, or None if cancelled.
     """
@@ -359,10 +359,10 @@ def _ask_point(label: str) -> tuple[int, int] | None:
 
 def params_panel(args: MazeArgs) -> MazeArgs:
     """Display and handle maze parameter configuration panel.
-    
+
     Args:
         args: Current MazeArgs dictionary to be modified.
-    
+
     Returns:
         Updated MazeArgs dictionary with new parameter values.
     """

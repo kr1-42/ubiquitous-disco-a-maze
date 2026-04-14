@@ -1,7 +1,8 @@
 """Configuration parsing and validation for maze generation parameters.
 
 This module handles parsing maze configuration files and validating all
-maze parameters including dimensions, entry/exit points, algorithms, and output.
+maze parameters including dimensions, entry/exit points, algorithms,
+and output.
 """
 from .check_config_cases import check_entry, check_exit
 from .check_config_cases import check_height, check_width
@@ -12,8 +13,9 @@ from io import TextIOWrapper
 
 
 class MazeArgs(TypedDict):
-    """Type definition for maze arguments dictionary containing all maze parameters.
-    
+    """Type definition for maze arguments
+    dictionary containing all maze parameters.
+
     Attributes:
         HEIGHT: Maze height in cells.
         WIDTH: Maze width in cells.
@@ -50,13 +52,13 @@ Checker = Callable[[str, dict[str, Any]], CheckerResult]
 
 def parse_input_file(input_file: str) -> dict[str, str] | None:
     """Parse configuration file and return dictionary of key-value pairs.
-    
+
     Args:
         input_file: Path to configuration file.
-    
+
     Returns:
         Dictionary of configuration key-value pairs, or None if invalid format.
-    
+
     Note:
         Lines starting with '#' are treated as comments and ignored.
         Empty lines are skipped.
@@ -82,13 +84,14 @@ def check_parsed(
         parsed: dict[str, str]
         ) -> MazeArgs | str:
     """Validate and convert parsed configuration into MazeArgs format.
-    
+
     Args:
         parsed: Dictionary of unparsed configuration strings.
-    
+
     Returns:
-        Validated MazeArgs dictionary, or error message string if validation fails.
-    
+        Validated MazeArgs dictionary,
+        or error message string if validation fails.
+
     Note:
         Applies all validation checks to ensure parameters are within bounds
         and compatible with each other.
@@ -137,12 +140,13 @@ def check_parsed(
             ret[key] = pre_ret_check
     return cast(MazeArgs, ret)
 
+
 def check_ee_42(args: MazeArgs) -> None:
     """Verify that entry and exit positions don't overlap with 42 logo pattern.
-    
+
     Args:
         args: MazeArgs dictionary containing maze parameters.
-    
+
     Raises:
         ValueError: If entry or exit point is within 42 logo area.
     """
@@ -154,17 +158,21 @@ def check_ee_42(args: MazeArgs) -> None:
         for j in range(6):
             if (i == 0 or i == 3) and (j == 0 or j == 5):
                 continue
-            if args['ENTRY'][0] == start_col + j and args['ENTRY'][1] == start_row + i:
+            if (args['ENTRY'][0] == start_col + j
+                    and args['ENTRY'][1] == start_row + i):
                 raise ValueError("ENTRY cannot be on the position of the 42")
-            if args['EXIT'][0] == start_col + j and args['EXIT'][1] == start_row + i:
+            if (args['EXIT'][0] == start_col + j
+                    and args['EXIT'][1] == start_row + i):
                 raise ValueError("EXIT cannot be on the position of the 42")
 
+
 def parse_args() -> MazeArgs:
-    """Parse command line arguments from configuration file and return validated MazeArgs.
-    
+    """Parse command line arguments from configuration
+    file and return validated MazeArgs.
+
     Returns:
         Validated MazeArgs dictionary with all parameters.
-    
+
     Raises:
         SystemExit: If configuration file is not provided or invalid.
     """

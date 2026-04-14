@@ -9,7 +9,6 @@ import subprocess
 import sys
 import termios
 import tty
-from typing import TypedDict, cast
 from .maze import Maze
 from .maze_color import THEMES
 from .print_promt import ALGOS, algo_panel, flush
@@ -17,7 +16,6 @@ from .parsing import MazeArgs
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 INSIDE_WIDTH = 51
-
 
 
 def _ansi_row(text: str = "", inside_width: int = INSIDE_WIDTH) -> str:
@@ -137,7 +135,7 @@ def color_promt(m: Maze, args: MazeArgs, flag: int = 2) -> None:
         User can select 0 for random theme, or specific theme numbers.
     """
     themes = list(THEMES.keys())
-    menu_height = len(themes) + 13
+    """ menu_height = len(themes) + 13 """
 
     while True:
         if flag == 2:
@@ -343,6 +341,7 @@ def _ask_speed(prompt: str, axis_name: str) -> float | None:
         return None
     return value
 
+
 def _ask_point(prefix: str) -> tuple[int, int] | None:
     """Prompt user for X and Y coordinates for entry or exit point."""
     while True:
@@ -443,7 +442,8 @@ def _update_height(m: Maze, args: MazeArgs) -> bool:
         if height is None:
             continue
         if height <= 6 or height > 44:
-            print("\033[31mInvalid input. Height must be between 7 and 44.\033[0m")
+            print("\033[31mInvalid input. " +
+                  "Height must be between 7 and 44.\033[0m")
             line_count += 1
             continue
         if args['ENTRY'][0] >= height or args['EXIT'][0] >= height:
@@ -474,7 +474,8 @@ def _update_width(m: Maze, args: MazeArgs) -> bool:
         if width is None:
             continue
         if width < 9 or width > 44:
-            print("\033[31mInvalid input. Width must be between 9 and 44.\033[0m")
+            print("\033[31mInvalid input. " +
+                  "Width must be between 9 and 44.\033[0m")
             line_count += 1
             continue
         if args['ENTRY'][1] >= width or args['EXIT'][1] >= width:
@@ -505,15 +506,17 @@ def check_if_inside_42(args: MazeArgs) -> int:
         for j in range(6):
             if (i == 0 or i == 3) and (j == 0 or j == 5):
                 continue
-            if args['ENTRY'][0] == start_col + j and args['ENTRY'][1] == start_row + i:
-                print("\033[31mInvalid input. Entry cannot be inside the initial 42 pattern.\033[0m")
+            if (args['ENTRY'][0] == start_col + j
+                    and args['ENTRY'][1] == start_row + i):
+                print("\033[31mInvalid input. Entry cannot be " +
+                      "inside the initial 42 pattern.\033[0m")
                 return 1
-            if args['EXIT'][0] == start_col + j and args['EXIT'][1] == start_row + i:
-                print("\033[31mInvalid input. Exit cannot be inside the initial 42 pattern.\033[0m")
+            if (args['EXIT'][0] == start_col + j
+                    and args['EXIT'][1] == start_row + i):
+                print("\033[31mInvalid input. Exit cannot be " +
+                      "inside the initial 42 pattern.\033[0m")
                 return 1
     return 0
-
-
 
 
 def _update_entry(m: Maze, args: MazeArgs) -> bool:
@@ -534,7 +537,8 @@ def _update_entry(m: Maze, args: MazeArgs) -> bool:
             continue
 
         entry_x, entry_y = point
-        in_bounds = 0 <= entry_x < args['WIDTH'] and 0 <= entry_y < args['HEIGHT']
+        in_bounds = 0 <= entry_x < args['WIDTH'
+                                        ] and 0 <= entry_y < args['HEIGHT']
         if not in_bounds:
             print("\033[31mInvalid input. Entry is out of bounds.\033[0m")
             line_count += 1
@@ -576,7 +580,8 @@ def _update_exit(m: Maze, args: MazeArgs) -> bool:
         if point is None:
             continue
         exit_x, exit_y = point
-        in_bounds = 0 <= exit_x < args['WIDTH'] and 0 <= exit_y < args['HEIGHT']
+        in_bounds = 0 <= exit_x < args['WIDTH'
+                                       ] and 0 <= exit_y < args['HEIGHT']
         if not in_bounds:
             print(
                 "\033[31mInvalid input. "
@@ -690,7 +695,8 @@ def change_params_after(args: MazeArgs, m: Maze) -> None:
             if args['ALGORITHM'] in ['back', 'prim']:
                 args['RANDOM_42'] = not bool(args['RANDOM_42'])
             else:
-                print("\033[31mInvalid selection. Recursive division cannot handle 42.\033[0m")
+                print("\033[31mInvalid selection. " +
+                      "Recursive division cannot handle 42.\033[0m")
 
 
 def after_maze_print(args: MazeArgs, m: Maze) -> None:
@@ -753,6 +759,7 @@ def after_maze_print(args: MazeArgs, m: Maze) -> None:
             print("Goodbye :(")
             exit(1)
 
+
 def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int) -> None:
     match args['ALGORITHM']:
         case 'back':
@@ -760,7 +767,9 @@ def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int) -> None:
                 m.random_draw_42(cols, rows)
             else:
                 m.draw_42(cols, rows)
-            m.backtracking(m.grid[0][0], args['MAZE_ANIMATION'], args.get('COLOR', args['COLOR']))
+            m.backtracking(m.grid[0][0],
+                           args['MAZE_ANIMATION'],
+                           args.get('COLOR', args['COLOR']))
             if not args["PERFECT"]:
                 m.break_random_walls(50)
         case 'prim':
@@ -768,14 +777,16 @@ def selection_algoritm(m: Maze, args: MazeArgs, cols: int, rows: int) -> None:
                 m.random_draw_42(cols, rows)
             else:
                 m.draw_42(cols, rows)
-            m.prim_algoritm(m.grid[0][0], args['MAZE_ANIMATION'], args.get('COLOR', args['COLOR']))
+            m.prim_algoritm(m.grid[0][0],
+                            args['MAZE_ANIMATION'],
+                            args.get('COLOR', args['COLOR']))
             if not args["PERFECT"]:
                 m.break_random_walls(30)
         case 'div':
-            m.iterative_division(args['MAZE_ANIMATION'], args.get('COLOR', args['COLOR']))
+            m.iterative_division(args['MAZE_ANIMATION'],
+                                 args.get('COLOR', args['COLOR']))
             if not args["PERFECT"]:
                 m.break_random_walls(30)
-
 
 
 def selection_function(args: MazeArgs) -> None:

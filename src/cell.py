@@ -1,16 +1,18 @@
 """Cell class representing a single grid position in a maze.
 
-This module defines the Cell class which represents a grid cell in a maze grid,
-tracking wall positions and metadata for maze generation and pathfinding algorithms.
+This module defines the Cell class which
+represents a grid cell in a maze grid,
+tracking wall positions and metadata
+for maze generation and pathfinding algorithms.
 """
 
 
 class Cell:
     """Represents a single cell in the maze grid.
-    
+
     A cell can have walls on each side (north, south, east, west) and
     tracks its position, visited status, and metadata for maze algorithms.
-    
+
     Attributes:
         row: Row position in maze grid.
         col: Column position in maze grid.
@@ -28,7 +30,7 @@ class Cell:
     """
     def __init__(self, row: int, col: int) -> None:
         """Initialize a cell with given row and column position.
-        
+
         Args:
             row: Row coordinate in maze grid.
             col: Column coordinate in maze grid.
@@ -50,10 +52,10 @@ class Cell:
 
     def break_wall(self, next_cell: "Cell") -> None:
         """Remove the wall between this cell and another cell.
-        
+
         Args:
             next_cell: Adjacent Cell object to remove wall with.
-        
+
         Note:
             Automatically determines direction based on relative positions
             and updates hexadecimal encoding for both cells.
@@ -77,10 +79,10 @@ class Cell:
 
     def create_wall(self, next_cell: "Cell") -> None:
         """Create a wall between this cell and another cell.
-        
+
         Args:
             next_cell: Adjacent Cell object to create wall with.
-        
+
         Note:
             Automatically determines direction based on relative positions
             and updates hexadecimal encoding for both cells.
@@ -104,7 +106,7 @@ class Cell:
 
     def assign_hexa(self) -> None:
         """Calculate and assign hexadecimal representation for cell walls.
-        
+
         Encodes wall configuration as hexadecimal value where:
         - bit 0 (1): north wall
         - bit 1 (2): east wall
@@ -123,7 +125,7 @@ class Cell:
 
     def __repr__(self) -> str:
         """Return string representation of the cell.
-        
+
         Returns:
             String showing cell position in format 'cell pos: (x, y)'.
         """

@@ -1,7 +1,9 @@
 """Maze generation and solution algorithms.
 
-This module provides the Maze class which implements various maze generation algorithms
-(backtracking, Prim's, recursive division) and a breadth-first search solver for finding paths.
+This module provides the Maze class
+which implements various maze generation algorithms
+(backtracking, Prim's, recursive division)
+and a breadth-first search solver for finding paths.
 """
 from .cell import Cell
 from time import sleep
@@ -12,10 +14,12 @@ from io import TextIOWrapper
 
 
 class Maze:
-    """Represents a maze with a grid of cells and various generation algorithms.
+    """Represents a maze with a grid of cells
+    and various generation algorithms.
 
     The Maze class manages a 2D grid of cells and provides implementations of
-    multiple maze generation algorithms including depth-first search backtracking,
+    multiple maze generation algorithms
+    including depth-first search backtracking,
     Prim's algorithm, and recursive division. It also includes pathfinding and
     visualization capabilities.
 
@@ -136,39 +140,44 @@ class Maze:
                 c3 = self.grid[r0+1][c0]
                 c4 = self.grid[r0+1][c0+1]
                 if not c1.south and not c1.east and \
-                not c2.south and not c2.west and \
-                not c3.north and not c3.east and \
-                not c4.north and not c4.west:
+                        not c2.south and not c2.west and \
+                        not c3.north and not c3.east and \
+                        not c4.north and not c4.west:
                     return True
         return False
 
     def break_random_walls(self, count: int = 1) -> None:
-        """Randomly break walls between cells while maintaining maze validity."""
+        """Randomly break walls between cells
+        while maintaining maze validity."""
         all_cells = [
-        self.grid[r][c]
-        for r in range(self.rows)
-        for c in range(self.cols)
-        if not self.grid[r][c].cell_42
+            self.grid[r][c]
+            for r in range(self.rows)
+            for c in range(self.cols)
+            if not self.grid[r][c].cell_42
         ]
         broken_successfully = 0
         while broken_successfully < count:
             cell = random.choice(all_cells)
             neighbors = []
             r, c = cell.row, cell.col
-            if cell.north and r > 0 and not self.grid[r - 1][c].cell_42:
+            if (cell.north and r > 0
+                    and not self.grid[r - 1][c].cell_42):
                 neighbors.append(self.grid[r - 1][c])
-            if cell.south and r < self.rows - 1 and not self.grid[r + 1][c].cell_42:
+            if (cell.south and r < self.rows - 1
+                    and not self.grid[r + 1][c].cell_42):
                 neighbors.append(self.grid[r + 1][c])
-            if cell.east and c < self.cols - 1 and not self.grid[r][c + 1].cell_42:
+            if (cell.east and c < self.cols - 1
+                    and not self.grid[r][c + 1].cell_42):
                 neighbors.append(self.grid[r][c + 1])
-            if cell.west and c > 0 and not self.grid[r][c - 1].cell_42:
+            if (cell.west and c > 0
+                    and not self.grid[r][c - 1].cell_42):
                 neighbors.append(self.grid[r][c - 1])
             if neighbors:
                 neighbor = random.choice(neighbors)
                 cell.break_wall(neighbor)
                 if cell.hexa == 0 or neighbor.hexa == 0 or \
-                self.if_is_3x3(cell.row, cell.col) or \
-                self.if_is_3x3(neighbor.row, neighbor.col):
+                        self.if_is_3x3(cell.row, cell.col) or \
+                        self.if_is_3x3(neighbor.row, neighbor.col):
                     cell.create_wall(neighbor)
                 else:
                     broken_successfully += 1
@@ -190,7 +199,8 @@ class Maze:
             color: Color theme name from available THEMES.
 
         Note:
-            Renders walls, paths, start/end points, and solution paths using ANSI colors.
+            Renders walls, paths, start/end points,
+            and solution paths using ANSI colors.
             Includes optional animation delay between renders.
         """
         print('\033[3J\033[H')
@@ -353,9 +363,6 @@ class Maze:
                     self.grid[draw_row + r][draw_col + c].visited = True
                     self.grid[draw_row + r][draw_col + c].cell_42 = True
 
-
-
-
     def backtracking(self,
                      starting_cell: Optional["Cell"] = None,
                      animation: bool = False,
@@ -363,12 +370,14 @@ class Maze:
         """Generate maze using depth-first search backtracking algorithm.
 
         Args:
-            starting_cell: Initial cell to start generation. If None, uses first cell.
+            starting_cell: Initial cell to start generation.
+            If None, uses first cell.
             animation: Whether to display generation animation.
             color: Color theme name for maze rendering.
 
         Note:
-            Creates a perfect maze (no loops) with all cells reachable from start.
+            Creates a perfect maze (no loops)
+            with all cells reachable from start.
         """
         stack = []
         curr_cell = None
@@ -399,12 +408,14 @@ class Maze:
         """Generate maze using Prim's algorithm.
 
         Args:
-            starting_cell: Initial cell to start generation. If None, uses first cell.
+            starting_cell: Initial cell to start generation.
+            If None, uses first cell.
             animation: Whether to display generation animation.
             color: Color theme name for maze rendering.
 
         Note:
-            Creates a perfect maze using randomized Prim's spanning tree algorithm.
+            Creates a perfect maze using
+            randomized Prim's spanning tree algorithm.
         """
         frontier = []
         if starting_cell:
@@ -440,8 +451,8 @@ class Maze:
             cell.assign_hexa()
 
     def iterative_division(self,
-                      animation: float = False,
-                      color: str = "default") -> None:
+                           animation: float = False,
+                           color: str = "default") -> None:
         """Generate maze using iterative division algorithm.
 
         Args:
@@ -492,7 +503,6 @@ class Maze:
             if animation:
                 self.print_maze(color=color)
 
-
     def print_hexa_maze(self, file: TextIOWrapper | str) -> None:
         """Save maze as hexadecimal representation to file with solution path.
 
@@ -500,7 +510,8 @@ class Maze:
             file: File path string or open TextIOWrapper object for output.
 
         Note:
-            Encodes maze walls using hexadecimal digits and includes start position,
+            Encodes maze walls using hexadecimal digits
+            and includes start position,
             end position, and solution path directions (N/S/E/W).
         """
         path_string = ""
@@ -511,16 +522,21 @@ class Maze:
                 found = False
                 for n in self.visited_without_wall(curr_cell):
                     if n.footsteps == curr_cell.footsteps - 1:
-                        if n.row < curr_row: path_string += "N"
-                        elif n.row > curr_row: path_string += "S"
-                        elif n.col > curr_col: path_string += "E"
-                        elif n.col < curr_col: path_string += "W"
-
+                        if n.row < curr_row:
+                            path_string += "N"
+                        elif n.row > curr_row:
+                            path_string += "S"
+                        elif n.col > curr_col:
+                            path_string += "E"
+                        elif n.col < curr_col:
+                            path_string += "W"
                         curr_cell = n
                         curr_row, curr_col = n.row, n.col
                         found = True
                         break
-                if not found: break
+                if not found:
+                    break
+
         def _write_hexa(target: TextIOWrapper) -> None:
             for row in self.grid:
                 line = "".join(format(cell.hexa, "X") for cell in row)
@@ -540,7 +556,8 @@ class Maze:
                 _write_hexa(file)
                 file.flush()
             else:
-                raise ValueError("OUTPUT must be a file path or writable file object")
+                raise ValueError("OUTPUT must be a file path " +
+                                 "or writable file object")
         except Exception as e:
             print(f"Errore durante il salvataggio: {e}")
 

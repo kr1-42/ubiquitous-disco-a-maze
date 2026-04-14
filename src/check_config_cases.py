@@ -87,7 +87,8 @@ def check_exit(value: str, wh: MazeArgs) -> tuple[int, int] | str:
 
     Args:
         value: String in format 'x,y' representing exit coordinates.
-        wh: Maze arguments dictionary containing maze dimensions and entry point.
+        wh: Maze arguments dictionary
+            containing maze dimensions and entry point.
 
     Returns:
         Tuple of (x, y) coordinates as integers, or error message string.
